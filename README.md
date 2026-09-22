@@ -6,6 +6,27 @@ The original repository retains its history. Runtime agents, skills, templates a
 
 ## Build and Test
 
+### VS Code Container (WSL x86-64)
+
+Clone this repository into the WSL Linux filesystem (for example `~/src/apex-docs`, not `/mnt/c`).
+Enable Docker Desktop's WSL integration, open the folder through VS Code's WSL extension,
+and run **Dev Containers: Reopen in Container**. The host needs the WSL and Dev Containers extensions.
+
+The container supplies Node 24, Python 3.14 in an isolated virtual environment, Graphviz,
+Git/GitHub CLI, and Chromium with its Linux dependencies. Setup installs locked npm dependencies,
+diagram tooling and the pinned APEX source. It installs only Chromium, not additional browsers,
+and includes no Azure CLI, Terraform, Docker daemon or production credentials.
+
+Docs-focused VS Code extensions cover Astro, Markdown, YAML, Python, Playwright, Copilot and PR review.
+Existing VS Code Git credentials can be forwarded; no token or sign-in is required for the public source checkout.
+Initial setup requires network access and may take several minutes.
+
+Run `npm run dev -- --host 0.0.0.0` for the site; VS Code forwards port 4321.
+No server or deployment starts automatically. Rebuild the container after changing its Dockerfile or Playwright lock version.
+The **Docs Dev Container** CI job builds and tests this configuration on x86-64; ARM is not a supported target.
+
+### Local Toolchain
+
 ```bash
 npm ci
 npm run test:setup
