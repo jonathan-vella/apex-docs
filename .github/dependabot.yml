@@ -1,0 +1,19 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: tuesday
+    open-pull-requests-limit: 3
+    groups:
+      astro-ecosystem:
+        patterns:
+          - astro
+          - "@astrojs/*"
+          - "starlight*"
+          - "@starlight/*"
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

@@ -49,6 +49,8 @@ test("frontmatter and built routes preserve the original documentation URLs", ()
 });
 
 test("Explorer source and edit links use their correct repositories", () => {
+  assert.equal(fs.existsSync(path.join(source, "site/package.json")), false);
+  assert.equal(fs.existsSync(path.join(source, "site/public/architecture-explorer-graph.json")), false);
   const graph = JSON.parse(fs.readFileSync(path.join(root, "public/architecture-explorer-graph.json"), "utf8"));
   assert.equal(graph.sourceCommit, pin.commit);
   assert.ok(graph.nodes.length && graph.edges.length);
@@ -56,4 +58,25 @@ test("Explorer source and edit links use their correct repositories", () => {
     if (node.links?.source) assert.ok(node.links.source.includes(`/apex/blob/${pin.commit}/`));
   }
   assert.match(fs.readFileSync(path.join(root, "astro.config.mjs"), "utf8"), /apex-docs\/edit\/main\//);
+});
+
+test("documentation dependencies retain portable registry URLs and integrity", () => {
+  const lock = JSON.parse(fs.readFileSync(path.join(root, "package-lock.json"), "utf8"));
+  for (const [name, entry] of Object.entries(lock.packages)) {
+    if (!entry.resolved?.startsWith("https://")) continue;
+    assert.equal(new URL(entry.resolved).origin, "https://registry.npmjs.org", name);
+    assert.ok(entry.integrity, name);
+  }
+});
+
+test("repeated metadata exports are stable and never modify pinned APEX source", () => {
+  const target = path.join(root, "public/architecture-explorer-graph.json");
+  execFileSync(process.execPath, [path.join(root, "scripts/generate-metadata.mjs")], { cwd: root, stdio: "pipe" });
+  const first = fs.readFileSync(target, "utf8");
+  execFileSync(process.execPath, [path.join(root, "scripts/generate-metadata.mjs")], { cwd: root, stdio: "pipe" });
+  assert.equal(fs.readFileSync(target, "utf8"), first);
+  assert.equal(
+    execFileSync("git", ["status", "--porcelain", "--untracked-files=no"], { cwd: source, encoding: "utf8" }).trim(),
+    "",
+  );
 });
