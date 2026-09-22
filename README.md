@@ -18,6 +18,8 @@ npm run test:browser
 ```
 
 The build uses the exact APEX revision in [apex-source.json](apex-source.json), never an implicit parent checkout.
+Explorer generation uses the product's explicit `--output` interface and writes directly to this repository.
+The pinned APEX source contains no Astro site; schema validation runs against the exported graph before building.
 Tests also require Python 3.14 and Graphviz. Diagram regeneration runs in a temporary directory and never
 overwrites the byte-preserved imported images. The diagram source is an authored illustration, not generated
 directly from the workflow graph; source updates require review for semantic alignment.
