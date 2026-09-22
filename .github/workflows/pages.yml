@@ -1,4 +1,6 @@
-# Inactive until the separately approved Pages/domain cutover.
+# Publishes to https://apexops.pro. Live since the Pages/domain cutover
+# completed September 22, 2026 (see README#hosting-cutover); gated by the
+# DOCS_PUBLISH_ENABLED repository variable.
 name: Publish Documentation
 on:
   push:
