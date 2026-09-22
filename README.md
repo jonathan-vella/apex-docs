@@ -8,6 +8,7 @@ The original repository retains its history. Runtime agents, skills, templates a
 
 ```bash
 npm ci
+npm run test:setup
 npm run source:prepare
 npm run build
 npm run check:links
@@ -17,6 +18,9 @@ npm run test:browser
 ```
 
 The build uses the exact APEX revision in [apex-source.json](apex-source.json), never an implicit parent checkout.
+Tests also require Python 3.14 and Graphviz. Diagram regeneration runs in a temporary directory and never
+overwrites the byte-preserved imported images. The diagram source is an authored illustration, not generated
+directly from the workflow graph; source updates require review for semantic alignment.
 The source updater proposes reviewed changes from APEX main. Browser tests exercise desktop and mobile navigation,
 search, diagrams, Explorer metadata and downloads; CI retains reports and traces.
 
