@@ -2,6 +2,9 @@
 // Custom Footer for APEX docs
 import DemoNavigationEnhancer from "./DemoNavigationEnhancer.astro";
 import BackToTop from "./BackToTop.astro";
+import review from "../../docs-review.json";
+import source from "../../apex-source.json";
+import { SITE_BASE } from "../data/siteConfig.mjs";
 
 const gitSha = (import.meta.env.PUBLIC_GIT_SHA || "").slice(0, 7);
 const buildDate = import.meta.env.PUBLIC_BUILD_DATE || "";
@@ -16,7 +19,7 @@ const buildDate = import.meta.env.PUBLIC_BUILD_DATE || "";
       <a href="https://github.com/jonathan-vella/apex" target="_blank" rel="noopener noreferrer">
         APEX
       </a>
-      — Agentic Platform Engineering eXperience for Azure.
+      helps you plan and verify Azure infrastructure.
     </p>
     <p class="footer-meta">
       <a href="https://github.com/jonathan-vella/apex/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT License</a>
@@ -27,6 +30,19 @@ const buildDate = import.meta.env.PUBLIC_BUILD_DATE || "";
       <span class="footer-sep">·</span>
       Built with <a href="https://starlight.astro.build/" target="_blank" rel="noopener noreferrer">Starlight</a>
     </p>
+    <p class="footer-revision">
+      Guidance source:
+      <a href={`https://github.com/${review.apex.repository}/tree/${review.apex.commit}`}>
+        APEX {review.apex.commit.slice(0, 12)}
+      </a>.
+      Source-reviewed, not Azure execution-tested.
+      <a href={`${SITE_BASE}/guides/updating-apex/#documentation-compatibility`}>Compatibility and update guidance</a>
+    </p>
+    {source.commit !== review.apex.commit && (
+      <p class="footer-revision">
+        Explorer uses a different source revision. The guidance review has not advanced to that revision.
+      </p>
+    )}
     {gitSha && (
       <p class="footer-revision">
         <span class="footer-rev-pill">
@@ -57,12 +73,13 @@ const buildDate = import.meta.env.PUBLIC_BUILD_DATE || "";
 
   .footer-content a {
     color: var(--sl-color-gray-2);
-    text-decoration: none;
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
     transition: color 0.15s;
   }
 
   .footer-content a:hover {
-    color: var(--sl-color-accent);
+    color: var(--sl-color-accent-high);
   }
 
   .footer-meta {
