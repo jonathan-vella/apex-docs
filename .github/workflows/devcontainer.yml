@@ -1,0 +1,46 @@
+# Build the real WSL/x86 docs container and exercise its complete toolchain.
+name: Docs Dev Container
+on:
+  pull_request:
+    paths:
+      - ".devcontainer/**"
+      - ".dockerignore"
+      - ".github/workflows/devcontainer.yml"
+      - "package*.json"
+      - "apex-source.json"
+      - "scripts/**"
+      - "tests/**"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: docs-container-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+      - uses: devcontainers/ci@v0.3
+        with:
+          push: never
+          runCmd: |
+            set -euo pipefail
+            test "$(uname -m)" = x86_64
+            node --version
+            python3 --version
+            dot -V
+            gh --version
+            npm run build
+            npm run check:links
+            npm test
+            CI=true npm run test:browser
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: container-test-evidence
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
