@@ -1,6 +1,6 @@
 ---
 title: "Compliance & Cost"
-description: "GDPR compliance matrix with gap analysis and post-deployment cost baseline for the Malta catering workload"
+description: "April 2026 compliance & cost record. Preserved historical output, not current workflow guidance."
 sidebar:
   order: 3
 ---

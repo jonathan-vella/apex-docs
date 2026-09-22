@@ -1,6 +1,6 @@
 ---
 title: "Architecture Review"
-description: "Challenger Agent adversarial review of the architecture assessment for the Malta Catering demo project"
+description: "April 2026 architecture review record. Preserved historical output, not current workflow guidance."
 sidebar:
   order: 2
 ---

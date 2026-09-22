@@ -1,6 +1,5 @@
 ---
-// AgentChat — Visual mockup of AI agents orchestrating Azure infrastructure
-// Adapted from apex-microhack for the main project docs
+// Static example of a human-approved workflow.
 ---
 
 <div class="agent-chat">
@@ -11,21 +10,21 @@
         <span class="dot dot-yellow"></span>
         <span class="dot dot-green"></span>
       </div>
-      <span class="titlebar-text">GitHub Copilot Chat</span>
+      <span class="titlebar-text">Example workflow in GitHub Copilot Chat</span>
     </div>
     <div class="chat-body">
       <div class="chat-message user-message">
         <div class="message-label">YOU</div>
         <p>
-          I need Azure infrastructure for my project. Capture the requirements,
-          design a Well-Architected solution, and generate IaC templates.
+          Capture the requirements for my Azure project.
+          Ask me to review them before moving to architecture.
         </p>
       </div>
       <div class="chat-message agent-response">
         <div class="streaming-line" aria-hidden="true">
           <span class="streaming-line__prompt">copilot</span>
           <span class="streaming-line__text"
-            >Orchestrating specialized agents for your infrastructure</span
+            >Requirements are ready for your review</span
           >
         </div>
         <div class="agent-list">
@@ -34,32 +33,30 @@
             <div class="agent-item__body">
               <div class="agent-item__copy">
                 <strong class="agent-name" style="color: #78beff;">requirements</strong>
-                <span>capturing business and technical needs</span>
+                <span>workload goals and constraints recorded</span>
               </div>
               <span class="agent-state">done</span>
               <span class="agent-meter"><span style="width: 100%"></span></span>
             </div>
           </div>
           <div class="agent-item">
-            <span class="agent-check agent-check--active"></span>
+            <span class="agent-check"></span>
             <div class="agent-item__body">
               <div class="agent-item__copy">
                 <strong class="agent-name" style="color: #7ce8ff;">architecture</strong>
-                <span>designing the Well-Architected target state</span>
+                <span>select the Architect after approving requirements</span>
               </div>
-              <span class="agent-state">in progress</span>
-              <span class="agent-meter"><span style="width: 78%"></span></span>
+              <span class="agent-state">awaiting your handoff</span>
             </div>
           </div>
           <div class="agent-item">
-            <span class="agent-check agent-check--active"></span>
+            <span class="agent-check"></span>
             <div class="agent-item__body">
               <div class="agent-item__copy">
                 <strong class="agent-name" style="color: #52d9e2;">iac</strong>
-                <span>generating infrastructure templates and modules</span>
+                <span>code follows the approved design, governance, and plan</span>
               </div>
-              <span class="agent-state">in progress</span>
-              <span class="agent-meter"><span style="width: 63%"></span></span>
+              <span class="agent-state">not started</span>
             </div>
           </div>
           <div class="agent-item">
@@ -67,10 +64,9 @@
             <div class="agent-item__body">
               <div class="agent-item__copy">
                 <strong class="agent-name" style="color: #9ccfff;">validation</strong>
-                <span>running pre-flight checks and deployment validation</span>
+                <span>check current code and deployment inputs</span>
               </div>
-              <span class="agent-state">queued</span>
-              <span class="agent-meter"><span style="width: 34%"></span></span>
+              <span class="agent-state">not started</span>
             </div>
           </div>
           <div class="agent-item">
@@ -78,16 +74,15 @@
             <div class="agent-item__body">
               <div class="agent-item__copy">
                 <strong class="agent-name" style="color: #b79dff;">docs</strong>
-                <span>assembling runbooks, cost estimates, and as-built docs</span>
+                <span>record observed deployment results and unresolved issues</span>
               </div>
-              <span class="agent-state">queued</span>
-              <span class="agent-meter"><span style="width: 18%"></span></span>
+              <span class="agent-state">not started</span>
             </div>
           </div>
         </div>
         <div class="agent-status">
           <span class="status-dot"></span>
-          2 of 5 streams actively executing, shared delivery pipeline ready
+          You approve the output and select the next main agent.
         </div>
       </div>
     </div>
@@ -195,12 +190,7 @@
   .streaming-line__text {
     display: inline-block;
     max-width: 36ch;
-    white-space: nowrap;
-    overflow: hidden;
-    border-right: 1px solid rgba(124, 232, 255, 0.7);
-    animation:
-      typing 4.8s steps(56, end) infinite,
-      caret 0.9s step-end infinite;
+    white-space: normal;
   }
 
   .agent-list {

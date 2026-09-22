@@ -1,191 +1,108 @@
 ---
-title: "Session State Debugging"
-description: "Diagnose and recover from session state issues"
+title: "Session state debugging"
+description: "Inspect APEX session state and use authorized recovery without overwriting workflow evidence."
 ---
 
-> Diagnose and recover from session resume failures, stale locks, and corrupted state.
+Use `apex-recall` to inspect and update APEX session state. Do not edit
+`00-session-state.json` with `jq`, copy a backup over it, or delete it to bypass a
+blocked step.
 
-## Session State Overview
+The [public recall schema](https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/tools/apex-recall/docs/show-schema.md)
+defines the supported fields and recovery outcomes.
 
-Every workflow run maintains its progress in
-`agent-output/{project}/00-session-state.json`. This file tracks:
+<span id="session-state-overview"></span>
 
-- Which steps are complete, in progress, or pending
-- Sub-step checkpoints within each step
-- Decisions made during the workflow
+## Inspect the current state
 
-The schema version is declared in the `schema_version` field. New state files
-should use `schema_version: "3.0"` (the v2.0 lock/claim protocol was removed
-since VS Code Copilot executes agents serially).
-The authoritative schema definition is in
-`tools/schemas/session-state.schema.json` (managed by `apex-recall` CLI).
+Run from the project repository, replacing `my-project` with its project name:
 
-A human-readable companion file `00-handoff.md` summarises the same
-state for manual inspection.
-
-## Diagnostic Flowchart
-
-Use this decision tree when session resume is not working:
-
-```mermaid
-flowchart TD
-    A["Session resume not working?"] --> B{"Does 00-session-state.json exist?"}
-    B -- No --> C["Fresh start — file will be created automatically"]
-    B -- Yes --> D{"Is the file valid JSON?"}
-    D -- No --> E["Corrupted state — see Manual Recovery below"]
-    D -- Yes --> J{"Check steps.N.status"}
-    J --> K["pending → normal start"]
-    J --> L["in_progress → resume from sub_step checkpoint"]
-    J --> M["complete → step already done, move to next"]
+```bash
+apex-recall show my-project --json
 ```
 
-## Common Problems
+`show` reads primary state and the local artifact inventory. It does not restore a
+backup or rebuild the index. Missing primary state reports `state_status: "missing"`
+and an empty session. Corrupt state requires recovery rather than returning cached
+success.
 
-### Corrupted State File
+Use read-only queries to narrow the output:
 
-**Symptoms:** JSON parse errors, missing required fields, validator failures.
-
-**Fix:**
-
-1. Run the validator to identify the issue:
-
-   ```bash
-   npm run validate:session-state
-   ```
-
-2. If the file is unrecoverable, check for a backup:
-
-   ```bash
-   ls agent-output/{project}/00-session-state.json.bak
-   ```
-
-   If a `.bak` file exists, restore it:
-
-   ```bash
-   cp agent-output/{project}/00-session-state.json.bak agent-output/{project}/00-session-state.json
-   ```
-
-3. If no backup exists, rename the corrupt file and restart:
-
-   ```bash
-   cd agent-output/{project}
-   mv 00-session-state.json 00-session-state.json.corrupt
-   ```
-
-   The Orchestrator creates a fresh v3.0 state file on the next run.
-   All steps reset to `pending`.
-
-:::tip[Prevention]
-The `apex-recall` CLI uses atomic writes (write to `.tmp`, rename to target,
-keep `.bak` of previous version) to prevent corruption during agent crashes.
-:::
-
-### Missing Steps
-
-**Symptoms:** Orchestrator skips a step or reports it as already complete
-when it was never run.
-
-**Fix:**
-
-1. Inspect the step status:
-
-   ```bash
-   jq '.steps' agent-output/{project}/00-session-state.json
-   ```
-
-2. Reset the step to `pending`:
-
-   ```bash
-   jq '.steps."4".status = "pending" | .steps."4".sub_step = null' \
-     agent-output/{project}/00-session-state.json > tmp.json
-   mv tmp.json agent-output/{project}/00-session-state.json
-   ```
-
-### Schema Version Mismatch
-
-**Symptoms:** Validator warns about unknown fields or deprecated lock/claim
-structure.
-
-The v3.0 schema removed the `lock` and `claim` fields (previously in v2.0).
-If you encounter a v1.0 or v2.0 state file, the Orchestrator will attempt to
-migrate it automatically. If it fails, create a fresh state file.
-
-## Decision Logging
-
-The `decisions` object in the session state tracks key choices made
-during the workflow:
-
-```json
-{
-  "decisions": {
-    "iac_tool": "bicep",
-    "primary_region": "swedencentral",
-    "complexity": "standard"
-  }
-}
+```bash
+apex-recall show my-project --json |
+  jq '.session.steps // {}'
 ```
 
-Write decisions at the moment they are made (Step 1 for `iac_tool`,
-Step 2 for architecture choices). The Orchestrator and downstream agents
-read these to route workflow steps correctly.
+Step keys are strings such as `"1"`, `"3_5"`, and `"6"`. The public `iac_tool`
+values are `"Bicep"` and `"Terraform"`. Do not infer a review approval from a step
+number, an artifact filename, or the presence of a prior result.
 
-The `decision_log` array provides an append-only audit trail:
+<span id="diagnostic-flowchart"></span>
+<span id="common-problems"></span>
 
-```json
-{
-  "decision_log": [
-    {
-      "step": 1,
-      "key": "iac_tool",
-      "value": "bicep",
-      "reason": "Team preference and existing Bicep expertise"
-    }
-  ]
-}
+## Interpret a failed write
+
+| Outcome | Meaning | Next action |
+|---|---|---|
+| Conflict, exit 2 | The writer detected competing state or changed watched inputs and did not replace primary state. | Preserve the error, read the current state, and resolve the competing work before retrying. |
+| `committed_but_index_stale`, exit 3 | The primary write committed, but the index update failed. | Follow the command's explicit reindex instructions. Do not repeat the mutation as if nothing happened. |
+| `already_applied` | An identical validated operation was already recorded. | Inspect the recorded result rather than forcing the step to run again. |
+| Recovery required | Primary state is missing or damaged and cannot support the requested operation. | Preserve evidence and obtain explicit owner authorization for recovery. |
+
+`reindex` repairs a derived index. It does not roll state back or grant permission
+to complete a step.
+
+<span id="corrupted-state-file"></span>
+
+## Recover damaged state
+
+Only use recovery after the project owner authorizes that operation. Record the
+actual authorization as the reason:
+
+```bash
+apex-recall recover-state my-project \
+  --reason "Owner authorized restoring this project's damaged primary state" \
+  --json
 ```
 
-## Context Budget Strategy
+The command refuses healthy primary state, validates backup identity and shape,
+preserves damaged bytes and the good backup, and appends a recovery audit.
+It does not approve the project, its reviews, or a deployment.
 
-Each step has a **file load budget** — a hard limit on how many files
-the agent loads at startup. This prevents context window exhaustion:
+If a crashed process left a handoff-renderer lock, investigate it with the owner.
+Do not remove it merely because it looks old.
 
-| Step             | Budget    | Files Loaded                          |
-| ---------------- | --------- | ------------------------------------- |
-| 1 (Requirements) | 1-2 files | Session state only                    |
-| 2 (Architecture) | 2-3 files | Requirements + session state          |
-| 4 (Plan)         | 2-3 files | Architecture + governance constraints |
-| 5 (Code)         | 1-2 files | Implementation plan                   |
+<span id="missing-steps"></span>
+<span id="schema-version-mismatch"></span>
 
-Excess files are loaded on demand via progressive disclosure. If resume
-is slow, check whether `context_files_used` in the session state lists
-more files than the step's budget allows.
+## Resume a blocked step
+
+Read the failure, the current state, and the step's required artifacts. Use the
+owning main agent to resolve missing or outdated evidence. Review selections and
+completion are revalidated when the workflow resumes.
+
+Do not use older writers against projects that rely on newer selection or conflict
+rules. Preserve evidence and resolve version changes through reviewed source
+changes rather than an automatic state migration.
+
+## Decision logging
+
+Record decisions through the supported recall commands and the owning agent's
+workflow. Use `apex-recall decide --help` to inspect the installed interface.
+A decision record must reflect an actual owner decision, not an inferred approval.
+
+## Context budget strategy
+
+Read the current state and the relevant artifacts rather than pasting the entire
+project history into a new chat. Keep the task, unresolved findings, and required
+inputs explicit. A short handoff still needs the evidence required by its step.
 
 ## Validators
 
-Two validators check session state integrity:
-
-```bash
-# Validate JSON schema compliance
-npm run validate:session-state
-
-# Validate for deprecated lock/claim fields
-npm run validate:session-state
-```
-
-Run these after manual edits to the state file to ensure consistency.
-
----
-
-:::tip[Further Reading]
-
-- [Workflow](../../concepts/workflow/) — the multi-step agent workflow and approval gates
-- [Troubleshooting](../troubleshooting/) — common agent issues and solutions
-- [Validation & Linting](../../reference/validation-reference/) — all validation scripts
-
-:::
+Use the product's `npm run validate:session-state` and the step-specific validators
+as documented in [validation reference](/reference/validation-reference/).
+Do not modify state to make a validator pass without resolving its finding.
 
 ## Related
 
-- [Quickstart](../../getting-started/quickstart/) — install and run your first project
-- [Workflow](../../concepts/workflow/) — how agents collaborate across steps
-- [Troubleshooting](../troubleshooting/) — diagnose failed deploys
+For tool or authentication failures, use [troubleshooting](/guides/troubleshooting/).
+For agent execution evidence, use [debug log export](/guides/apex-debug-log-export/).

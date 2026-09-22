@@ -1,6 +1,6 @@
 ---
-title: "Skill and Subagent Reference"
-description: "Complete skills and subagent reference"
+title: "Skills and subagents"
+description: "Selected product skills, their invocation boundaries, and validation helpers."
 ---
 
 ## Skills
@@ -26,8 +26,8 @@ Use the apex-agent-authoring skill to reduce the fixed context cost of
 ### apex-azure-defaults
 
 Provides regions, tags, naming conventions, AVM module references, and
-security baselines. This is the foundational skill — agents read it before
-every task.
+security baselines. Relevant agents read it under their task instructions.
+Effective Azure Policy takes precedence over fallback defaults.
 
 ```text
 @workspace What are the default required tags from apex-azure-defaults?
@@ -94,15 +94,9 @@ Label it with 'enhancement' and 'infrastructure'.
 
 ### apex-docs-writer
 
-Maintains documentation and owns doc gardening, docs peer review, and Astro docs review.
-Manual-only: invoke `/apex-docs-writer` or explicitly select its documentation prompt adapter.
-Routine changes still require documentation updates under the file instructions; no automatic skill load is needed.
-Peer review is read-only; Astro review is report-only unless `--apply-fixes` explicitly
-enables its narrow allow-list. Quality-score and debt updates require human review.
-
-```text
-/apex-docs-writer Update the docs to reflect the new Diagnose agent we added.
-```
+This historical product skill is retired at the site's source pin. Published
+documentation belongs to apex-docs. Use its [writing guide](/project/style-guide/)
+and checked-in `unslop` skill instead of invoking an absent product docs procedure.
 
 ### apex-vendor-prompting
 
@@ -191,7 +185,7 @@ Machine-readable workflow DAG for the multi-step pipeline. Defines node
 types, edge conditions, gates, and fan-out patterns. Owns shared workflow entry and
 recovery. On Host, select `01-Orchestrator`, invoke `apex-host-workflow-start`, and
 explicitly choose `resume` to recover an existing project. It does not approve or
-advance gates automatically. Docs procedures belong to `apex-docs-writer`.
+advance gates automatically. Site writing procedures belong to apex-docs.
 
 ```text
 @workspace Show the workflow graph edges and gate conditions.
@@ -200,15 +194,14 @@ advance gates automatically. Docs procedures belong to `apex-docs-writer`.
 ## Subagents
 
 :::note[Not user-invocable]
-Subagents are delegated to automatically by parent agents. You cannot
-select them from the agent picker (`Ctrl+Shift+A`). See
+The owning agent calls permitted helpers for bounded tasks. Main agents,
+including Challenger, are not part of this helper delegation. See
 [Workflow Prompts](/reference/prompts/workflow-prompts/) for end-user scenarios.
 :::
 
-Subagents are called automatically by the **Bicep CodeGen**, **Terraform CodeGen**,
-**Bicep Deploy**, **Terraform Deploy**, **Architect**, and **IaC Planner** agents.
-You do not invoke them directly, but understanding their output helps you
-interpret validation results.
+Check the selected parent's tool and helper declarations. A listed relationship
+does not establish that a helper ran. Use the pinned
+[Explorer](/reference/architecture-explorer/) for the full inventory.
 
 ### bicep-validate-subagent
 
@@ -240,22 +233,23 @@ and returns a structured change summary.
 Queries Azure Resource Manager MCP for retail SKU pricing. Compares regions
 and returns a structured cost breakdown.
 
-## When Validation Fails
+## When validation fails
 
-Use the parent agent to repair the artifact that failed validation or preview.
+Return the failure to the step that owns the artifact. A Deploy agent does not
+repair generated IaC itself.
 
 1. Copy the exact failing output from `bicep build`, `terraform validate`,
    `what-if`, or `terraform plan`.
-2. Re-run the parent step with that output and the path to the affected artifact.
+2. Select the owning main agent with that output and the affected artifact path.
 3. Re-check the generated files before moving to the next gate.
 
 For environment or auth failures, start with
 [Troubleshooting](/guides/troubleshooting/) and
 [Validation & Linting](/reference/validation-reference/).
 
-## Tips and Patterns
+## Tips and patterns
 
-### Context Priming
+### Context priming
 
 :::tip[Open Files Before Prompting]
 Open relevant artifact files before starting a complex workflow step.
@@ -269,7 +263,7 @@ Before starting a complex workflow, open relevant files so Copilot has context:
 2. Open the architecture assessment (`02-architecture-assessment.md`)
 3. Then ask the IaC Planner agent to create the implementation plan
 
-### Chaining Agents
+### Chaining agents
 
 You can chain agents manually by using handoff buttons in the chat, or run
 the Orchestrator for automatic orchestration. Manual chaining gives you more
@@ -284,11 +278,11 @@ control over each step.
 5. Run **Bicep Deploy** → review what-if before approving deployment
 6. Run **As-Built** → generate post-deployment documentation
 
-## Next Steps
+## Next steps
 
-- [Workflow Prompts](/reference/prompts/workflow-prompts/) — follow the step-by-step workflow templates
-- [Troubleshooting](/guides/troubleshooting/) — recover from validation, auth, and setup failures
-- [Validation & Linting](/reference/validation-reference/) — understand the checks behind each gate
+- [Workflow Prompts](/reference/prompts/workflow-prompts/). follow the step-by-step workflow templates
+- [Troubleshooting](/guides/troubleshooting/). recover from validation, auth, and setup failures
+- [Validation & Linting](/reference/validation-reference/). understand the checks behind each gate
 
 **Terraform track**:
 
@@ -299,7 +293,7 @@ control over each step.
 5. Run **Terraform Deploy** → review plan output before applying
 6. Run **As-Built** → generate post-deployment documentation
 
-### Recovering from Errors
+### Recovering from errors
 
 If an agent produces incorrect output, use specific follow-up prompts:
 
@@ -308,7 +302,7 @@ The VNet address space conflicts with our on-premises range (10.0.0.0/8).
 Change the hub VNet to 172.16.0.0/16 and spoke VNets to 172.17.0.0/16.
 ```
 
-### Working with Existing Infrastructure
+### Working with existing infrastructure
 
 Agents can work with existing deployments, not just greenfield projects:
 

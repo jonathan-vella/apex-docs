@@ -1,6 +1,6 @@
 ---
 title: "Compliance & Security"
-description: "Regulatory frameworks, data residency, authentication, and network security requirements for the Malta catering app"
+description: "April 2026 compliance & security record. Preserved historical output, not current workflow guidance."
 sidebar:
   order: 3
 ---

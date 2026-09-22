@@ -1,35 +1,27 @@
 ---
 title: "Architecture Explorer"
-description: "Two readable views over the APEX architecture — a Step 1→7 workflow timeline and a searchable agent card grid — generated from source files on every site build."
+description: "Inspect the pinned APEX source through a workflow timeline and searchable metadata grid."
 ---
 
-The **Architecture Explorer** is a live map of every moving part in APEX —
-agents, subagents, skills, instructions, prompts, validators, CI workflows,
-and MCP servers — with the relationships between them.
+Architecture Explorer displays agents, helpers, skills, instructions, prompts,
+validators, workflows, and MCP servers from the product revision pinned by this site.
 
-The graph is regenerated from source files
-(`.github/agents`, `.github/skills`, `.github/instructions`,
-`.vscode/mcp.json`, `package.json`, and more) on every site build, so
-category counts always reflect the current repo state — never hard-coded.
+The build generates the graph from the APEX checkout selected by `apex-source.json`.
+It is not a live runtime trace or a map of the apex-docs checkout.
 
-The explorer ships two readable lenses over that data:
+The explorer has two views:
 
-- **Workflow Timeline** — Step 1 → Step 7 as horizontal cards with the
-  agent, model, primary skills, and gates between them. Best for
-  storytelling and onboarding.
-- **Agent Grid** — searchable, filterable card grid of every agent,
-  subagent, skill, instruction, validator, and MCP server. Best for
-  reference and deep linking.
+- Workflow Timeline shows step owners, declared models, skill references, and gates.
+- Agent Grid lets you search and filter the generated inventory.
 
-Click any card to open a side drawer with the full edge list (skills used,
-subagents called, hand-off targets, incoming + outgoing edges) and a
-deep link to the source file on GitHub.
+Select a card with the pointer, Enter, or Space to inspect its metadata and
+relationships. Source links point to the pinned GitHub revision.
 
 <iframe
   src="/architecture-explorer.html"
   style="width:100%;height:88vh;border:1px solid var(--sl-color-gray-5);border-radius:0.75rem;"
   loading="lazy"
-  title="Architecture Explorer — Workflow Timeline and Agent Grid"
+  title="Architecture Explorer timeline and grid"
 ></iframe>
 
 <small style="display: block; margin-top: 0.5rem; color: var(--sl-color-gray-3);">
@@ -42,23 +34,16 @@ deep link to the source file on GitHub.
 
 ## How to use the explorer
 
-Pick the lens that matches your goal:
+Use the timeline for step ownership. Use the grid to inspect an agent, skill,
+instruction, workflow, or validator. Category filters narrow the inventory;
+search finds names and descriptions.
 
-- **New contributor** — start with the Workflow Timeline to see the Step 1 → 7
-  flow at a glance, then drill into any agent.
-- **Architect / reviewer** — switch to the Agent Grid, filter to `agent`
-  and `subagent`, and click a card to see exact hand-off and delegation
-  edges.
-- **Skill builder** — Agent Grid with `skill` + `instruction` filters
-  shows the knowledge layer; cross-reference with
-  [Skills & Instructions](/concepts/how-it-works/skills-and-instructions/).
-- **CI maintainer** — Agent Grid with `workflow` + `validator` filters
-  shows which hooks back which scripts.
+When a card opens, focus moves into the drawer. Tab and Shift+Tab stay inside it.
+Escape closes it and returns focus to the initiating card.
 
 ## Node categories
 
-Colours come straight from the generated graph JSON, so the legend in the
-explorer is always authoritative. The categories tracked are:
+The view uses category colors and text labels. The generated categories include:
 
 - Agent, Subagent, Skill, Instruction, Prompt, Validator, CI Workflow, MCP
   Server.
@@ -69,7 +54,7 @@ explorer is always authoritative. The categories tracked are:
 | ------------ | ----------------------------------------------------------- |
 | `handsOff`   | Workflow hand-off between agents (`handoffs:` frontmatter). |
 | `delegates`  | Agent delegates to a subagent (`agents:` frontmatter).      |
-| `usesSkill`  | Agent uses a primary skill (always loaded).                 |
+| `usesSkill`  | Source declares a primary skill reference.                 |
 | `usesSkill?` | Agent uses a secondary skill (on-demand).                   |
 | `invokes`    | Prompt invokes an agent (name-matched).                     |
 | `appliesTo`  | Instruction applies to an agent/skill/prompt type.          |
@@ -77,8 +62,7 @@ explorer is always authoritative. The categories tracked are:
 | `usesMcp`    | Agent uses an MCP server (referenced in body).              |
 | `references` | Skill references another skill (e.g. routing/delegation).   |
 
-Hover any card to see its name and category; click to open the detail
-drawer with the full edge list.
+The drawer shows source relationships, not proof that a tool or skill ran.
 
 ## Data source
 
@@ -97,11 +81,13 @@ neither graph metadata nor model labels grant permissions or prove model availab
 Production agents remain human-selected. The graph schema covers visualization metadata
 only and does not change artifact contracts.
 
-Both explorer views consume `site/public/architecture-explorer-graph.json`,
-generated by `node tools/scripts/generate-explorer-graph.mjs` (wired into
-the site `prebuild` hook) and validated by
-`npm run validate:explorer-graph`. If the data looks stale, run the
-generator locally and commit the result.
+Both views consume `public/architecture-explorer-graph.json` in apex-docs.
+`scripts/generate-metadata.mjs` invokes the pinned product's generator and validator
+during `prebuild`. It records the source commit and produces immutable source links.
+
+To refresh the data, review the proposed `apex-source.json` change, prepare that
+source, and run the normal build and tests. Do not hand-edit the graph or assume
+moving product main changes it automatically.
 
 ## Next steps
 

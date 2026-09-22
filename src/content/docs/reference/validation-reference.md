@@ -1,18 +1,25 @@
 ---
-title: "Validation and Linting Reference"
-description: "All validation scripts, linting, and CI workflows"
+title: "Validation and linting"
+description: "Separate APEX product checks from documentation-site builds and verify the scope of each result."
 ---
 
-> Central reference for all validation scripts, linting commands, git hooks, and CI workflows.
+This page describes selected commands from the pinned APEX product. Run them in
+that checkout, not apex-docs. The current `package.json`, hook configuration,
+and CI files determine exact coverage.
+
+For this documentation site, use `npm run build`, `npm run check:links`,
+`npm test`, and `npm run test:browser`. The build uses the Linux toolchain and
+prepared pinned product metadata. The link checker validates routes and fragments.
+Use `npm run check:external-links` separately for external destinations.
 
 :::tip[Quick reference]
 
 - Pre-commit runs the fastest, file-scoped checks (`markdown-lint`,
   `agents`, `iac-security-baseline`, …).
-- `npm run validate:all` is the canonical “run everything locally” entry
+- `npm run validate:all` is the product's broad local validation entry
   point.
-- CI re-runs the full suite on every PR and push to `main`. A green
-  pre-push hook is a strong predictor of green CI.
+- CI uses its configured suites and path filters. A passed local hook does not
+  establish that all CI or runtime checks passed.
 - All hooks are defined in [`lefthook.yml`](https://github.com/jonathan-vella/apex/blob/main/lefthook.yml).
 
 :::
@@ -23,7 +30,7 @@ description: "All validation scripts, linting, and CI workflows"
 [CI Workflows](#ci-workflows) ·
 [Running Locally](#running-validations-locally)
 
-## Validation Architecture
+## Validation architecture
 
 ### Stabilization checks
 
@@ -74,15 +81,15 @@ flowchart LR
     style C fill:#ffebee,stroke:#f44336,color:#000
 ```
 
-1. **Pre-commit** — serialized checks; publication Markdown/artifact checks use the staged index
-2. **Pre-push** — validates all changed files vs `main` (domain-scoped, parallel)
-3. **CI** — validates the full repository on every PR and push to `main`
+1. Pre-commit runs configured checks. Publication Markdown/artifact checks use the staged index.
+2. Pre-push selects domain checks for changed files.
+3. CI runs the suites and filters declared by the current workflow.
 
-## Lefthook Hooks
+## Lefthook hooks
 
 All hooks are defined in `lefthook.yml` at the repository root.
 
-### Pre-Commit Hooks
+### Pre-commit hooks
 
 Markdown and artifact checks run through `node tools/scripts/check-publication-scope.mjs markdown|artifacts`.
 They materialize an isolated index snapshot, so partially staged files are checked as committed. Unrelated untracked
@@ -93,7 +100,6 @@ propagate without filtering away exit codes. These checks never format, stage or
 | Hook                    | Trigger (glob)                                      | Purpose                                               |
 | ----------------------- | --------------------------------------------------- | ----------------------------------------------------- |
 | `markdown-lint`         | `*.md`                                              | markdownlint on staged markdown files                 |
-| `link-check`            | `site/src/content/docs/**/*.{md,mdx}`               | Verify URLs in staged docs files                      |
 | `artifact-validation`   | Staged artifacts, templates, guidance and validators | H2/template and review presence checks on tracked snapshot |
 | `agents`                | `**/*.agent.md`, `**/*.prompt.md`                   | Agent frontmatter, model alignment, body size         |
 | `instructions`          | `**/*.instructions.md`, agents, skills              | Instruction frontmatter and cross-reference validity  |
@@ -103,13 +109,13 @@ propagate without filtering away exit codes. These checks never format, stage or
 | `terraform-validate`    | `*.tf`                                              | Terraform validation per project                      |
 | `iac-security-baseline` | `infra/bicep/**/*.bicep`, `infra/terraform/**/*.tf` | TLS 1.2, HTTPS-only, no public blob, managed identity |
 
-### Commit-Msg Hook
+### Commit-msg hook
 
 | Hook         | Purpose                                                                     |
 | ------------ | --------------------------------------------------------------------------- |
 | `commitlint` | Enforce [Conventional Commits](https://www.conventionalcommits.org/) format |
 
-### Pre-Push Hooks
+### Pre-push hooks
 
 | Hook               | Purpose                                             |
 | ------------------ | --------------------------------------------------- |
@@ -117,11 +123,11 @@ propagate without filtering away exit codes. These checks never format, stage or
 | `branch-scope`     | Validate domain branches only modify in-scope files |
 | `diff-based-check` | Run domain-scoped validators for changed file types |
 
-## Validation Scripts
+## Validation scripts
 
 All scripts are in the `tools/scripts/` directory. Run via `npm run <command>`.
 
-### Architecture and Registry Validators
+### Architecture and registry validators
 
 | npm Command                   | Script                            | Purpose                                        |
 | ----------------------------- | --------------------------------- | ---------------------------------------------- |
@@ -132,13 +138,13 @@ All scripts are in the `tools/scripts/` directory. Run via `npm run <command>`.
 | `validate:agent-registry`     | `validate-agent-registry.mjs`     | Agent registry consistency                     |
 | `validate:workflow-graph`     | `validate-workflow-graph.mjs`     | DAG integrity (no orphans, no cycles)          |
 
-### Artifact and Template Validators
+### Artifact and template validators
 
 | npm Command          | Script                   | Purpose                                                   |
 | -------------------- | ------------------------ | --------------------------------------------------------- |
 | `validate:artifacts` | `validate-artifacts.mjs` | H2 sync, template compliance, and auto-fix (with `--fix`) |
 
-### Governance and Compliance Validators
+### Governance and compliance validators
 
 | npm Command                      | Script                               | Purpose                                                      |
 | -------------------------------- | ------------------------------------ | ------------------------------------------------------------ |
@@ -147,13 +153,13 @@ All scripts are in the `tools/scripts/` directory. Run via `npm run <command>`.
 | `lint:deprecated-refs`           | `validate-no-deprecated-refs.mjs`    | Block deprecated API/pattern references                      |
 | `validate:iac-security-baseline` | `validate-iac-security-baseline.mjs` | IaC security baseline (TLS, HTTPS, blob, identity, SQL auth) |
 
-### Session and State Validators
+### Session and state validators
 
 | npm Command              | Script                       | Purpose                                                   |
 | ------------------------ | ---------------------------- | --------------------------------------------------------- |
 | `validate:session-state` | `validate-session-state.mjs` | Schema validation + deprecated lock/claim field detection |
 
-### Quality and Cross-Reference Validators
+### Quality and cross-reference validators
 
 | npm Command             | Script                          | Purpose                            |
 | ----------------------- | ------------------------------- | ---------------------------------- |
@@ -163,7 +169,7 @@ All scripts are in the `tools/scripts/` directory. Run via `npm run <command>`.
 | `validate:retirement-scan` | `audit-retirement-candidates.mjs` | Tracked-file census and schema checks |
 | `lint:version-sync`     | `validate-version-sync.mjs`     | Version consistency across files   |
 
-### Configuration Validators
+### Configuration validators
 
 | npm Command       | Script                       | Purpose                           |
 | ----------------- | ---------------------------- | --------------------------------- |
@@ -172,21 +178,20 @@ All scripts are in the `tools/scripts/` directory. Run via `npm run <command>`.
 | `test:hooks`      | `test-hooks.sh`              | Hook integration tests (bats)     |
 | `lint:mcp-config` | `validate-mcp-config.mjs`    | MCP server configuration validity |
 
-### Code and Format Linters
+### Code and format linters
 
 | npm Command          | Tool                | Purpose                                                  |
 | -------------------- | ------------------- | -------------------------------------------------------- |
 | `lint:md`            | markdownlint-cli2   | Markdown formatting and style                            |
 | `format:check`       | Prettier            | Code formatting (JS/JSON/CSS; markdown via markdownlint) |
-| `lint:links`         | markdown-link-check | URL validity in all markdown files                       |
-| `lint:links:docs`    | markdown-link-check | URL validity in site docs                                |
+| `lint:links`         | `check-repository-links.mjs` | Product repository link checks                     |
 | `lint:json`          | `lint-json.mjs`     | JSON/JSONC syntax validation                             |
 | `lint:python`        | ruff                | Python code quality (`tools/apex-recall/`)               |
 | `lint:terraform-fmt` | terraform fmt       | Terraform formatting compliance                          |
 | `lint:bicep-fmt`     | bicep format        | Bicep formatting compliance (no-op when no projects)     |
 | `validate:terraform` | terraform validate  | Terraform validation per project                         |
 
-### Aggregate Commands
+### Aggregate commands
 
 | npm Command          | Purpose                                       |
 | -------------------- | --------------------------------------------- |
@@ -202,14 +207,14 @@ All scripts are in the `tools/scripts/` directory. Run via `npm run <command>`.
 > `validate:_external` is a **local-developer** aggregate (run all external-tool
 > linters in one shot). In CI its members are gated individually so coverage does
 > not depend on the aggregate: `lint:md` and `format:check` run in `ci.yml`,
-> `lint:python` runs in the `ci.yml` external-tests job, `lint:terraform-fmt` /
-> `lint:bicep-fmt` / `validate:terraform` run in `iac-checks.yml`, and the site
-> link check runs in `docs-checks.yml`.
+> `lint:python` runs in the `ci.yml` external-tests job. Inspect current workflow
+> steps for the remaining external checks; do not assume a retired `iac-checks.yml`
+> still runs them. Site checks belong to the separate apex-docs repository.
 
 `validate:_node:legacy` and `validate:_node-ci:legacy` retain the former
 unbounded `run-p` aggregates as rollback and benchmark baselines.
 
-### Agent-Invoked IaC Validators (runtime, not CI)
+### Agent-invoked IaC validators (runtime, not CI)
 
 These validators are run **by agents during the workflow** against generated
 artifacts (Steps 4–6), not by lefthook or CI. They have no committed inputs on
@@ -223,21 +228,21 @@ artifacts (Steps 4–6), not by lefthook or CI. They have no committed inputs on
 | `validate:environment-manifest`      | 05-IaC Planner                      | `04-environment-manifest.json`     |
 | `validate:policy-property-map`       | 05-IaC Planner                      | `04-policy-property-map.json`      |
 
-## CI Workflows
+## CI workflows
 
 All workflows are in `.github/workflows/`.
 
 | Workflow                  | File                            | Trigger                      | Purpose                                                                                            |
 | ------------------------- | ------------------------------- | ---------------------------- | -------------------------------------------------------------------------------------------------- |
 | CI                     | `ci.yml`                        | PR to `main`, push to `main` | Full validation suite (markdown, Prettier, agents, skills, hooks, bats tests, MCP, VS Code config) + Python ruff in the external-tests job |
-| IaC Checks                | `iac-checks.yml`                | `infra/**` changes           | Terraform fmt/validate + Bicep format (path-filtered; no-op until IaC is committed)                |
 | Branch Enforcement        | `branch-enforcement.yml`        | PR to `main`                 | Branch naming convention and scope validation                                                      |
-| Link Check                | `link-check.yml`                | Docs changes                 | URL validity in documentation                                                                      |
-| Docs                      | `docs.yml`                      | Docs changes                 | Build and deploy Astro Starlight site                                                              |
-| Weekly Maintenance        | `weekly-maintenance.yml`        | Scheduled (weekly)           | Freshness audits, orphaned content, glob audit                                                     |
-| Azure Deprecation Tracker | `azure-deprecation-tracker.yml` | Scheduled                    | Track Azure service deprecations                                                                   |
+| Consumer Template Checks | `consumer-template-checks.yml` | Configured template checks | Validate consumer-template behavior |
+| Dev Container Base Validation | `validate-devcontainer-base.yml` | Relevant PR changes or manual dispatch | Compare candidate container bases on native architectures |
 
-## Running Validations Locally
+The apex-docs repository owns the site's build and publishing workflows.
+Product validation does not publish documentation.
+
+## Running validations locally
 
 ```bash
 # Run everything
@@ -258,8 +263,8 @@ npm run lint:python:fix            # Fix Python lint issues
 
 :::tip[Further Reading]
 
-- [Contributing](../../project/contributing/) — branch naming and commit conventions
-- [Agent Hooks](../../guides/hooks/) — VS Code agent hooks (lifecycle automation)
-- [Workflow Validation](../../guides/e2e-testing/) — focused checks and manual acceptance
+- [Contributing](../../project/contributing/). branch naming and commit conventions
+- [Agent Hooks](../../guides/hooks/). VS Code agent hooks (lifecycle automation)
+- [Workflow Validation](../../guides/e2e-testing/). focused checks and manual acceptance
 
   :::

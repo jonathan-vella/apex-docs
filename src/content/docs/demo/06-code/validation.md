@@ -1,6 +1,6 @@
 ---
 title: "Validation Results"
-description: "Bicep build, lint, and security baseline validation results plus preflight AVM checks for the Malta catering infrastructure"
+description: "April 2026 validation results record. Preserved historical output, not current workflow guidance."
 sidebar:
   order: 2
 ---

@@ -1,387 +1,167 @@
 ---
 title: "Quickstart"
-description: "Get started with APEX in minutes"
+description: "Create an APEX project from the Accelerator template and start a human-approved infrastructure workflow."
 ---
 
-<img src="/images/hero-quickstart.jpg"
-    width="100%" height="250" style="object-fit: cover; border-radius: 10px;"
-    alt="Getting started with development tools"/>
+Start from the [APEX Accelerator template](https://github.com/jonathan-vella/apex-accelerator),
+not the documentation repository. You will create a repository, open its development
+container, and ask the Requirements agent to capture your workload.
 
-Get running in 10 minutes.
+This guide targets x86-64 Windows with WSL2 and VS Code Dev Containers.
+It does not deploy Azure resources.
 
-:::note[Template repository]
-You do **not** clone this repository directly. Instead, you create your own
-repository from the
-[Accelerator template](https://github.com/jonathan-vella/apex-accelerator),
-which gives you a clean starting point with all agents, skills, and dev container
-configuration ready to go.
-:::
+If you already have a project, use [Updating APEX](/guides/updating-apex/) to
+compare its configuration with this guidance before following new instructions.
 
 ## Prerequisites
 
-:::note[What you need]
-Items marked ⭐ are required for learning. An Azure subscription is optional — you only need it
-when deploying to Azure in Step 6.
-:::
+| Requirement | Check |
+|---|---|
+| GitHub account and access to Copilot in VS Code | Confirm that Chat works and your account or organization permits the models selected by the APEX agents. |
+| VS Code with WSL and Dev Containers extensions | Open the repository through the WSL extension. |
+| WSL2 and a running Docker-compatible engine | Use Docker Desktop with integration enabled for your WSL distribution. |
+| Git in WSL | Run `git --version`. |
+| Azure access for scoped discovery and deployment | Prepare the correct tenant, subscription, and permissions before work that requires them. |
 
-| Requirement                | How to Get                                                                               |
-| -------------------------- | ---------------------------------------------------------------------------------------- |
-| ⭐ GitHub account          | [Sign up](https://github.com/signup)                                                     |
-| ⭐ GitHub Copilot license  | Business or Enterprise required — [see plans](https://github.com/features/copilot/plans) |
-| ⭐ GitHub fine-grained PAT | Required for devcontainer GitHub auth via `GH_TOKEN`                                     |
-| ⭐ VS Code                 | [Download](https://code.visualstudio.com/)                                               |
-| ⭐ Docker Desktop          | [Download](https://www.docker.com/products/docker-desktop/)                              |
-| Azure subscription         | Optional — required only for Step 6 deployment                                           |
+Copilot has individual and organization plans. Check [current plan entitlements](https://docs.github.com/en/copilot/get-started/plans)
+and your organization's model policy rather than assuming a Business or Enterprise
+license is always required.
 
-:::note[Docker is required]
-A Docker-compatible runtime is needed for the dev container. [Docker Desktop](https://www.docker.com/products/docker-desktop/)
-is the most common choice. Free alternatives include [Rancher Desktop](https://rancherdesktop.io/),
-[Colima](https://github.com/abiosoft/colima) (macOS), and [Podman](https://podman.io/) (Linux/macOS).
-See [Dev Container Setup](../dev-containers/) for detailed installation options.
-:::
+A GitHub PAT is optional. It is not a substitute for Copilot sign-in or Azure authentication.
+See [GitHub authentication](/getting-started/dev-containers/#step-4-github-authentication)
+if the container cannot use your existing credentials.
 
-:::tip[If the dev container fails to build]
+## Step 1: create your repository from the template
 
-1. Check the VS Code terminal for error messages
-2. Verify Docker is running (`docker ps` should succeed)
-3. Follow recovery steps in [Dev Container Setup](../dev-containers/)
-   and [Troubleshooting](../../guides/troubleshooting/)
+Open the [template](https://github.com/jonathan-vella/apex-accelerator), select
+**Use this template**, and create a repository under your account or organization.
+Choose its visibility according to your requirements. A template creates a new
+repository, not a fork.
 
-Most setup failures happen before APEX itself starts.
-:::
+## Step 2: clone and open
 
-:::caution[Configure `GH_TOKEN` before you open the container]
-GitHub operations inside the devcontainer depend on a fine-grained Personal Access Token exposed as
-`GH_TOKEN` through **VS Code User Settings**. Shell exports inside the container are not reliable and
-do not survive rebuilds. The full setup is documented on [Dev Container Setup](../dev-containers/),
-but the minimum working configuration is included below so you do not miss it.
-:::
-
-## Step 1: Create Your Repository from the Template
-
-1. Go to the
-   [Accelerator template repository](https://github.com/jonathan-vella/apex-accelerator)
-2. Select the green **Use this template** button → **Create a new repository**
-3. Choose an owner and repository name (e.g. `my-infraops-project`)
-4. Select **Public** or **Private** visibility
-5. Select **Create repository**
-
-:::tip[What is a template repository?]
-A [GitHub template repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template)
-creates a brand-new repository with the same directory structure and files — but
-with a clean commit history and no fork relationship. Your repo is entirely yours.
-:::
-
-## Step 2: Clone and Open
-
-Clone **your new repository** (not this upstream project):
+Run these commands in WSL. Replace the example owner and repository.
+Keep the checkout in the Linux filesystem rather than under `/mnt/c`.
 
 ```bash
-git clone https://github.com/YOUR-USERNAME/my-infraops-project.git # (1)!
-code my-infraops-project
+mkdir -p ~/src
+cd ~/src
+git clone https://github.com/YOUR-OWNER/YOUR-REPOSITORY.git
+code YOUR-REPOSITORY
 ```
 
-1. Replace `YOUR-USERNAME/my-infraops-project` with your actual
-   GitHub username and the repository name you chose in Step 1.
+## Step 3: open in dev container
 
-## Step 3: Open in Dev Container
+Use the VS Code command palette to select **Dev Containers: Reopen in Container**.
+Wait for setup to finish, then inspect the setup output for failures.
 
-:::tip[What is a dev container?]
-A [dev container](https://containers.dev/) is a pre-configured development environment
-that runs inside a Docker container. It ensures every contributor has identical tools,
-extensions, and settings — no manual setup required. See the
-[Dev Container Setup](../dev-containers/) page for details.
-:::
+The project container provides the IaC and diagnostic tools expected by its agents.
+Its configuration differs from the smaller apex-docs container, which only builds
+this documentation site. See [container setup](/getting-started/dev-containers/).
 
-1. Press `F1` (or `Ctrl+Shift+P`)
-2. Type: `Dev Containers: Reopen in Container`
-3. Wait 3-5 minutes for setup
-
-The Dev Container installs all tools automatically:
-
-- Azure CLI + Bicep CLI
-- Terraform CLI
-- PowerShell 7
-- Python 3 + diagrams library
-- `apex-recall` CLI (session recall)
-- Comprehensive set of VS Code extensions
-
-## Step 4: Set Up Azure (Optional)
-
-If you plan to deploy to Azure or run the governance baseline workflow, configure
-your Azure environment with a single command:
+Review the template's initialization instructions before running:
 
 ```bash
-npm run setup
+npm run init
 ```
 
-This creates an Entra ID app registration, OIDC federated credentials, RBAC
-roles, and GitHub secrets/variables. See [Azure Setup](../azure-setup/) for
-details and manual alternatives.
+Initialization adapts the copied repository. Review the resulting diff.
+Use `npm run sync:workflows` when intentionally synchronizing workflow files;
+it is not a substitute for reviewing their permissions or cloud configuration.
 
-:::note[Skip this if you are just learning]
-Azure setup is only required for Step 6 (Deploy) and the governance baseline
-workflow. You can explore the full agent workflow without it.
-:::
+<span id="step-4-set-up-azure-optional"></span>
 
-:::tip[Plan for cost before you deploy]
-Deploying to a real subscription always costs money. Before Step 6, set
-budget alerts and anomaly detection per
-[Cost Governance](../../reference/cost-governance/) so a runaway deployment
-cannot drain a credit pool unnoticed.
-:::
+## Step 4: decide which Azure access you need
 
-## Step 5: Configure `GH_TOKEN` for the Dev Container
+You can read the documentation and discuss requirements without provisioning anything.
+Scoped governance discovery, subscription-specific evidence, and deployment require
+Azure access. Do not call a workflow verified when those checks have not run.
 
-This step is easy to miss, but it is required for reliable GitHub CLI and repository operations in
-the devcontainer.
+Read [Azure setup](/getting-started/azure-setup/) before running setup automation.
+The product's `npm run setup` can create identities, role assignments, federated
+credentials, and GitHub configuration. It is not a harmless prerequisite check.
 
-:::caution[Use VS Code User Settings, not `export GH_TOKEN=...`]
-Set `GH_TOKEN` in **VS Code User Settings** so the devcontainer can forward it automatically.
-Adding it in `.bashrc`, `.profile`, or an in-container shell session does not persist reliably.
-:::
+<span id="step-5-configure-gh_token-for-the-dev-container"></span>
 
-1. Create a **fine-grained** GitHub Personal Access Token
-2. Grant at least these permissions:
+## Step 5: check GitHub authentication
 
-| Permission    | Level      |
-| ------------- | ---------- |
-| Contents      | Read/Write |
-| Metadata      | Read       |
-| Pull requests | Read/Write |
-| Issues        | Read/Write |
-| Workflows     | Read/Write |
+Run `gh auth status` inside the container if your task needs GitHub CLI operations.
+Use your organization's approved authentication method. If you choose an optional
+`GH_TOKEN`, provide it to the host VS Code process before creating the container.
+Terminal-only settings do not supply `${localEnv:GH_TOKEN}`.
 
-1. Open **VS Code User Settings (JSON)**
-2. Add this entry and replace the placeholder token value:
+Never commit a token or paste one into a documentation example.
 
-```jsonc
-"terminal.integrated.env.linux": { "GH_TOKEN": "github_pat_your_token_here" }
-```
+## Step 6: verify setup
 
-1. Rebuild the devcontainer: `F1` → `Dev Containers: Rebuild Container`
-2. Run `gh auth status` inside the container and confirm it shows a logged-in token-based
-   session
-
-See [Dev Container Setup](../dev-containers/) for the full explanation, screenshots, and token
-rotation guidance.
-
-## Step 6: Verify Setup
-
-:::tip[Verify all tools installed correctly]
-Run these commands to confirm the dev container has all required CLIs and GitHub authentication:
-:::
+Run the checks in the container terminal:
 
 ```bash
-gh auth status
-az --version && bicep --version && terraform --version && pwsh --version # (1)!
+git --version
+az --version
+bicep --version
+terraform --version
+pwsh --version
+apex-recall --help
 ```
 
-1. `gh auth status` should show a token-backed login, and all four CLIs should print
-   version numbers. If any fail, rebuild or reopen the dev container.
+Check only the authentication needed by your next task. A tool reporting its version
+does not prove that it can access your tenant or subscription.
 
-## Step 7: Enable Subagent Orchestration
+<span id="step-7-enable-subagent-orchestration"></span>
 
-:::caution[Required]
-The Orchestrator pattern requires this setting.
-:::
+## Step 7: understand agent handoffs
 
-Without this setting, the Orchestrator cannot delegate to specialized agents,
-so multi-step workflows will stall after the first response.
+APEX's main workflow agents are human-selected. The Orchestrator helps you find the
+next step; it does not run the main agents as a chain of subagent calls.
 
-Add this to your **VS Code User Settings** (`Ctrl+,` → Settings JSON):
+Use the handoff button or select the named agent in Copilot Chat. Read the proposed
+scope and output before approving a transition. Enabling a subagent setting does
+not authorize main-agent delegation or remove approval gates.
 
-```json
-{
-  "chat.customAgentInSubagent.enabled": true // (1)!
-}
-```
+## Step 8: start the orchestrator
 
-1. This must be in **User Settings**, not Workspace Settings.
-   Experimental features require user-level configuration.
-
-**Why User Settings?** Workspace settings exist in `.vscode/settings.json`, but user settings
-take precedence for experimental features like subagent invocation.
-
-**Verify it's enabled:**
-
-1. Open Command Palette (`Ctrl+Shift+P`)
-2. Type: `Preferences: Open User Settings (JSON)`
-3. Confirm the setting is present
-
-## Step 8: Start the Orchestrator
-
-### Option A: Orchestrator (Recommended)
-
-The Orchestrator (🧠 Orchestrator) orchestrates the complete multi-step workflow:
-
-1. Press `Ctrl+Shift+I` to open Copilot Chat
-2. Select **Orchestrator** from the agent dropdown
-3. Describe your project:
+Open Copilot Chat and select `01-Orchestrator` from the available custom agents.
+Describe your goal, IaC preference, environment, region constraints, and budget.
+For example:
 
 ```text
-Create a simple web app in Azure with:
-- App Service for web frontend
-- Azure SQL Database for data
-- Key Vault for secrets
-- Region: swedencentral
-- Environment: dev
-- Project name: my-webapp
+Help me start requirements for a development workload on Azure.
+Use Bicep. I need a small web application with persistent data.
+Ask about region, policy constraints, availability, and budget before choosing services.
+Do not deploy anything.
 ```
 
-The Orchestrator guides you through all steps with approval gates.
+<span id="option-a-orchestrator-recommended"></span>
+<span id="option-b-direct-agent-invocation"></span>
+<span id="quick-reference"></span>
+<span id="orchestrator-orchestrated-workflow"></span>
+<span id="direct-agent-invocation"></span>
+<span id="skill-invocation"></span>
 
-### Option B: Direct Agent Invocation
+The Orchestrator should identify the next main agent and the evidence it needs.
+You can also select `02-Requirements` directly when you are starting requirements.
+If the agent list is missing, check that you opened your template-derived repository
+and that VS Code loaded its customization files.
 
-Invoke agents directly for specific tasks:
+## Step 9: follow the workflow
 
-1. Press `Ctrl+Shift+A` to open the agent picker
-2. Select the specific agent (e.g., `requirements`)
-3. Enter your prompt
+Use [Run the workflow](/concepts/workflow/) for the step sequence, reviews, outputs,
+and approvals. Choose Bicep or Terraform during requirements; the planning,
+generation, and deployment agents depend on that choice.
 
-## Step 9: Follow the Workflow
+### What you've created
 
-The agents work in sequence with handoffs. Steps 1-3.5 and 7 are shared;
-steps 4-6 route to **Bicep** or **Terraform** agents based on your `iac_tool` selection
-in Step 1. During requirements gathering, the Requirements agent asks which IaC tool
-you prefer — this choice determines which planning, code generation, and deployment
-agents the Orchestrator invokes.
+Your first checkpoint is an understandable requirements artifact and its review,
+not a successful-looking chat response. Later deployment needs explicit approval,
+current validation evidence, resource checks, and application-health checks.
 
-Each agent has a thematic codename for easy reference in documentation and prompts.
+### If a step fails
 
-| Step | Agent                                 | Codename      | What Happens                |
-| ---- | ------------------------------------- | ------------- | --------------------------- |
-| 1    | `requirements`                        | 📜 Scribe     | Captures requirements       |
-| 2    | `architect`                           | 🏛️ Oracle     | WAF assessment              |
-| 3    | `design`                              | 🎨 Artisan    | Diagrams/ADRs (optional)    |
-| 3.5  | `governance`                          | 🛡️ Warden     | Policy discovery/compliance |
-| 4    | `iac-planner`                         | 📐 Strategist | Implementation plan         |
-| 5    | `bicep-codegen` / `terraform-codegen` | ⚒️ Forge      | IaC templates               |
-| 6    | `bicep-deploy` / `terraform-deploy`   | 🚀 Envoy      | Azure deployment            |
-| 7    | `as-built`                            | 📚 Chronicler | Documentation suite         |
+Preserve the error and use
+[troubleshooting](/guides/troubleshooting/). Do not reset session state to force a
+step forward.
 
-**Approval Gates**: The Orchestrator pauses at key points:
+### Next steps
 
-- ⛔ **Gate 1**: After requirements (Step 1) — confirm requirements
-- ⛔ **Gate 2**: After architecture (Step 2) — approve WAF assessment
-- ⛔ **Gate 2.5**: After governance (Step 3.5) — approve governance constraints
-- ⛔ **Gate 3**: After planning (Step 4) — approve implementation plan
-- ⛔ **Gate 4**: After validation (Step 5) — approve preflight results
-- ⛔ **Gate 5**: After deployment (Step 6) — verify resources
-
-:::tip[If a gate rejects your proposal]
-If the Challenger or an approval gate produces `must_fix` findings, return to the
-previous step, update your approach based on the feedback, and re-run. The Orchestrator
-will re-execute the step and re-trigger the gate. Use the artifact files in
-`agent-output/{project}/` to understand what was flagged.
-:::
-
-### If a Step Fails
-
-- **Governance returns no policies**: continue if `04-governance-constraints.json`
-  shows `discovery_status: "COMPLETE"`. An empty policy list means no deny-effect
-  constraints were found for that scope.
-- **Pricing, auth, or tooling fails**: fix the environment first, then resume the same step.
-  Start with [Troubleshooting](../../guides/troubleshooting/) and
-  [Dev Container Setup](../dev-containers/).
-- **Security or cost findings block progress**: update the generated plan or code,
-  then re-run the same step with the exact failing output so the agent can repair it.
-
-Before you deploy, review the mandatory guidance in
-[Security Baseline](../../reference/security-baseline/) and
-[Cost Governance](../../reference/cost-governance/).
-
-## What You've Created
-
-After completing the workflow:
-
-```text
-agent-output/my-webapp/
-├── 01-requirements.md          # Captured requirements (includes iac_tool)
-├── 02-architecture-assessment.md  # WAF analysis
-├── 03-des-diagram.{py,png,svg}   # Optional Step 3 architecture diagram
-├── 04-implementation-plan.md   # Phased plan
-├── 04-dependency-diagram.py        # Step 4 dependency diagram
-├── 04-runtime-diagram.py           # Step 4 runtime diagram
-├── 04-governance-constraints.md   # Policy discovery
-├── 05-implementation-reference.md # Module inventory
-├── 06-deployment-summary.md    # Deployed resources
-└── 07-*.md                     # Documentation suite
-
-# Bicep track output:
-infra/bicep/my-webapp/
-├── main.bicep                  # Entry point
-├── main.bicepparam             # Parameters
-└── modules/
-    ├── app-service.bicep
-    ├── sql-database.bicep
-    └── key-vault.bicep
-
-# — OR — Terraform track output:
-infra/terraform/my-webapp/
-├── main.tf                     # Entry point
-├── variables.tf                # Input variables
-├── outputs.tf                  # Outputs
-├── terraform.tfvars            # Variable values
-└── modules/
-    ├── app-service/
-    ├── sql-database/
-    └── key-vault/
-```
-
-## Next Steps
-
-Pick the path that matches your goal — then drop into the resource table below for more.
-
-- **Demo** — walk an end-to-end project: see
-  [Il-Pastizzeria ta’ Mario](../../demo/) (a complete end-to-end walkthrough
-  from Requirements through As-Built).
-- **Learn** — understand the system before building:
-  [Core Concepts](../../concepts/how-it-works/four-pillars/) →
-  [Workflow](../../concepts/workflow/) →
-  [Agent Architecture](../../concepts/how-it-works/agents/).
-- **Build** — run the Orchestrator on your own project:
-  [Prompt Guide](../../guides/prompt-guide/) for prompt patterns,
-  [Security Baseline](../../reference/security-baseline/) and
-  [Cost Governance](../../reference/cost-governance/) for the mandatory
-  guardrails.
-
-| Goal                            | Resource                                                                                                  |
-| ------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| Understand the full workflow    | [workflow.md](../../concepts/workflow/)                                                                   |
-| Try a guided hands-on challenge | [MicroHack](https://microhack.apexops.pro/)                                 |
-| Try a complete workflow         | [Prompt Guide](../../guides/prompt-guide/)                                                                |
-| Review mandatory guardrails     | [Security Baseline](../../reference/security-baseline/) and [Cost Governance](../../reference/cost-governance/) |
-| Generate architecture diagrams  | Use the `apex-python-diagrams` skill                                                                        |
-| Create documentation            | Use `apex-azure-artifacts` skill                                                                               |
-| Explore Terraform patterns      | Use `apex-terraform-patterns` skill                                                                            |
-| Troubleshoot issues             | [troubleshooting.md](../../guides/troubleshooting/)                                                       |
-| Contribute to the upstream repo | [apex](https://github.com/jonathan-vella/apex)                        |
-
-## Quick Reference
-
-### Orchestrator (Orchestrated Workflow)
-
-```text
-Ctrl+Shift+I → Orchestrator → Describe project → Follow gates
-```
-
-### Direct Agent Invocation
-
-```text
-Ctrl+Shift+A → Select agent → Type prompt → Approve
-```
-
-### Skill Invocation
-
-Skills activate automatically based on your prompt:
-
-- "Create an architecture diagram" → `apex-python-diagrams`
-- "Generate an ADR" → `apex-azure-adr`
-- "Create workload documentation" → `apex-azure-artifacts`
-
-Or invoke explicitly:
-
-```text
-Use the apex-python-diagrams skill to create a diagram for my-webapp
-```
+Read the [workflow overview](/concepts/workflow/) before selecting the next agent.

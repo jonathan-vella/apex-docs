@@ -7,7 +7,7 @@ tableOfContents:
 
 Quick reference for terms used throughout APEX documentation.
 
-**Jump to:** [A](#a) · [B](#b) · [C](#c) · [D](#d) · [E](#e) · [F](#f) ·
+**Jump to:** [A](#a) · [B](#b) · [C](#c) · [D](#d) ·
 [G](#g) · [H](#h) · [I](#i) · [J](#j) · [K](#k) · [M](#m) · [N](#n) ·
 [O](#o) · [P](#p) · [S](#s) · [T](#t) · [U](#u) · [W](#w) · [Y](#y) ·
 [Numbers \& Symbols](#numbers--symbols)
@@ -20,25 +20,25 @@ Microsoft's cloud-based identity and access management service. Used for
 authentication and RBAC across Azure resources. SQL databases in this project
 require Microsoft Entra ID-only authentication (no SQL auth).
 
-🔗 **External**: [Microsoft Entra ID](https://learn.microsoft.com/entra/fundamentals/whatis)
+External: [Microsoft Entra ID](https://learn.microsoft.com/entra/fundamentals/whatis)
 
 ### ADR (Architecture Decision Record)
 
 A document that captures an important architectural decision along with its context and consequences.
 Used to record "why" decisions were made for future reference.
 
-📁 **Output**: `agent-output/{project}/03-des-adr-*.md`, `07-ab-adr-*.md`
+Output: `agent-output/{project}/03-des-adr-*.md`, `07-ab-adr-*.md`
 
 ### Agent (Custom)
 
 A specialized AI assistant defined in `.github/agents/` that focuses on a specific
-workflow step or supporting role. Invoked via `Ctrl+Shift+A`. The catalog spans
+workflow step or supporting role. Select main agents through the client's agent picker. The catalog spans
 top-level workflow agents (Orchestrator plus the Requirements → As-Built chain),
 cross-cutting agents (Governance, Context Optimizer, Diagnose, Challenger), and
 non-user-invocable subagents under `.github/agents/_subagents/`. The authoritative
 inventory lives in `tools/registry/agent-registry.json` and `count-manifest.json`.
 
-📁 **See**: [.github/agents/](https://github.com/jonathan-vella/apex/tree/main/.github/agents)
+See: [.github/agents/](https://github.com/jonathan-vella/apex/tree/main/.github/agents)
 
 ### APEX
 
@@ -52,16 +52,16 @@ for low-token session context recovery. Owns the full session lifecycle (read + 
 like `show`, `init`, `checkpoint`, `decide`, and `finding`. All agents use it instead of
 direct `00-session-state.json` manipulation.
 
-📁 **Source**: `tools/apex-recall/`
+Source: `tools/apex-recall/`
 
 ### AVM (Azure Verified Modules)
 
 Microsoft's official library of pre-built, tested IaC modules that follow Azure best
 practices. Available for both Bicep (`br/public:avm/res/`) and Terraform
-(`registry.terraform.io/Azure/avm-res-*/azurerm`). Using AVM modules ensures
-policy compliance and reduces custom code.
+(`registry.terraform.io/Azure/avm-res-*/azurerm`). AVM reduces custom implementation, but module choice and configuration still need
+policy, security, and compatibility checks.
 
-🔗 **External**: [Azure Verified Modules Registry](https://aka.ms/avm)
+External: [Azure Verified Modules Registry](https://aka.ms/avm)
 
 ### AVM-TF (Azure Verified Modules for Terraform)
 
@@ -69,14 +69,14 @@ The Terraform variant of Azure Verified Modules, published to the Terraform Regi
 under the `Azure` namespace. Module sources follow the pattern
 `Azure/avm-res-<provider>-<resource>/azurerm`.
 
-🔗 **External**: [AVM-TF on Terraform Registry](https://registry.terraform.io/namespaces/Azure)
+External: [AVM-TF on Terraform Registry](https://registry.terraform.io/namespaces/Azure)
 
 ### AKS (Azure Kubernetes Service)
 
 Managed Kubernetes container orchestration service on Azure. Simplifies deploying,
 managing, and scaling containerised applications.
 
-🔗 **External**: [AKS Documentation](https://learn.microsoft.com/azure/aks/)
+External: [AKS Documentation](https://learn.microsoft.com/azure/aks/)
 
 ### API (Application Programming Interface)
 
@@ -85,10 +85,10 @@ In this project, agents interact with Azure and GitHub APIs via MCP servers.
 
 ### ARM (Azure Resource Manager)
 
-Azure's deployment and management layer. All Azure resource operations go through ARM.
+Azure's deployment and management layer. Data-plane operations use service-specific endpoints.
 Bicep compiles to ARM templates (JSON). The Azure MCP server queries ARM directly.
 
-🔗 **External**: [ARM Overview](https://learn.microsoft.com/azure/azure-resource-manager/management/overview)
+External: [ARM Overview](https://learn.microsoft.com/azure/azure-resource-manager/management/overview)
 
 ## B
 
@@ -97,7 +97,7 @@ Bicep compiles to ARM templates (JSON). The Azure MCP server queries ARM directl
 Azure's domain-specific language (DSL) for deploying Azure resources declaratively. Compiles to ARM
 templates but with cleaner syntax and better tooling support.
 
-🔗 **External**: [Bicep Documentation](https://learn.microsoft.com/azure/azure-resource-manager/bicep/)
+External: [Bicep Documentation](https://learn.microsoft.com/azure/azure-resource-manager/bicep/)
 
 ### Bicep Lint
 
@@ -112,7 +112,7 @@ Microsoft's methodology for cloud adoption, including naming conventions, govern
 and landing zone architecture. This project follows CAF naming prefixes (e.g. `rg-` for
 resource groups, `vnet-` for virtual networks).
 
-🔗 **External**: [Azure CAF](https://learn.microsoft.com/azure/cloud-adoption-framework/)
+External: [Azure CAF](https://learn.microsoft.com/azure/cloud-adoption-framework/)
 
 ### CDN (Content Delivery Network)
 
@@ -124,14 +124,16 @@ closest to users. Azure CDN / Azure Front Door accelerate static asset delivery.
 Adversarial review agent that challenges requirements, architecture assessments, and
 implementation plans. Finds untested assumptions, governance gaps, WAF blind spots,
 and architectural weaknesses. Returns structured JSON findings with severity ratings.
-Auto-invoked by the Orchestrator after Steps 1, 2, and 4.
+The owner selects `10-Challenger` for required reviews. It is not an automatically
+invoked Orchestrator subagent.
 
-📁 **See**: [.github/agents/10-challenger.agent.md](https://github.com/jonathan-vella/apex/blob/main/.github/agents/10-challenger.agent.md)
+See: [.github/agents/10-challenger.agent.md](https://github.com/jonathan-vella/apex/blob/main/.github/agents/10-challenger.agent.md)
 
 ### Copilot Chat
 
-The conversational interface for GitHub Copilot in VS Code. Accessed via `Ctrl+Shift+I`. Supports
-custom agents via the agent picker dropdown (`Ctrl+Shift+A`).
+The conversational interface for GitHub Copilot in VS Code. Open Chat and use
+the agent picker to select a custom agent. Keyboard shortcuts depend on your
+platform and keybindings.
 
 ### CLI (Command-Line Interface)
 
@@ -147,31 +149,29 @@ Terraform examples side-by-side without duplicating page structure.
 ### Context Management
 
 Unified skill covering two context-window concerns. Mode A (Runtime Compression)
-defines the three tiers — `full`, `summarized`, `minimal` — used by orchestrator
-and codegen agents before loading large artifacts. Mode B (Diagnostic Audit)
+defines `full`, `summarized`, and `minimal` artifact tiers used by Orchestrator
+and CodeGen before loading large artifacts. Mode B (Diagnostic Audit)
 provides log parsing, token profiling, and hand-off gap analysis used by the
 11-Context Optimizer agent. Replaces the legacy `context-shredding` and
 `context-optimizer` skills.
 
-📁 **See**: `.github/skills/apex-context-management/SKILL.md`
+See: `.github/skills/apex-context-management/SKILL.md`
 
 ### Circuit Breaker
 
-A failure-handling pattern in the `apex-iac-common` skill that defines mandatory stopping
-rules for deploy agents. Classifies failures into 6 categories with anomaly detection
-thresholds to prevent cascading deployment failures.
+A failure-handling pattern that stops execution when specified conditions fail.
+APEX Deploy agents have explicit stopping rules for authentication, policy,
+preview, ownership, and approval failures.
 
-📁 **See**: [.github/skills/apex-iac-common/](https://github.com/jonathan-vella/apex/tree/main/.github/skills/apex-iac-common)
+See: [.github/skills/apex-iac-common/](https://github.com/jonathan-vella/apex/tree/main/.github/skills/apex-iac-common)
 
 ## D
 
 ### DAG (Directed Acyclic Graph)
 
-A graph where edges have a direction and there are no cycles — you can never follow
-the arrows back to where you started. In workflow engines, a DAG models task
-dependencies: each step points to the steps that must come after it, guaranteeing a
-clear execution order with no infinite loops. This project's workflow is encoded as a
-DAG in `workflow-graph.json`.
+A directed graph with no cycles. APEX's workflow graph describes dependencies
+and includes separate return/escalation behavior. Read its edge semantics rather
+than treating every workflow relationship as a forward-only execution instruction.
 
 ### Design Agent
 
@@ -179,14 +179,14 @@ Step 3 agent that generates architecture diagrams and Architecture Decision Reco
 Optional step in the workflow. Uses `apex-python-diagrams` for architecture
 diagrams and charts, and `apex-azure-adr` for decision records.
 
-📁 **Output**: `agent-output/{project}/03-des-*.{py,png,svg,md}`
+Output: `agent-output/{project}/03-des-*.{py,png,svg,md}`
 
 ### Dev Container
 
 A Docker-based development environment defined in `.devcontainer/`. Provides consistent tooling
 (Azure CLI, Bicep, PowerShell) across all machines.
 
-🔗 **External**: [VS Code Dev Containers](https://code.visualstudio.com/docs/devcontainers/containers)
+External: [VS Code Dev Containers](https://code.visualstudio.com/docs/devcontainers/containers)
 
 ### DSL (Domain-Specific Language)
 
@@ -203,8 +203,9 @@ A visual diagram showing how data entities relate to each other. Used in the Des
 
 ### Governance Constraints
 
-Azure Policies and organizational rules that affect resource deployment. Discovered during the
-planning step and documented in `04-governance-constraints.md`.
+Azure policies and organizational rules that affect resource deployment. Governance
+discovers them at Step 3.5 and records `04-governance-constraints.md` and `.json`.
+The planner consumes that evidence.
 
 ## H
 
@@ -213,12 +214,13 @@ planning step and documented in `04-governance-constraints.md`.
 The declarative language used by Terraform to define infrastructure resources.
 File extension: `.tf`. Supports variables, modules, data sources, and provider blocks.
 
-🔗 **External**: [HCL Documentation](https://developer.hashicorp.com/terraform/language)
+External: [HCL Documentation](https://developer.hashicorp.com/terraform/language)
 
 ### HIPAA (Health Insurance Portability and Accountability Act)
 
-US regulation governing protected health information (PHI). Azure provides HIPAA-compliant services
-when properly configured. S04 Service Validation scenario demonstrates HIPAA-compliant architecture.
+US regulation governing protected health information. A service selection or
+generated architecture does not establish workload compliance. Applicable
+agreements, configuration, operations, and organizational controls also matter.
 
 ### Hub-Spoke Network
 
@@ -241,26 +243,26 @@ A lightweight data interchange format. Used throughout this project for configur
 files (`agent-registry.json`, `workflow-graph.json`, `session-state.json`),
 MCP communication (JSON-RPC), and Azure ARM templates.
 
-🔗 **External**: [JSON Specification](https://www.json.org/)
+External: [JSON Specification](https://www.json.org/)
 
 ## K
 
 ### KQL (Kusto Query Language)
 
 Query language used in Azure Monitor, Log Analytics, and Application Insights. Used for
-troubleshooting and diagnostics (see S05 Troubleshooting scenario).
+troubleshooting and diagnostics.
 
-🔗 **External**: [KQL Reference](https://learn.microsoft.com/azure/data-explorer/kusto/query/)
+External: [KQL Reference](https://learn.microsoft.com/azure/data-explorer/kusto/query/)
 
 ## M
 
 ### MCP (Model Context Protocol)
 
 Protocol for extending AI assistants with external tools and data sources. This project
-uses MCP servers for GitHub, Azure services, Azure Resource Manager pricing and
-cost management, Terraform Registry, and Microsoft Learn.
+declares its configured servers in `.vscode/mcp.json`. Available tools depend on
+the selected client, agent, and authentication.
 
-📁 **See**: [MCP Integration](../../concepts/how-it-works/mcp-integration/)
+See: [MCP Integration](../../concepts/how-it-works/mcp-integration/)
 
 ### MJS (ECMAScript Module)
 
@@ -269,8 +271,8 @@ uses `require()`). This project's validation scripts in `tools/scripts/` use the
 
 ### MTTR (Mean Time To Recovery)
 
-Average time to restore service after an incident. Key SRE metric. Copilot-assisted troubleshooting
-reduces MTTR by 73-85% (see Time Savings Evidence).
+Average time to restore service after an incident. This glossary makes no measured
+claim about APEX's effect on recovery time.
 
 ## N
 
@@ -283,36 +285,35 @@ Essential for microsegmentation and defense-in-depth.
 
 ### Orchestrator
 
-The master orchestrator agent that coordinates all steps of the infrastructure workflow with
-mandatory human approval gates. Implements the Orchestrator pattern from VS Code 1.109's agent
-orchestration features.
+The main agent that inspects workflow evidence and recommends the next handoff.
+The owner selects the next main agent and supplies required approvals.
 
-📁 **See**: [.github/agents/01-orchestrator.agent.md](https://github.com/jonathan-vella/apex/blob/main/.github/agents/01-orchestrator.agent.md)
+See: [.github/agents/01-orchestrator.agent.md](https://github.com/jonathan-vella/apex/blob/main/.github/agents/01-orchestrator.agent.md)
 
 ## P
 
 ### PCI-DSS (Payment Card Industry Data Security Standard)
 
-Security standard for organizations handling credit card data. S04 Service Validation scenario
-demonstrates PCI-DSS compliant architecture patterns.
+Security standard for organizations handling payment-card data. Generated code
+does not establish compliance with the standard.
 
 ### Private Endpoint
 
-Azure feature that assigns a private IP address to a PaaS service (Storage, SQL, Key Vault),
-removing public internet exposure. Essential for zero-trust architectures.
+An Azure network interface with a private IP used to reach a supported service
+through Private Link. Creating one does not itself disable the service's public
+endpoint. DNS and a reachable client path also need configuration.
 
 ### PRD (Product Requirements Document)
 
-A document defining the features, functionality, and constraints for a product or project.
-Ralph uses a `prd.json` task list to track user stories. In this project, the equivalent
-is `01-requirements.md`.
+A document defining a product's requirements. APEX captures its workload requirements
+in `01-requirements.md`; it does not use a Ralph task list for the production workflow.
 
 ### RBAC (Role-Based Access Control)
 
 Azure's authorization system that assigns permissions based on roles (Owner, Contributor,
 Reader). Managed through Microsoft Entra ID (formerly Azure AD). The Azure MCP server is RBAC-aware.
 
-🔗 **External**: [Azure RBAC](https://learn.microsoft.com/azure/role-based-access-control/)
+External: [Azure RBAC](https://learn.microsoft.com/azure/role-based-access-control/)
 
 ### REST (Representational State Transfer)
 
@@ -334,7 +335,7 @@ JSON-RPC, a lightweight RPC protocol encoded in JSON.
 A general iterative agent pattern based on the [RALPH pattern](https://ghuntley.com/ralph/).
 APEX production workflows retain human approval gates; this pattern does not authorize autonomous deployment.
 
-📁 **See**: [Workflow Validation](../../guides/e2e-testing/)
+See: [Workflow Validation](../../guides/e2e-testing/)
 
 ## S
 
@@ -368,12 +369,12 @@ relational database service used in several example architectures in this projec
 ### SRE (Site Reliability Engineering)
 
 An engineering discipline that applies software practices to infrastructure and
-operations. MTTR is a key SRE metric tracked in this project's time-savings evidence.
+operations. Recovery-time measurements need an explicit incident dataset and method.
 
 ### SBOM (Software Bill of Materials)
 
 Inventory of all software components in an application, including dependencies and versions.
-Required for supply chain security. S06 SBOM Generator scenario demonstrates SBOM generation.
+Used to inspect software provenance and dependency risk.
 
 ### SI Partner (System Integrator Partner)
 
@@ -383,29 +384,27 @@ for APEX methodology.
 ### Skill (Copilot)
 
 A reusable knowledge module stored in `.github/skills/` that agents can invoke. Unlike agents,
-skills don't have their own chat persona — they provide domain knowledge that agents use.
+skills provide reusable guidance within the caller's model and tool context.
 Skills are organized across conventions, document creation, infrastructure patterns,
 workflow automation, and troubleshooting categories.
 
-📁 **See**: [.github/skills/](https://github.com/jonathan-vella/apex/tree/main/.github/skills)
+See: [.github/skills/](https://github.com/jonathan-vella/apex/tree/main/.github/skills)
 
 ### Subagent
 
-A specialized validation agent invoked by other agents for specific tasks (lint, what-if/plan,
-review). Six exist: `challenger-review-subagent`, `cost-estimate-subagent`,
-`bicep-validate-subagent`,
-`bicep-whatif-subagent`, `terraform-validate-subagent`,
-`terraform-plan-subagent`.
+A helper called by an allowed parent for a bounded task such as validation, pricing,
+or preview. The pinned Explorer lists the inventory. Challenger is a human-selected
+main agent, not one of these helpers.
 
-📁 **See**: [.github/agents/\_subagents/](https://github.com/jonathan-vella/apex/tree/main/.github/agents/_subagents)
+See: [.github/agents/\_subagents/](https://github.com/jonathan-vella/apex/tree/main/.github/agents/_subagents)
 
 ## T
 
 ### Tags (Azure Resource Tags)
 
 Key-value pairs applied to Azure resources for organization, cost tracking, and policy enforcement.
-Baseline tags: Environment, ManagedBy, Project, Owner.
-Governance constraints may require additional tags.
+Effective policy and the approved plan determine required tags. Use the current
+product fallback only when applicable; do not copy a historical four-tag list.
 See `iac-bicep-best-practices.instructions.md` or `iac-terraform-best-practices.instructions.md`
 for the canonical tag rule.
 
@@ -413,12 +412,10 @@ for the canonical tag rule.
 
 HashiCorp's open-source Infrastructure as Code tool using HCL (HashiCorp Configuration Language).
 Supports multi-cloud deployments. In this project, Terraform is the alternative IaC track
-alongside Bicep, sharing requirements, architecture, and design steps (1-3) before diverging
-into Terraform-specific planning, code generation, and deployment (steps 4-6).
+alongside Bicep. Both tracks use the shared planner; CodeGen and Deploy are
+track-specific. The approved contract specifies provider versions and state design.
 
-Provider pin: `~> 4.0` (AzureRM). Backend: Azure Storage Account.
-
-🔗 **External**: [Terraform Documentation](https://developer.hashicorp.com/terraform)
+External: [Terraform Documentation](https://developer.hashicorp.com/terraform)
 
 ### Terraform State
 
@@ -433,9 +430,9 @@ security baseline mandates TLS 1.2 minimum on all Azure services.
 
 ### TTL (Time To Live)
 
-The duration a cached value remains valid before being refreshed. The Azure Pricing
-MCP server uses a 256-entry cache with 5-minute TTL for pricing data and 24-hour TTL
-for retirement data.
+The duration for which a cache entry or evidence item is considered fresh under
+its contract. Use the relevant tool's actual configuration rather than assuming
+a shared pricing-cache lifetime.
 
 ## U
 
@@ -450,7 +447,7 @@ Final testing phase where end users verify the system meets business requirement
 Microsoft's guidance for building reliable, secure, efficient Azure workloads. Five pillars:
 Reliability, Security, Cost Optimization, Operational Excellence, Performance Efficiency.
 
-🔗 **External**: [Azure Well-Architected Framework](https://learn.microsoft.com/azure/well-architected/)
+External: [Azure Well-Architected Framework](https://learn.microsoft.com/azure/well-architected/)
 
 ### What-If Deployment
 
@@ -464,21 +461,20 @@ Azure VPN Gateway sits in the hub VNet in a hub-spoke topology.
 
 ### WSL (Windows Subsystem for Linux)
 
-A Windows feature that runs a Linux environment directly on Windows without a virtual
-machine. Required for Docker Desktop on Windows. The dev container setup guide covers
-WSL 2 installation.
+A Windows feature for running Linux environments. WSL2 uses a managed virtual
+machine. The primary APEX setup uses Docker Desktop's WSL2 integration.
 
-🔗 **External**: [WSL Documentation](https://learn.microsoft.com/windows/wsl/)
+External: [WSL Documentation](https://learn.microsoft.com/windows/wsl/)
 
 ## Y
 
 ### YAML (YAML Ain't Markup Language)
 
 A human-readable data serialisation format used for configuration files. In this project,
-YAML is used in agent frontmatter (`.agent.md`), instruction frontmatter
-(`.instructions.md`), Astro configuration (`astro.config.mjs`), and GitHub Actions workflows.
+YAML is used in agent and instruction frontmatter and GitHub Actions workflows.
+`astro.config.mjs` is JavaScript, not YAML.
 
-🔗 **External**: [YAML Specification](https://yaml.org/)
+External: [YAML Specification](https://yaml.org/)
 
 ## Numbers & Symbols
 
@@ -486,12 +482,11 @@ YAML is used in agent frontmatter (`.agent.md`), instruction frontmatter
 
 The core APEX workflow: `requirements` → `architect` → Design Artifacts →
 Governance → IaC Plan → IaC Code → Deploy → Documentation. Step 3.5 (Governance)
-runs between Design and IaC Plan. Steps 1–3 and 7 are shared; steps 4–6 diverge into
-**Bicep track** (`iac-planner` → `bicep-codegen` → `bicep-deploy`) or **Terraform track**
-(`iac-planner` → `terraform-codegen` → `terraform-deploy`). Each step produces
-artifacts in `agent-output/`.
+runs between optional Design and IaC Plan. One planner serves both tracks.
+Bicep and Terraform have separate CodeGen and Deploy agents. Each step produces
+artifacts in `agent-output/`, and the owner selects each main-agent handoff.
 
-📁 **See**: [Workflow Guide](../../concepts/workflow/)
+See: [Workflow Guide](../../concepts/workflow/)
 
 ## Quick Reference Table
 

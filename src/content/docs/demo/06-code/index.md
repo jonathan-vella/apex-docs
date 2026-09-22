@@ -1,16 +1,14 @@
 ---
 title: "Infra-as-Code Overview"
-description: "Overview of generated Bicep templates, file structure, and AVM module usage from the CodeGen Agent for the Malta catering infrastructure"
+description: "April 2026 infra-as-code overview record. Preserved historical output, not current workflow guidance."
 sidebar:
   order: 6
 ---
 
-:::tip[Editorial Context]
-This artifact was produced by the **Bicep CodeGen Agent** (Step 5 of the APEX pipeline).
-The CodeGen Agent takes the implementation plan from Step 4 and generates production-ready
-Bicep templates using Azure Verified Modules (AVM). It creates the full file structure,
-validates the output with `bicep build`, `bicep lint`, and the IaC security baseline
-scanner, then produces an implementation reference documenting all generated artifacts.
+:::note[Editorial context]
+The historical CodeGen record lists generated files and reported checks. These
+checks do not prove application readiness or compatibility with today's modules.
+Current CodeGen also owns the required JSON deployment handoff.
 :::
 
 ## IaC Templates Location

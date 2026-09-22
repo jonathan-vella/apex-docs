@@ -1,6 +1,6 @@
 ---
 title: "Functional Requirements"
-description: "Core capabilities, user types, integrations, and data types for the Malta catering ordering app"
+description: "April 2026 functional requirements record. Preserved historical output, not current workflow guidance."
 sidebar:
   order: 2
 ---

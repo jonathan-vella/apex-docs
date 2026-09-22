@@ -1,15 +1,14 @@
 ---
 title: "IaC Plan Overview"
-description: "Implementation plan overview for the Malta catering ordering portal — resource inventory, deployment strategy, and dependency ordering from the IaC Planner Agent"
+description: "April 2026 iac plan overview record. Preserved historical output, not current workflow guidance."
 sidebar:
   order: 5
 ---
 
-:::tip[Editorial Context]
-This artifact was produced by the **IaC Planner Agent** (Step 4 of the APEX pipeline).
-The IaC Planner translates the architecture assessment and governance constraints into
-a concrete Bicep implementation plan — selecting AVM modules, defining dependency ordering,
-and establishing a phased deployment strategy with validation gates between phases.
+:::note[Editorial context]
+This historical Bicep plan records module choices and deployment phases for the
+case study. Its tag fallback and module versions are not current defaults.
+Use the current planner contracts for a new workload.
 :::
 
 ## Plan Overview

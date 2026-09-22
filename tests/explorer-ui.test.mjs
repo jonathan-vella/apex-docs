@@ -48,8 +48,12 @@ test("explorer drawer renders effective invocation metadata as text only for sup
   for (const [index, variant] of variants.entries()) {
     const card = document.querySelector(`#card-grid [data-node-id="${nodes[index].id}"]`);
     assert.ok(card, `Missing ${variant.category} card`);
+    assert.equal(card.tagName, "BUTTON");
+    assert.equal(document.getElementById("drawer").hidden, true);
     card.click();
     assert.equal(document.getElementById("drawer").getAttribute("aria-hidden"), "false");
+    assert.equal(document.activeElement.id, "drawer-close");
+    assert.equal(document.getElementById("explorer-content").hasAttribute("inert"), true);
     const body = document.getElementById("drawer-body");
     assert.deepEqual(
       [...body.querySelectorAll(".metadata dd")].map((entry) => entry.textContent),
@@ -65,5 +69,8 @@ test("explorer drawer renders effective invocation metadata as text only for sup
     assert.equal(body.querySelector(".source-link").href, nodes[index].links.source);
     document.getElementById("drawer-close").click();
     assert.equal(document.getElementById("drawer").getAttribute("aria-hidden"), "true");
+    assert.equal(document.getElementById("drawer").hidden, true);
+    assert.equal(document.activeElement, card);
+    assert.equal(document.getElementById("explorer-content").hasAttribute("inert"), false);
   }
 });

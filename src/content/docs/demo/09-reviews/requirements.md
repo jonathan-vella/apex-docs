@@ -1,6 +1,6 @@
 ---
 title: "Requirements Review"
-description: "Challenger Agent adversarial review of the requirements document for the Malta Catering demo project"
+description: "April 2026 requirements review record. Preserved historical output, not current workflow guidance."
 sidebar:
   order: 1
 ---

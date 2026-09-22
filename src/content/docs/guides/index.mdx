@@ -1,5 +1,5 @@
 ---
-title: "How-to & Tutorials"
+title: "Guides"
 description: "Task-oriented guides for prompting, debugging, deploying, and operating APEX."
 sidebar:
   order: 0
@@ -7,10 +7,15 @@ sidebar:
 
 import { CardGrid, LinkCard } from "@astrojs/starlight/components";
 
-These guides answer “how do I …?” for everyday APEX work. Pair with the conceptual material under
-[Concepts](/concepts/) and the reference catalogs under [Reference](/reference/).
+Use these guides for prompting, diagnosis, deployment, and contributor maintenance.
+Read [Concepts](/concepts/) for workflow ownership and [Reference](/reference/) for contracts.
 
 <CardGrid>
+  <LinkCard
+    title="Updating APEX"
+    description="Compare source versions and review upstream changes without losing project customizations."
+    href="/guides/updating-apex/"
+  />
   <LinkCard
     title="Prompt Guide"
     description="Author and reuse effective prompts."
@@ -23,17 +28,17 @@ These guides answer “how do I …?” for everyday APEX work. Pair with the co
   />
   <LinkCard
     title="Session Debugging"
-    description="Inspect Copilot Chat sessions and replay agent runs."
+    description="Inspect project state, handle conflicts, and recover with explicit authorization."
     href="/guides/session-debugging/"
   />
   <LinkCard
     title="azd Deployment"
-    description="Deploy with `azd up`, hooks, and multi-project layouts."
+    description="Use the approved deployment method without bypassing APEX gates."
     href="/guides/azd-deployment/"
   />
   <LinkCard
     title="Security Baseline"
-    description="The non-negotiable HTTPS / TLS / Entra ID / private-endpoint floor."
+    description="Apply security defaults, policy, and service-specific networking rules."
     href="/reference/security-baseline/"
   />
   <LinkCard

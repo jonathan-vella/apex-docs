@@ -3,10 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>APEX — Architecture Explorer (v2)</title>
+    <title>APEX Architecture Explorer</title>
     <meta
       name="description"
-      content="Two readable views over the APEX architecture: a Step 1→7 workflow timeline and a searchable agent card grid. Built from the same graph JSON as the 3D explorer."
+      content="Inspect the pinned APEX workflow, agents, skills, and source relationships in a timeline or searchable grid."
     />
     <link rel="icon" type="image/svg+xml" href="/images/favicon.svg" />
     <style>
@@ -36,8 +36,8 @@
         --cat-mcp: #fb7185;
 
         /* Model palette */
-        --model-claude: #d97706;
-        --model-gpt: #10a37f;
+        --model-claude: #f6b35e;
+        --model-gpt: #48d7ab;
         --model-other: #6b7280;
       }
       @media (prefers-color-scheme: light) {
@@ -50,7 +50,20 @@
           --border-strong: #afb8c1;
           --text: #1f2328;
           --text-dim: #424a53;
-          --text-faint: #6e7781;
+          --text-faint: #56616d;
+          --accent: #0064b0;
+          --accent-strong: #005a9e;
+          --focus: #954000;
+          --cat-agent: #005a9e;
+          --cat-subagent: #5145a6;
+          --cat-skill: #006b49;
+          --cat-instruction: #755400;
+          --cat-prompt: #a12665;
+          --cat-validator: #6941a5;
+          --cat-workflow: #006575;
+          --cat-mcp: #ac2142;
+          --model-claude: #8c4b00;
+          --model-gpt: #006b49;
         }
       }
       * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -66,6 +79,12 @@
       a { color: var(--accent-strong); text-decoration: none; }
       a:hover { text-decoration: underline; }
       button { font-family: inherit; cursor: pointer; }
+      button:focus-visible, a:focus-visible, input:focus-visible {
+        outline: 3px solid var(--focus);
+        outline-offset: 3px;
+      }
+      button.step, button.card { text-align: left; color: var(--text); }
+      .step-title, .agent-name, .step-desc, .card-foot { display: block; }
 
       /* ---------- Top bar ---------- */
       #topbar {
@@ -80,7 +99,7 @@
         z-index: 30;
         flex-wrap: wrap;
       }
-      #brand { font-weight: 700; font-size: 15px; letter-spacing: 0.5px; }
+      #brand { margin: 0; font-weight: 700; font-size: 15px; letter-spacing: 0.5px; }
       #brand .accent { color: var(--accent-strong); }
       .view-toggle {
         display: inline-flex;
@@ -154,8 +173,8 @@
         border-radius: 4px;
         margin-bottom: 8px;
       }
-      .step-num.optional { background: var(--text-faint); }
-      .step h3 {
+      .step-num.optional { background: var(--panel-2); color: var(--text); border: 1px solid var(--border); }
+      .step .step-title {
         font-size: 14px;
         margin-bottom: 4px;
         color: var(--text);
@@ -269,7 +288,7 @@
         gap: 8px;
         margin-bottom: 8px;
       }
-      .card h4 {
+      .card .card-title {
         font-size: 14px;
         font-weight: 600;
         font-family: "JetBrains Mono", "Fira Code", monospace;
@@ -398,7 +417,7 @@
 
   <body>
     <header id="topbar">
-      <div id="brand"><span class="accent">APEX</span> · Architecture Explorer</div>
+      <h1 id="brand"><span class="accent">APEX</span> · Architecture Explorer</h1>
       <div class="view-toggle" role="tablist" aria-label="View selector">
         <button id="btn-timeline" class="active" role="tab" aria-selected="true" data-view="timeline">Workflow Timeline</button>
         <button id="btn-grid" role="tab" aria-selected="false" data-view="grid">Agent Grid</button>
@@ -412,10 +431,11 @@
       <span class="topbar-meta" id="topbar-meta"></span>
     </header>
 
-    <main>
+    <main id="explorer-content">
       <!-- ===================== Timeline view ===================== -->
       <section class="view active" id="view-timeline" aria-labelledby="btn-timeline">
         <div class="section-h">Core workflow · Steps 1 → 7</div>
+        <p class="topbar-meta">Select each main agent yourself. Choose one IaC track. Deploy presents the preview and requires approval before apply.</p>
         <div class="timeline" id="timeline-core"></div>
 
         <div class="section-h">Side agents · Diagnostics, reviews, optimisation</div>
@@ -434,7 +454,7 @@
 
     <!-- ===================== Detail drawer ===================== -->
     <div class="drawer-backdrop" id="drawer-backdrop"></div>
-    <aside class="drawer" id="drawer" aria-hidden="true">
+    <aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-title" aria-hidden="true" hidden>
       <div class="drawer-head">
         <h2 id="drawer-title">—</h2>
         <button class="drawer-close" id="drawer-close" aria-label="Close">×</button>
@@ -448,15 +468,15 @@
       // ---- Workflow step mapping (canonical, mirrors workflow-graph.json) ----
       // Step number → { agent label, gate after?, optional?, fork? }
       const STEP_MAP = [
-        { step: "1", label: "Requirements", agent: "02-Requirements", gateAfter: "Gate 1 · Approval" },
-        { step: "2", label: "Architecture", agent: "03-Architect", gateAfter: "Gate 2 · Approval" },
+        { step: "1", label: "Requirements", agent: "02-Requirements", gateAfter: "Review and approval" },
+        { step: "2", label: "Architecture", agent: "03-Architect", gateAfter: "Architecture and cost reviews" },
         { step: "3", label: "Design (opt)", agent: "04-Design", optional: true },
-        { step: "3.5", label: "Governance", agent: "04g-Governance", gateAfter: "Gate 2.5 · Approval" },
-        { step: "4", label: "IaC Plan", agent: "05-IaC Planner", gateAfter: "Gate 3 · Approval" },
+        { step: "3.5", label: "Governance", agent: "04g-Governance", gateAfter: "Reconcile policy constraints" },
+        { step: "4", label: "IaC Plan", agent: "05-IaC Planner", gateAfter: "Plan review and approval" },
         { step: "5b", label: "Bicep Code", agent: "06b-Bicep CodeGen", fork: "bicep" },
-        { step: "5t", label: "Terraform Code", agent: "06t-Terraform CodeGen", fork: "terraform", gateAfter: "Gate 4 · Validation" },
+        { step: "5t", label: "Terraform Code", agent: "06t-Terraform CodeGen", fork: "terraform", gateAfter: "Validate code and handoff" },
         { step: "6b", label: "Bicep Deploy", agent: "07b-Bicep Deploy", fork: "bicep" },
-        { step: "6t", label: "Terraform Deploy", agent: "07t-Terraform Deploy", fork: "terraform", gateAfter: "Gate 5 · Approval" },
+        { step: "6t", label: "Terraform Deploy", agent: "07t-Terraform Deploy", fork: "terraform", gateAfter: "Verify provisioning and health" },
         { step: "7", label: "As-Built", agent: "08-As-Built" },
       ];
 
@@ -470,6 +490,8 @@
       let currentView = "timeline";
       let activeFilters = new Set(["agent", "subagent"]);
       let searchQuery = "";
+      let drawerTrigger = null;
+      let previousOverflow = "";
 
       // ---- Helpers ----
       const $ = (id) => document.getElementById(id);
@@ -529,40 +551,44 @@
       }
 
       function makeStepCard(step, node) {
-        const card = document.createElement("div");
+        const card = document.createElement("button");
+        card.type = "button";
+        card.setAttribute("aria-label", `Inspect ${node.label}`);
         card.className = "step" + (step.fork ? " fork" : "");
         card.dataset.nodeId = node.id;
         const skills = relatedSkills(node);
         const mc = modelClass(node.meta && node.meta.model);
         card.innerHTML = `
           <span class="step-num${step.optional ? " optional" : ""}">Step ${escape(step.step)}${step.optional ? " · optional" : ""}</span>
-          <h3>${escape(step.label)}</h3>
-          <div class="agent-name">${escape(node.label)}</div>
-          <div class="step-desc">${escape(firstSentence(node.description))}</div>
-          <div class="chips">
+          <span class="step-title">${escape(step.label)}</span>
+          <span class="agent-name">${escape(node.label)}</span>
+          <span class="step-desc">${escape(firstSentence(node.description))}</span>
+          <span class="chips">
             ${node.meta && node.meta.model ? `<span class="chip model ${mc}">${escape(node.meta.model)}</span>` : ""}
             ${skills.map((s) => `<span class="chip skill">${escape(s)}</span>`).join("")}
-          </div>
+          </span>
         `;
-        card.addEventListener("click", () => openDrawer(node));
+        card.addEventListener("click", () => openDrawer(node, card));
         return card;
       }
 
       function makeSideCard(node) {
-        const card = document.createElement("div");
+        const card = document.createElement("button");
+        card.type = "button";
+        card.setAttribute("aria-label", `Inspect ${node.label}`);
         card.className = "step";
         card.dataset.nodeId = node.id;
         const skills = relatedSkills(node);
         const mc = modelClass(node.meta && node.meta.model);
         card.innerHTML = `
           <span class="step-num optional">${escape(node.label)}</span>
-          <div class="step-desc">${escape(firstSentence(node.description))}</div>
-          <div class="chips">
+          <span class="step-desc">${escape(firstSentence(node.description))}</span>
+          <span class="chips">
             ${node.meta && node.meta.model ? `<span class="chip model ${mc}">${escape(node.meta.model)}</span>` : ""}
             ${skills.map((s) => `<span class="chip skill">${escape(s)}</span>`).join("")}
-          </div>
+          </span>
         `;
-        card.addEventListener("click", () => openDrawer(node));
+        card.addEventListener("click", () => openDrawer(node, card));
         return card;
       }
 
@@ -580,10 +606,12 @@
           btn.className = "filter-chip" + (activeFilters.has(cat) ? " active" : "");
           btn.dataset.cat = cat;
           btn.textContent = cat;
+          btn.setAttribute("aria-pressed", activeFilters.has(cat));
           btn.addEventListener("click", () => {
             if (activeFilters.has(cat)) activeFilters.delete(cat);
             else activeFilters.add(cat);
             btn.classList.toggle("active");
+            btn.setAttribute("aria-pressed", activeFilters.has(cat));
             renderGrid();
           });
           wrap.appendChild(btn);
@@ -611,31 +639,35 @@
         }
 
         matches.forEach((node) => {
-          const card = document.createElement("div");
+          const card = document.createElement("button");
+          card.type = "button";
+          card.setAttribute("aria-label", `Inspect ${node.label}`);
           card.className = "card";
           card.dataset.nodeId = node.id;
           const mc = modelClass(node.meta && node.meta.model);
           const skills = relatedSkills(node);
           card.innerHTML = `
-            <div class="card-head">
-              <h4>${escape(node.label)}</h4>
-              <span class="card-cat-dot" style="background: var(--cat-${node.category})"></span>
-            </div>
-            <div class="card-desc">${escape(firstSentence(node.description))}</div>
-            <div class="card-foot">
-              <div class="chips">
+            <span class="card-head">
+              <span class="card-title">${escape(node.label)}</span>
+              <span class="card-cat-dot" aria-hidden="true" style="background: var(--cat-${node.category})"></span>
+            </span>
+            <span class="card-desc">${escape(firstSentence(node.description))}</span>
+            <span class="card-foot">
+              <span class="chips">
                 <span class="chip category" style="color: var(--cat-${node.category}); border-color: var(--cat-${node.category})">${escape(node.category)}</span>
                 ${node.meta && node.meta.model ? `<span class="chip model ${mc}">${escape(node.meta.model)}</span>` : ""}
                 ${skills.slice(0, 4).map((s) => `<span class="chip skill">${escape(s)}</span>`).join("")}
-              </div>
-            </div>
+              </span>
+            </span>
           `;
-          card.addEventListener("click", () => openDrawer(node));
+          card.addEventListener("click", () => openDrawer(node, card));
           wrap.appendChild(card);
         });
       }
 
-      function openDrawer(node) {
+      function openDrawer(node, trigger) {
+        drawerTrigger = trigger;
+        previousOverflow = document.body.style.overflow;
         $("drawer-title").textContent = node.label;
         const skills = (node.meta && node.meta.skills) || [];
         const subagents = (node.meta && node.meta.subagents) || [];
@@ -678,15 +710,27 @@
 
           ${sourceUrl ? `<a class="source-link" href="${escape(sourceUrl)}" target="_blank" rel="noopener">Open source on GitHub ↗</a>` : ""}
         `;
+        $("drawer").hidden = false;
         $("drawer").classList.add("open");
         $("drawer").setAttribute("aria-hidden", "false");
         $("drawer-backdrop").classList.add("open");
+        $("topbar").setAttribute("inert", "");
+        $("explorer-content").setAttribute("inert", "");
+        document.body.style.overflow = "hidden";
+        $("drawer-close").focus();
       }
 
       function closeDrawer() {
+        if ($("drawer").hidden) return;
         $("drawer").classList.remove("open");
         $("drawer").setAttribute("aria-hidden", "true");
         $("drawer-backdrop").classList.remove("open");
+        $("drawer").hidden = true;
+        $("topbar").removeAttribute("inert");
+        $("explorer-content").removeAttribute("inert");
+        document.body.style.overflow = previousOverflow;
+        if (drawerTrigger?.isConnected) drawerTrigger.focus();
+        drawerTrigger = null;
       }
 
       function switchView(view) {
@@ -738,6 +782,24 @@
       $("drawer-close").addEventListener("click", closeDrawer);
       $("drawer-backdrop").addEventListener("click", closeDrawer);
       document.addEventListener("keydown", (e) => {
+        if (!$("drawer").hidden) {
+          if (e.key === "Escape") {
+            e.preventDefault();
+            closeDrawer();
+          } else if (e.key === "Tab") {
+            const controls = [...$("drawer").querySelectorAll("button, a[href]")];
+            const first = controls[0];
+            const last = controls[controls.length - 1];
+            if (e.shiftKey && document.activeElement === first) {
+              e.preventDefault();
+              last.focus();
+            } else if (!e.shiftKey && document.activeElement === last) {
+              e.preventDefault();
+              first.focus();
+            }
+          }
+          return;
+        }
         if (e.key === "Escape") closeDrawer();
         if (e.key === "/" && document.activeElement.tagName !== "INPUT") {
           e.preventDefault();

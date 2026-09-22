@@ -39,7 +39,7 @@ export default defineConfig({
   integrations: [
     starlight({
       title: "APEX",
-      description: "Agentic Platform Engineering eXperience for Azure — from requirements to deploy-ready IaC",
+      description: "Plan and verify Azure infrastructure with GitHub Copilot agents and human approval.",
       favicon: "/images/favicon.svg",
       logo: {
         src: "./src/assets/images/logo.svg",
@@ -90,6 +90,7 @@ export default defineConfig({
           content: [
             `(async()=>{`,
             `if(!document.querySelector('.mermaid'))return;`,
+            `document.querySelectorAll('.mermaid').forEach((e,i)=>{e.tabIndex=0;e.setAttribute('role','region');e.setAttribute('aria-label','Diagram '+(i+1)+', scroll to view');});`,
             `const {default:mermaid}=await import('https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs');`,
             `const d=document.documentElement.dataset.theme==='dark'||(!document.documentElement.dataset.theme&&window.matchMedia('(prefers-color-scheme:dark)').matches);`,
             // startOnLoad fires on DOMContentLoaded; the dynamic import resolves
@@ -125,15 +126,32 @@ export default defineConfig({
       ],
       sidebar: [
         {
-          label: "Getting Started",
+          label: "Get started",
           collapsed: true,
           items: [
+            { label: "Start here", slug: "getting-started" },
             { label: "Quickstart", slug: "getting-started/quickstart" },
-            { label: "Azure Setup", slug: "getting-started/azure-setup" },
             {
-              label: "Dev Container Setup",
+              label: "Dev container setup",
               slug: "getting-started/dev-containers",
             },
+            { label: "Azure access", slug: "getting-started/azure-setup" },
+          ],
+        },
+        {
+          label: "Run the workflow",
+          collapsed: true,
+          items: [
+            { label: "Workflow overview", slug: "concepts/workflow" },
+            { label: "Step 1: Requirements", slug: "concepts/workflow/step-1" },
+            { label: "Step 2: Architecture", slug: "concepts/workflow/step-2" },
+            { label: "Step 3: Design, optional", slug: "concepts/workflow/step-3" },
+            { label: "Step 3.5: Governance", slug: "concepts/workflow/step-3-5" },
+            { label: "Step 4: IaC plan", slug: "concepts/workflow/step-4" },
+            { label: "Step 5: IaC code", slug: "concepts/workflow/step-5" },
+            { label: "Step 6: Deploy", slug: "concepts/workflow/step-6" },
+            { label: "Step 7: As-built", slug: "concepts/workflow/step-7" },
+            { label: "Lessons learned", slug: "concepts/workflow/post-lessons" },
           ],
         },
         {
@@ -141,7 +159,7 @@ export default defineConfig({
           collapsed: true,
           items: [
             {
-              label: "How It Works",
+              label: "How APEX works",
               collapsed: true,
               items: [
                 {
@@ -149,104 +167,49 @@ export default defineConfig({
                   slug: "concepts/how-it-works",
                 },
                 {
-                  label: "System Architecture",
+                  label: "System architecture",
                   slug: "concepts/how-it-works/architecture",
                 },
                 {
-                  label: "Core Concepts",
+                  label: "Core concepts",
                   slug: "concepts/how-it-works/four-pillars",
                 },
                 {
-                  label: "Agent Architecture",
+                  label: "Agent architecture",
                   slug: "concepts/how-it-works/agents",
                 },
                 {
-                  label: "Skills & Instructions",
+                  label: "Skills and instructions",
                   slug: "concepts/how-it-works/skills-and-instructions",
                 },
                 {
-                  label: "Workflow Engine & Quality",
+                  label: "Workflow engine and validation",
                   slug: "concepts/how-it-works/workflow-engine",
                 },
                 {
-                  label: "MCP Integration",
+                  label: "MCP integration",
                   slug: "concepts/how-it-works/mcp-integration",
                 },
                 {
-                  label: "SKU Manifest",
+                  label: "SKU manifest",
                   slug: "concepts/how-it-works/sku-manifest",
                 },
-                { label: "Workflow", slug: "concepts/workflow" },
+                { label: "Workflow deep dive", slug: "concepts/workflow-deep-dive" },
               ],
             },
           ],
         },
         {
-          label: "Workflow Deep Dive",
+          label: "Guides and troubleshooting",
           collapsed: true,
           items: [
-            { label: "Overview", slug: "concepts/workflow-deep-dive" },
-            {
-              label: "Mental Model",
-              link: "/concepts/workflow-deep-dive/#mental-model",
-            },
-            {
-              label: "Context Surfaces",
-              link: "/concepts/workflow-deep-dive/#the-five-context-surfaces",
-            },
-            {
-              label: "Stage-by-Stage Walkthrough",
-              link: "/concepts/workflow-deep-dive/#stage-by-stage-walkthrough",
-            },
-            {
-              label: "End-to-End Timeline",
-              link: "/concepts/workflow-deep-dive/#end-to-end-run-timeline",
-            },
-            {
-              label: "Lessons Feedback Loop",
-              link: "/concepts/workflow-deep-dive/#the-lessons-learned-feedback-loop",
-            },
-            {
-              label: "Azure Landing Zones",
-              link: "/concepts/workflow-deep-dive/#apex-and-azure-landing-zones",
-            },
-            {
-              label: "Network Planning",
-              link: "/concepts/workflow-deep-dive/#network-planning",
-            },
-            {
-              label: "Appendices",
-              link: "/concepts/workflow-deep-dive/#appendix-a--artifact-contract-reference",
-            },
-          ],
-        },
-        {
-          label: "Walk the workflow",
-          collapsed: true,
-          items: [
-            { label: "Step 1 — Requirements", slug: "concepts/workflow/step-1" },
-            { label: "Step 2 — Architecture", slug: "concepts/workflow/step-2" },
-            { label: "Step 3 — Design (opt)", slug: "concepts/workflow/step-3" },
-            { label: "Step 3.5 — Governance", slug: "concepts/workflow/step-3-5" },
-            { label: "Step 4 — IaC Plan", slug: "concepts/workflow/step-4" },
-            { label: "Step 5 — IaC Code", slug: "concepts/workflow/step-5" },
-            { label: "Step 6 — Deploy", slug: "concepts/workflow/step-6" },
-            { label: "Step 7 — As-Built", slug: "concepts/workflow/step-7" },
-            { label: "Post — Lessons", slug: "concepts/workflow/post-lessons" },
-          ],
-        },
-        {
-          label: "How-to & Tutorials",
-          collapsed: true,
-          items: [
-            { label: "Prompt Guide", slug: "guides/prompt-guide" },
+            { label: "Updating APEX", slug: "guides/updating-apex" },
+            { label: "Prompt guide", slug: "guides/prompt-guide" },
             { label: "Troubleshooting", slug: "guides/troubleshooting" },
-            { label: "Session Debugging", slug: "guides/session-debugging" },
-            { label: "Debug Log Export", slug: "guides/apex-debug-log-export" },
-            { label: "Dev Container Hygiene", slug: "guides/devcontainer-hygiene" },
-            { label: "azd Deployment", slug: "guides/azd-deployment" },
-            { label: "Agent Hooks", slug: "guides/hooks" },
-            { label: "Workflow Validation", slug: "guides/e2e-testing" },
+            { label: "Session state debugging", slug: "guides/session-debugging" },
+            { label: "Debug-log export", slug: "guides/apex-debug-log-export" },
+            { label: "azd deployment", slug: "guides/azd-deployment" },
+            { label: "Workflow validation", slug: "guides/e2e-testing" },
           ],
         },
         {
@@ -255,19 +218,19 @@ export default defineConfig({
           items: [
             { label: "FAQ", slug: "reference/faq" },
             {
-              label: "Validation & Linting",
+              label: "Validation and linting",
               slug: "reference/validation-reference",
             },
-            { label: "Security Baseline", slug: "reference/security-baseline" },
-            { label: "Cost Governance", slug: "reference/cost-governance" },
+            { label: "Security baseline", slug: "reference/security-baseline" },
+            { label: "Cost governance", slug: "reference/cost-governance" },
             {
-              label: "Prompt Reference",
+              label: "Prompt reference",
               collapsed: true,
               items: [
-                { label: "Best Practices", slug: "reference/prompts/best-practices" },
-                { label: "Workflow Prompts", slug: "reference/prompts/workflow-prompts" },
-                { label: "Repository Slash Prompts", slug: "reference/prompts/repository-prompts" },
-                { label: "Skill & Subagent Reference", slug: "reference/prompts/skills-subagents" },
+                { label: "Prompting practices", slug: "reference/prompts/best-practices" },
+                { label: "Workflow prompts", slug: "reference/prompts/workflow-prompts" },
+                { label: "Repository slash prompts", slug: "reference/prompts/repository-prompts" },
+                { label: "Skills and subagents", slug: "reference/prompts/skills-subagents" },
               ],
             },
             {
@@ -275,23 +238,25 @@ export default defineConfig({
               slug: "reference/architecture-explorer",
             },
             { label: "Glossary", slug: "reference/glossary" },
-            { label: "Resources & Downloads", slug: "reference/resources" },
+            { label: "Resources and downloads", slug: "reference/resources" },
           ],
         },
         {
-          label: "Project",
+          label: "Contribute",
           collapsed: true,
           items: [
             { label: "Contributing", slug: "project/contributing" },
-            { label: "Docs Style Guide", slug: "project/style-guide" },
-            { label: "Sensei Branch", slug: "project/sensei-branch" },
+            { label: "Writing guide", slug: "project/style-guide" },
+            { label: "Sensei branch", slug: "project/sensei-branch" },
             { label: "Changelog", slug: "project/changelog" },
+            { label: "Agent hooks", slug: "guides/hooks" },
+            { label: "Dev container hygiene", slug: "guides/devcontainer-hygiene" },
+            { label: "Base-image validation", slug: "guides/devcontainer-base-validation" },
           ],
         },
         {
-          label: "Demo: Il-Pastizzeria ta' Mario",
+          label: "Case study: Il-Pastizzeria ta' Mario",
           collapsed: true,
-          badge: { text: "New", variant: "tip" },
           items: demoSidebarItems,
         },
       ],

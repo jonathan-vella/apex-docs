@@ -1,126 +1,76 @@
 ---
-title: "Sensei Branch"
-description: "Why sensei lives on its own branch, what it is, and how to merge sensei-bearing work into main without dragging the plugin along."
+title: "Sensei branch"
+description: "Scope and historical context for the optional APEX skill-audit branch."
 ---
 
-This page is for **contributors** working with the `feat/skills-sensei`
-branch and the skills audit programme. End users do not need to read it.
+This is contributor background for the APEX branch `feat/skills-sensei`, not a
+requirement for using APEX or editing this site. The branch still existed at the
+audit, at `be4528b813e38b8c114ba433d227cdd989eba57c`.
+Do not assume its tooling is installed on product main.
 
 ## What sensei is
 
-Sensei is an upstream skill-quality plugin
-([spboyer/sensei](https://github.com/spboyer/sensei)) pinned in this
-repository as a **git submodule** at `.github/skills/sensei`. The submodule
-is declared in `.gitmodules`. Sensei provides:
-
-- A standard scoring CLI for skill frontmatter quality.
-- A GEPA (Generative-Evaluator-Per-Anchor) auto-evaluator for cross-skill
-  comparison and optimisation candidates.
-- A regex-based trigger-array scanner used to validate skill trigger phrases.
-
-Sensei is **wrapped**, not embedded. The repo provides thin wrappers under
-`tools/scripts/` (`run-sensei-audit.mjs`, `audit-gepa-candidate.mjs`,
-`run-stage5-audit.mjs`, `scaffold-trigger-tests.mjs`) and npm script
-entries (`audit:skills`, `audit:skills:gepa`) that drive the upstream tools
-against this repo's skills tree.
+[Sensei](https://github.com/spboyer/sensei) provides skill-quality assessment tooling.
+The branch integration uses a submodule at `.github/skills/sensei` and wrappers
+for its audit procedures. Inspect that branch's `.gitmodules`, scripts, and package
+manifest before running them.
 
 ## Why sensei lives on `feat/skills-sensei` only
 
-Sensei is **in-flight tooling**. Until the plugin is upstreamed and the
-audit programme is hardened, sensei artefacts must not land on `main`. The
-reasons:
-
-| Concern                  | Why it matters                                                                                                                                                                                                                       |
-| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Submodule churn          | The plugin moves fast; pinning a submodule on `main` creates a moving target for every clone of the accelerator template.                                                                                                            |
-| Dev container bootstrap  | `.devcontainer/post-create.sh` on the sensei branch performs `git submodule update --init` and `npm install` inside the submodule. On `main`, that's unnecessary work and a potential failure point for users who do not run audits. |
-| Shim artefacts are inert | Files like `tests/{skill}/triggers.test.ts` exist so sensei's regex parser can discover trigger arrays. They are not executed by any test runner. On `main`, they are dead code.                                                     |
-| Audit-programme outputs  | `.github/skills/_audits/` holds historical batch reports, GEPA snapshots, and a TODO tracker for a programme that has already completed. They belong to the sensei branch as workspace state, not to `main` as documentation.        |
-| Token-budget config      | `.token-limits.json` is read by `npm run tokens check`, which is only installed via the sensei submodule. Shipping it without sensei breaks the implied command.                                                                     |
-
-The **work product** of sensei-driven audits — skill frontmatter rewrites,
-body-section additions, token squeezes, archive cleanup — ships to `main`
-normally. The plugin and its shims do not.
+The audit dependency and its generated reports are separate from the product's
+normal workflow. They add setup and maintenance requirements that users do not
+need for requirements, planning, or deployment.
 
 ## What ships to `main` from a sensei branch
 
-Three tiers, classified by tooling vs. work product:
+Reviewed improvements to product skills can ship independently of the audit
+tooling. Classify changes before preparing a main-bound pull request:
 
-| Tier                               | Path patterns                                                                                                                                                                                                                                                                                                                | Action                          |
-| ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- |
-| Tier 1 — sensei tooling            | `.github/skills/sensei`, `.gitmodules`, `.github/prompts/sensei/`, `tools/scripts/run-sensei-audit.mjs`, `tools/scripts/scaffold-trigger-tests.mjs`, `tools/scripts/audit-gepa-candidate.mjs`, `tools/scripts/run-stage5-audit.mjs`, `package.json` `audit:skills*` entries, `.devcontainer/post-create.sh` sensei bootstrap | **Exclude** from main-bound PRs |
-| Tier 2 — sensei work-product shims | `tests/{skill}/triggers.test.ts`, `tests/{skill}/trigger_tests.yaml`, `.github/skills/_audits/`, `.token-limits.json`, `.github/prompts/plan-skillsAuditOptimize.prompt.md`                                                                                                                                                  | **Exclude** from main-bound PRs |
-| Tier 3 — skill content + features  | `.github/skills/{skill}/SKILL.md` edits, `.archive/_archived_skills/` renames, unrelated MCP / agent / instruction changes                                                                                                                                                                                                   | **Include** in main-bound PRs   |
+| Change | Treatment |
+|---|---|
+| Submodule, wrappers, bootstrap, and audit-only commands | Keep separate unless their promotion is explicitly approved. |
+| Audit reports and parser/test shims | Establish whether they are required product inputs before including them. |
+| Skill content and related product fixes | Review against current main and its validators. |
 
 ## Merging sensei-bearing work into `main`
 
-The repo ships a reusable prompt that automates the exclusion, validation,
-and PR-creation flow:
+The branch's `merge-sensei-free-pr` procedure describes excluding audit-only
+material. Verify that the prompt exists in the selected revision before invoking it.
 
-- **Prompt file**: `.github/prompts/merge-sensei-free-pr.prompt.md`
-- **VS Code invocation**: type `/merge-sensei-free-pr` in Copilot Chat.
-- **Inputs**: source branch (default `feat/skills-sensei`), target branch
-  (default `main`).
-
-The prompt drives a seven-step flow:
-
-1. Pre-flight (branch fetch, `gh` auth check, clean working tree).
-2. Create a working branch named `chore/merge-{source}-to-{target}`.
-3. **Discover and classify** every changed file dynamically by path
-   pattern and content scan for the literal string `sensei`.
-4. **Present** the Tier 1/2/3 classification and ask for approval.
-5. Apply the exclusions (`git checkout origin/{target} -- <file>` for
-   modified Tier 1 paths, `git rm` for the rest).
-6. Validate (`npm run validate:skills`, `npm run lint:mcp-config`, ruff)
-   and commit with an exclusion-receipt body.
-7. Push and open the PR via `gh pr create` with a body that lists every
-   excluded path and recommends squash-merge.
-
-User approval is required before any `git rm`, `git push`, or
-`gh pr create`. The prompt refuses to bypass pre-push validators with
-`--no-verify`.
+Inspect every proposed exclusion and preserve unrelated work. Obtain approval
+before destructive changes and requested GitHub writes. Do not bypass validators
+to force the resulting branch through.
 
 ### Why squash-merge
 
-The intermediate commits on a sensei branch contain the now-excluded
-sensei files. Only **squash-merge** gives `main` a clean linear history
-without those files appearing in any reachable commit on the default
-branch.
+Squashing a reviewed diff can avoid adding the source branch's intermediate
+tooling commits to main's ancestry. It does not erase those commits from other
+branches or GitHub, and it is not a remedy for committed secrets.
 
 ### Common failure modes
 
-| Failure                                                                                                        | Recovery                                                                                                                           |
-| -------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| Pre-push validator catches an orphan reference (e.g. another `SKILL.md` describing a now-removed sensei skill) | Edit the offending file as part of the exclusion commit. Do **not** push with `--no-verify`.                                       |
-| Discovery flags a file you want to keep                                                                        | Manually reclassify as Tier 3 and document the override in the commit body.                                                        |
-| `gh auth status` fails inside the dev container                                                                | Set `GH_TOKEN` via VS Code User Settings → `terminal.integrated.env.linux`. The prompt will not run `gh auth login` automatically. |
-| Source branch unfetchable                                                                                      | Push or rename the branch on the source machine first.                                                                             |
-| Uncommitted edits outside `agent-output/`                                                                      | Stash, commit on the source branch, or abort. The prompt will not silently include or discard them.                                |
+| Failure | Response |
+|---|---|
+| Wrapper or submodule missing | Verify the selected branch instead of installing undocumented dependencies. |
+| Orphan references after exclusions | Repair references and repeat the affected validators. |
+| GitHub authentication fails | Check `gh auth status` in the executing environment. |
+| Uncommitted work conflicts with the procedure | Preserve it and resolve scope before applying exclusions. |
+
+For optional `GH_TOKEN` forwarding, the `${localEnv:GH_TOKEN}` container setting
+reads the host VS Code process environment. Integrated-terminal settings do not
+populate it. See [container setup](/getting-started/dev-containers/).
 
 ## Running sensei audits locally
 
-The audit programme is currently **complete** (all in-scope skills at GEPA
-`quality_score: 1.00` as of 2026-05-10). If you need to re-run audits
-because you added or substantially edited a skill:
+Use a separate checkout of the intended branch, inspect its setup, and run only
+commands that its package manifest declares. Treat scores as evidence from that
+revision and assessment method, not certification of current skill behavior.
 
-1. Check out `feat/skills-sensei`. The submodule will be cloned and
-   `npm install` will run inside `.github/skills/sensei/scripts/` during
-   dev container post-create.
-2. Run `npm run audit:skills` to score a batch or single skill.
-3. Run `npm run audit:skills:gepa` for a global cross-skill GEPA report.
-4. Apply the suggested frontmatter changes manually, then re-validate
-   with `npm run validate:skills`.
-5. Use `/merge-sensei-free-pr` to ship the **skill content** changes to
-   `main` without dragging the submodule along.
-
-Do not run sensei tooling on `main` or on any branch that does not
-declare the sensei submodule in `.gitmodules`. The wrapper scripts and
-npm script entries assume the submodule is present and will fail in
-non-obvious ways otherwise.
+The historical claim that every skill scored `1.00` is not a current acceptance
+criterion. Product source tests and runtime verification remain separate.
 
 ## Related references
 
-- Contributor guide: [Contributing](../contributing/)
-- Branch naming and PR flow: `.github/skills/apex-github-operations/SKILL.md`
-- Prompt file conventions: `.github/instructions/prompt.instructions.md`
-- Sensei upstream: [spboyer/sensei](https://github.com/spboyer/sensei)
+- [Contributing](/project/contributing/)
+- [Skills and instructions](/concepts/how-it-works/skills-and-instructions/)
+- [Workflow validation](/guides/e2e-testing/)

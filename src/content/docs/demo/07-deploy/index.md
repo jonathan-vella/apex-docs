@@ -1,17 +1,15 @@
 ---
 title: "Deployment Overview"
-description: "Preflight validation results, deployment details, and SKU adaptation from the Deploy Agent for the Malta catering infrastructure"
+description: "April 2026 deployment overview record. Preserved historical output, not current workflow guidance."
 sidebar:
   order: 7
 ---
 
-:::tip[Editorial Context]
-This artifact was produced by the **Bicep Deploy Agent** (Step 6 of the APEX pipeline).
-The Deploy Agent executes the generated Bicep templates against the live Azure subscription
-using `azd provision`. It performs preflight validation (bicep build, lint, what-if preview),
-runs the actual deployment, and documents the results including any runtime adaptations.
-In this case, the agent autonomously switched the App Service Plan from S1 to P0v3 after
-discovering that S1 Linux was unavailable in the target subscription.
+:::note[Editorial context]
+The April 2026 run used azd and recorded an automatic S1-to-P0v3 substitution.
+Current APEX requires escalation and approval for such a change.
+The Succeeded status below is the provisioning result. Production and staging
+application probes returned HTTP 503.
 :::
 
 ## Preflight Validation

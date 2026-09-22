@@ -1,6 +1,6 @@
 ---
-title: "Dev Container Hygiene"
-description: "Reduce Copilot context bloat from workspace and extension customizations"
+title: "Dev container hygiene"
+description: "Inspect unwanted Copilot context and compare active customizations with the product configuration."
 sidebar:
   order: 8
 ---
@@ -9,14 +9,13 @@ This guide explains how APEX keeps GitHub Copilot Chat context lean in the dev
 container, and what contributors can do locally when extension-contributed chat
 customizations inflate every turn.
 
-The largest avoidable source is extension-contributed customization: chat
-skills, chat agents, chat prompt files, and chat participants registered by VS
-Code extensions. These can be loaded into every Copilot Chat turn even when they
-are unrelated to the APEX workflow.
+Extensions can contribute skills, agents, prompts, and chat participants. Inspect
+what the client actually loads before attributing context size to an extension.
+The product and Accelerator container configurations can differ by revision.
 
-## Repository Mitigations
+## Repository mitigations
 
-### User-Scope Discovery Is Disabled
+### User-scope discovery is disabled
 
 The workspace settings disable user-profile customization discovery for this
 repository:
@@ -34,14 +33,14 @@ The same settings are mirrored into the dev container VS Code customizations.
 They are workspace-scoped, so personal prompts and instructions still work in
 other repositories.
 
-### The Dev Container Extension List Is Curated
+### The dev container extension list is curated
 
 The dev container extension list excludes extensions that contribute heavy
 Copilot Chat customizations without serving the APEX workflow. The policy is
 recorded next to the `customizations.vscode.extensions` array in
 `.devcontainer/devcontainer.json`.
 
-### Unwanted Extension Recommendations Warn Contributors
+### Unwanted extension recommendations warn contributors
 
 The workspace uses `.vscode/extensions.json` `unwantedRecommendations` to
 flag extensions that commonly add large chat customization payloads:
@@ -51,11 +50,11 @@ flag extensions that commonly add large chat customization payloads:
 - `ms-windows-ai-studio`: AI Toolkit is not used by the APEX flow.
 - `teamsdevapp.vscode-ai-foundry`: AI Foundry is not used by the APEX flow.
 
-When one of these extensions is installed, VS Code shows a workspace-specific
-recommendation dialog. Accepting the prompt removes the extension from this
-workspace environment.
+These entries express unwanted recommendations. They are not proof that an
+extension is disabled or uninstalled. Inspect the active local and remote
+extension lists in VS Code.
 
-### CI Rejects Denylisted Extensions
+### CI rejects denylisted extensions
 
 `npm run validate:extension-bloat` rejects changes that add denylisted
 extensions to the dev container extension list. The denylist lives in
@@ -65,15 +64,14 @@ Borderline extensions can remain as `unwantedRecommendations` only. That keeps
 the warning visible without blocking contributors who deliberately need a tool
 for work outside the APEX flow.
 
-## Contributor Cleanup
+## Contributor cleanup
 
-### Acknowledge the VS Code Dialog
+### Acknowledge the VS Code dialog
 
-When the workspace opens, accept the unwanted extension recommendation dialog
-for flagged extensions. This is the simplest way to reduce per-turn context in
-this repository.
+Review the extension's purpose and active scope before disabling or uninstalling
+it. Do not assume dismissing a recommendation changes the active extension set.
 
-### Remove Extensions Globally When Appropriate
+### Remove extensions globally when appropriate
 
 To remove flagged extensions from every workspace on your machine, run these
 commands from your host VS Code environment:
@@ -87,7 +85,7 @@ code --uninstall-extension teamsdevapp.vscode-ai-foundry
 Reinstall an extension later with `code --install-extension <id>` if you start
 using it in another workspace.
 
-### Trim User-Profile Prompt Files
+### Trim user-profile prompt files
 
 Personal `*.instructions.md` and `*.prompt.md` files in your VS Code user
 profile load globally by default. The workspace suppresses them for APEX, but
@@ -99,7 +97,7 @@ Common locations:
 - macOS: `~/Library/Application Support/Code/User/prompts/`
 - Linux: `~/.config/Code/User/prompts/`
 
-### Inspect What Loaded
+### Inspect what loaded
 
 Right-click in the Copilot Chat view and select **Diagnostics**. The diagnostics
 view lists every active agent, skill, instruction, prompt, and hook, including
@@ -108,7 +106,7 @@ where each one came from.
 Use this when you need to confirm that workspace mitigations are active or when
 a new extension appears to be adding unexpected context.
 
-## Adding Dev Container Extensions
+## Adding dev container extensions
 
 Before adding an extension to `.devcontainer/devcontainer.json`, inspect the
 extension `package.json` for these `contributes` keys:
@@ -123,17 +121,11 @@ and skill model, prefer a per-developer install. If the extension should be
 blocked for everyone, update the denylist in
 `tools/scripts/validate-extension-bloat.mjs` and document the reason.
 
-## Parallel Chat Retry Race
+## Parallel chat retry race
 
-VS Code Copilot Chat can occasionally issue the same model request twice in
-parallel, usually during slow or rate-limited turns. The second response may
-replace the first in chat history. Both requests can count against input tokens,
-but only the later response is visible.
-
-This is a client-layer behavior, not an APEX agent behavior. Agent prompts cannot
-reliably prevent it because the retry happens outside the agent's execution
-context. Saved telemetry can reveal the pattern by grouping `chat:` spans with
-the same `gen_ai.request.id` within a short time window.
+If a session appears to repeat a request, retain the relevant timestamps, request
+IDs, and logs. Similar spans alone do not establish duplicate billing, discarded
+responses, or the cause of a retry. Report observations separately from hypotheses.
 
 When filing an upstream issue, use the Copilot Chat feedback issue template in
 `.github/ISSUE_TEMPLATE/copilot-chat-feedback.md` and include the relevant saved
@@ -141,9 +133,9 @@ telemetry details.
 
 ## Related
 
-- [Debug Log Export](../apex-debug-log-export/) — bundle Copilot debug logs
+- [Debug Log Export](../apex-debug-log-export/). bundle Copilot debug logs
   for review
-- [Session Debugging](../session-debugging/) — recover workflow state and
+- [Session Debugging](../session-debugging/). recover workflow state and
   resume safely
-- [Validation & Linting](../../reference/validation-reference/) — run
+- [Validation & Linting](../../reference/validation-reference/). run
   repository validation checks

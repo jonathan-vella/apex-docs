@@ -1,6 +1,6 @@
 ---
 title: "Implementation Review"
-description: "Challenger Agent adversarial review of the Bicep implementation for the Malta Catering demo project"
+description: "April 2026 implementation review record. Preserved historical output, not current workflow guidance."
 sidebar:
   order: 4
 ---

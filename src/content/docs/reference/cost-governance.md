@@ -1,21 +1,19 @@
 ---
-title: "Cost Governance Guide"
+title: "Cost governance"
 description: "Budget alerts, forecasts, and cost anomaly detection"
 ---
 
-> Budget alerts, forecast notifications, and anomaly detection for every deployment.
-
-## Why Cost Governance Is Mandatory
+## Why cost governance is mandatory
 
 Every IaC deployment in this project **must** include cost monitoring resources.
 This is enforced by `iac-bicep-best-practices.instructions.md`
 and `iac-terraform-best-practices.instructions.md`, which apply to
 all `.bicep`, `.tf`, and implementation plan files.
 
-The rule is simple: **no budget, no merge**. Challenger reviews verify cost
-monitoring exists, and CI validators flag missing budget resources.
+Required reviews check the cost-monitoring contract. Do not infer complete coverage
+from CI or a source scan; verify the approved scope and deployed configuration.
 
-## Budget Alert Setup
+## Budget alert setup
 
 Every deployment implements the governed cost-monitoring contract: a
 scope-appropriate Azure Budget, actual and forecast notifications, Action Group
@@ -32,7 +30,7 @@ Budget amounts and notification recipients remain parameters. Do not copy
 thresholds or notification blocks into documentation; the canonical contract
 changes independently of this guide.
 
-## Per-Environment Budgets
+## Per-environment budgets
 
 Use parameterised budgets that scale by environment:
 
@@ -42,10 +40,10 @@ Use parameterised budgets that scale by environment:
 | `staging`   | Medium         | Production-like but limited use |
 | `prod`      | Full           | Production workload capacity    |
 
-Set the budget amount via `.bicepparam` or `terraform.tfvars` —
+Set the budget amount via `.bicepparam` or `terraform.tfvars`,
 never hardcode it in the template.
 
-## Azure Resource Manager MCP Tools
+## Azure resource manager MCP tools
 
 The **cost-estimate-subagent** uses the hosted Azure Resource Manager MCP server
 during architecture review and as-built documentation:
@@ -66,7 +64,7 @@ The **Microsoft Learn documentation tools** (exposed through the Azure MCP
 `command: "microsoft_docs_search"`) are used for looking up service-specific
 pricing documentation.
 
-## Repeatability Rules
+## Repeatability rules
 
 The cost governance instruction enforces **zero hardcoded values**:
 
@@ -75,7 +73,7 @@ The cost governance instruction enforces **zero hardcoded values**:
 - Budget amounts must be parameterised
 - `.bicepparam` / `terraform.tfvars` is the only place for project defaults
 
-## Adversarial Review Checklist
+## Adversarial review checklist
 
 The Challenger reviews verify two mandatory cost categories:
 
@@ -90,9 +88,9 @@ The Challenger reviews verify two mandatory cost categories:
 
 - [ ] No hardcoded project names or values
 - [ ] `projectName` is a required parameter
-- [ ] Template deploys to any tenant/region/subscription
+- [ ] Target scope, region, permissions, and service availability match the approved plan
 
-## Post-Deployment Validation
+## Post-deployment validation
 
 After deployment, verify budget alerts are active:
 
@@ -113,18 +111,17 @@ az consumption budget show \
 
 - The mandatory IaC best-practices instructions
   (`.github/instructions/iac-bicep-best-practices.instructions.md` and `iac-terraform-best-practices.instructions.md`)
-  enforce these patterns automatically via glob matching
+  define the required patterns. Glob matching alone does not prove runtime attachment
 - **Reusable budget patterns** are available in the IaC pattern skills:
   - Bicep: `.github/skills/apex-azure-bicep-patterns/references/budget-pattern.md`
   - Terraform: `.github/skills/apex-terraform-patterns/references/budget-pattern.md`
-- [MCP Integration](/concepts/how-it-works/mcp-integration/)
-  — Azure Resource Manager MCP pricing and cost tools
-- [Workflow](/concepts/workflow/) — how cost estimation fits into the agent workflow
+- [MCP integration](/concepts/how-it-works/mcp-integration/)
+- [Workflow](/concepts/workflow/)
 
   :::
 
 ## Related
 
-- [Quickstart](/getting-started/quickstart/) — install and run your first project
-- [Workflow](/concepts/workflow/) — how agents collaborate across steps
-- [Troubleshooting](/guides/troubleshooting/) — diagnose failed deploys
+- [Quickstart](/getting-started/quickstart/). install and run your first project
+- [Workflow](/concepts/workflow/). how agents collaborate across steps
+- [Troubleshooting](/guides/troubleshooting/). diagnose failed deploys

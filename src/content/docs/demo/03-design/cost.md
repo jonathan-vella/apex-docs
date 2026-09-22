@@ -1,6 +1,6 @@
 ---
 title: "Cost Estimate"
-description: "Detailed Azure cost breakdown, savings opportunities, and 6-month projection for the Malta catering online ordering app"
+description: "April 2026 cost estimate record. Preserved historical output, not current workflow guidance."
 sidebar:
   order: 2
 ---

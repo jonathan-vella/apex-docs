@@ -4,7 +4,8 @@ description: Cut AI tells from any writing. Must always apply.
 disable-model-invocation: true
 ---
 
-<!-- Sourced from cursor/plugins (pstack/skills/unslop), MIT licensed. -->
+<!-- Sourced from https://github.com/cursor/plugins/tree/main/pstack/skills/unslop.
+     Copyright (c) 2026 Lauren Tan. MIT license notice in LICENSE. -->
 
 # Unslop
 

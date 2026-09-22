@@ -1,6 +1,6 @@
 ---
 title: "Tagging Policy"
-description: "Required resource group tags, tag key casing drift, and tag inheritance policy details for the Malta catering project"
+description: "April 2026 tagging policy record. Preserved historical output, not current workflow guidance."
 sidebar:
   order: 1
 ---

@@ -1,9 +1,9 @@
 ---
-title: "Step 3.5 — Governance"
+title: "Step 3.5: Governance"
 description: "Discover Azure Policy assignments and emit a machine-readable governance constraint set."
 sidebar:
   order: 4
-  label: "Step 3.5 — Governance"
+  label: "Step 3.5: Governance"
 ---
 
 ## Purpose
@@ -15,14 +15,14 @@ downstream IaC planning and deployment.
 ## Agent
 
 [`04g-Governance`](https://github.com/jonathan-vella/apex/blob/main/.github/agents/04g-governance.agent.md)
-— uses the
+uses the
 [`apex-azure-governance-discovery`](https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-governance-discovery/SKILL.md)
 skill.
 
 ## Invocation
 
 ```text
-Invoke: Ctrl+Shift+A → 04g-Governance
+Select: 04g-Governance in Copilot Chat
 Output: agent-output/{project}/04-governance-constraints.md
         agent-output/{project}/04-governance-constraints.json
 ```
@@ -32,21 +32,20 @@ Output: agent-output/{project}/04-governance-constraints.md
 - Policy assignments at subscription + management-group scope.
 - Policy definitions and exemptions referenced by assignments.
 - Effect classification (`Deny`, `Audit`, `Modify`, `DeployIfNotExists`).
-- Dual-track property mapping — `bicepPropertyPath` + `azurePropertyPath` — so both IaC tracks can
-  self-validate.
+- Property mapping through `bicepPropertyPath` and `azurePropertyPath` for downstream validation.
 - SKU allowlist projection via `derive-sku-allowlist.mjs`, written into
   `sku-manifest.sku_allowlist_snapshot`.
 
 ## Review
 
-1 × `governance-reconciliation` adversarial pass (mandatory when constraints exist; skipped when the
-policy array is empty).
+One `governance-reconciliation` review is mandatory when constraints exist. Use
+the `10-Challenger` handoff. An empty policy array can skip this review, but failed
+or incomplete discovery does not establish that the scope has no constraints.
 
-:::note[Approval Gate]
+:::note[Approval gate]
 The user must approve governance constraints before proceeding to Step 4 planning.
 :::
 
 ## Hand-off
 
-The Orchestrator routes context to [`Step 4 — IaC
-Plan`](/concepts/workflow/step-4/).
+After approving the constraints, select [Step 4: IaC plan](/concepts/workflow/step-4/).

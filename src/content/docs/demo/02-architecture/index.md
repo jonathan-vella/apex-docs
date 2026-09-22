@@ -1,17 +1,14 @@
 ---
 title: "Solution Architecture Overview"
-description: "Executive summary, recommended architecture, decision summary, and implementation handoff for the Malta catering online ordering app"
+description: "April 2026 solution architecture overview record. Preserved historical output, not current workflow guidance."
 sidebar:
   order: 2
 ---
 
-:::tip[Editorial Context]
-This artifact was produced by the **Architect Agent** (Step 2 of the APEX pipeline).
-It validates the requirements from Step 1, proposes a recommended Azure architecture,
-documents key architecture decisions with WAF pillar mapping, and packages an
-implementation handoff for the IaC Planner. The Architect Agent scores each WAF
-pillar, resolves open challenger findings, and produces a cost estimate — all
-without human intervention.
+:::note[Editorial context]
+The historical Architect output proposed App Service S1 and recorded WAF scores
+and cost assumptions. These are generated assessments, not independent certification.
+Current architecture and cost reviews require human-selected handoffs.
 :::
 
 ## Requirements Validation

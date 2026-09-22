@@ -1,20 +1,20 @@
 ---
-title: "Step 5 — IaC Code"
-description: "Generate AVM-aligned Bicep or Terraform templates with built-in lint and security review."
+title: "Step 5: IaC code"
+description: "Generate Bicep or Terraform from the approved plan, validate it, and prepare its deployment handoff."
 sidebar:
   order: 6
-  label: "Step 5 — IaC Code"
+  label: "Step 5: IaC code"
 ---
 
 ## Purpose
 
-Generate the IaC templates that realise the Step 4 plan, following Azure Verified Modules (AVM)
-standards. The agent emits track-specific code plus an `05-implementation-reference.md` that maps
-each AVM module to the plan's resource graph.
+Generate IaC from the approved Step 4 plan and machine-readable contracts.
+Keep the resource graph, policy-property map, and environment manifest consistent
+with the code. Produce `05-iac-handoff.json` for the deployment agent.
 
 ## Agents
 
-Track-routed via `decisions.iac_tool`:
+Select the agent for the project's IaC track:
 
 - [`06b-Bicep
   CodeGen`](https://github.com/jonathan-vella/apex/blob/main/.github/agents/06b-bicep-codegen.agent.md)
@@ -24,11 +24,11 @@ Track-routed via `decisions.iac_tool`:
 ## Invocation
 
 ```text
-Bicep:     Invoke → 06b-Bicep CodeGen
+Bicep:     Select 06b-Bicep CodeGen
            Output  infra/bicep/{project}/main.bicep + modules/
-Terraform: Invoke → 06t-Terraform CodeGen
+Terraform: Select 06t-Terraform CodeGen
            Output  infra/terraform/{project}/main.tf + modules/
-Shared:    agent-output/{project}/05-implementation-reference.md
+Shared:    agent-output/{project}/05-iac-handoff.json
 ```
 
 ## Standards (both tracks)
@@ -36,7 +36,8 @@ Shared:    agent-output/{project}/05-implementation-reference.md
 - AVM-first composition; never re-derive resources by hand when an AVM module exists.
 - Unique-suffix pattern for globally-named resources.
 - Required tags enforced by `tag_contract` from Step 3.5.
-- Security baseline: TLS 1.2, HTTPS-only, no public blob, managed identity, Entra-only SQL.
+- Apply the [security baseline](/reference/security-baseline/) and effective policy,
+  including service-specific requirements and documented exceptions.
 - Step 3.5 (governance) compliance mapping wired into module inputs.
 
 ## Preflight validation
@@ -47,14 +48,15 @@ Shared:    agent-output/{project}/05-implementation-reference.md
 
 ## Review
 
-Opt-in by default. `decisions.review_depth = "deep"` or an explicit `10-Challenger` invocation
-triggers an adversarial code review.
+Adversarial code review is off by default and requires explicit opt-in.
+Use the `10-Challenger` handoff when a code review is requested. Deterministic
+build, lint, contract, and security checks still apply without that review.
 
-:::note[Approval Gate]
+:::note[Approval gate]
 The user must approve preflight validation results before deployment.
 :::
 
 ## Hand-off
 
-The Orchestrator routes context to [`Step 6 —
-Deploy`](/concepts/workflow/step-6/).
+After reviewing the validation evidence, select the track-specific deployment
+agent for [Step 6](/concepts/workflow/step-6/). Validation alone does not authorize apply.

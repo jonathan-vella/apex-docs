@@ -1,262 +1,178 @@
 ---
-title: "Dev Containers Setup Guide"
-description: "Set up the VS Code Dev Container environment"
+title: "Dev container setup"
+description: "Open an APEX project in VS Code on x86-64 Windows with WSL2, then verify tools and authentication."
 ---
 
-> Complete guide for the VS Code Dev Container environment
+This page describes the container in a project created from
+[apex-accelerator](https://github.com/jonathan-vella/apex-accelerator).
+The separate apex-docs container only builds this site.
 
-## What Are Dev Containers?
+## What are dev containers?
 
-Dev Containers use Docker to create a full-featured development environment inside a container.
-When you open this repository in a Dev Container:
+VS Code Dev Containers runs your repository with its declared tools and editor
+configuration inside a container. It does not grant GitHub or Azure permissions.
+You remain responsible for choosing the account, subscription, and operations.
 
-- All required tools are pre-installed (Azure CLI, Bicep, PowerShell 7)
-- VS Code extensions are automatically configured
-- Git credentials are shared from your host machine
-- The environment matches what other team members use
+## System requirements
 
-## System Requirements
+The primary setup is x86-64 Windows, WSL2, VS Code, and Docker Desktop with WSL
+integration. Keep the repository in the WSL Linux filesystem.
 
-:::caution[Docker Required]
-A container runtime (Docker Desktop, Rancher Desktop, Colima, or Podman) must be running
-before you open the dev container. See [Alternative Docker Options](#alternative-docker-options)
-if Docker Desktop licensing does not suit your organization.
-:::
+### Docker options
 
-### Docker Options
-
-| Platform               | Recommended                       | Alternatives            |
-| ---------------------- | --------------------------------- | ----------------------- |
-| **Windows 10/11 Pro**  | Docker Desktop with WSL 2         | Rancher Desktop, Podman |
-| **Windows 10/11 Home** | Docker Desktop with WSL 2 (2004+) | —                       |
-| **macOS**              | Docker Desktop 2.0+               | Colima, Rancher Desktop |
-| **Linux**              | Docker CE/EE 18.06+               | Podman                  |
+Use a Docker-compatible engine supported by your organization. This guide describes
+Docker Desktop on WSL2. Other runtimes and architectures are not verified by this
+guide.
 
 ### Hardware
 
-| Resource | Minimum    | Recommended |
-| -------- | ---------- | ----------- |
-| RAM      | 8 GB       | 16 GB       |
-| CPU      | 2 cores    | 4+ cores    |
-| Disk     | 10 GB free | 20 GB free  |
+Allow enough memory and disk for the container image, language tools, package
+caches, and your workload. Inspect the container build output if setup runs out
+of resources. A fixed install-time promise is not useful across different hosts
+and networks.
 
 ### Software
 
-| Software                 | Version   | Purpose               |
-| ------------------------ | --------- | --------------------- |
-| VS Code                  | Latest    | IDE                   |
-| Dev Containers Extension | Latest    | Container integration |
-| Docker                   | See above | Container runtime     |
-| Git                      | 2.30+     | Version control       |
+Install VS Code, its WSL and Dev Containers extensions, Git in WSL, and a running
+Docker engine. Use supported versions of WSL and Docker for your Windows version.
 
-## Installation Steps
+## Installation steps
 
-### Step 1: Install Docker
+### Step 1: install Docker
 
-=== "Windows (WSL 2)"
+Follow the [WSL installation instructions](https://learn.microsoft.com/windows/wsl/install)
+and [Docker Desktop WSL guide](https://docs.docker.com/desktop/features/wsl/).
+Enable Docker's WSL2 engine and integration for the distribution that holds your
+repository.
 
-    ```powershell
-    # Install WSL 2 (if not already installed)
-    wsl --install
-
-    # Then download and install Docker Desktop
-    # https://www.docker.com/products/docker-desktop
-
-    # Enable WSL 2 backend in Docker Desktop settings
-    ```
-
-=== "macOS"
-
-    1. Download [Docker Desktop for Mac](https://www.docker.com/products/docker-desktop)
-    2. Start Docker Desktop from Applications
-    3. Wait for "Docker Desktop is running"
-
-=== "Linux"
-
-    ```bash
-    # Ubuntu/Debian
-    curl -fsSL https://get.docker.com | sh
-    sudo usermod -aG docker $USER
-    # Log out and back in for group changes
-
-    # Verify
-    docker --version
-    ```
-
-### Step 2: Install VS Code Extension
+From that WSL distribution, check:
 
 ```bash
-code --install-extension ms-vscode-remote.remote-containers
+docker version
+docker ps
 ```
 
-Or install from Extensions (`Ctrl+Shift+X`) → search "Dev Containers".
+These commands inspect the engine. Do not stop unrelated containers to resolve a
+port conflict.
 
-### Step 3: Open in Dev Container
+### Step 2: install VS Code extension
+
+Install the WSL and Dev Containers extensions through VS Code's extension view.
+Open the repository from WSL with `code .`. Confirm that the VS Code remote
+indicator identifies your WSL distribution before opening the container.
+
+### Step 3: open in dev container
+
+Create your repository from the Accelerator template first, following the
+[quickstart](/getting-started/quickstart/). Use **Dev Containers: Reopen in
+Container** from the command palette.
+
+Wait for the lifecycle scripts to finish. Read any reported error rather than
+assuming a visible editor means setup completed. Rebuild when the repository's
+container definition changes.
+
+### Step 4: GitHub authentication
+
+Git can use credentials forwarded by VS Code through a credential helper or SSH
+agent. The GitHub CLI has its own authentication configuration. Check it inside
+the container when a task needs GitHub operations:
 
 ```bash
-git clone https://github.com/YOUR-USERNAME/my-infraops-project.git
-cd my-infraops-project
-code .
+gh auth status
 ```
 
-:::note[Use the template repository]
-Do not clone this upstream project directly. Create your own repo from the
-[Accelerator template](https://github.com/jonathan-vella/apex-accelerator)
-first. See the [Quickstart](../quickstart/) for the full setup flow.
+Choose an approved sign-in method yourself if authentication is missing. The
+container can retain GitHub CLI configuration in its named volume. Setup and
+agents should not silently sign in, switch accounts, or alter persistent Git
+credential settings.
+
+An optional `GH_TOKEN` is forwarded through `${localEnv:GH_TOKEN}`. That value
+comes from the environment inherited by the host VS Code process. Supply it
+securely before launching that process. When rotating it, fully exit and relaunch
+VS Code, then reopen the container. An environment token takes precedence over
+stored GitHub CLI credentials.
+
+:::caution[Terminal settings do not configure the host process]
+`terminal.integrated.env.*` only configures integrated terminals. It does not
+populate `${localEnv:GH_TOKEN}` for container creation or the extension host.
+Exporting a value inside the container does not change the host environment.
 :::
 
-Press `F1` → **Dev Containers: Reopen in Container**
+A fine-grained PAT is optional. Limit its repositories, permissions, and lifetime
+to the intended work and your organization's policy. Never commit it, paste it
+into chat, or ask an agent to print it.
 
-First build takes 2-5 minutes. Subsequent opens are instant.
+If an operation uses the wrong account, inspect the identity and target repository
+before changing credentials. A permission failure can also come from branch
+protection or organization policy.
 
-### Step 4: GitHub Authentication
+### Step 5: verify setup
 
-Git normally uses host credentials forwarded by VS Code Dev Containers through a credential helper
-or SSH agent. The `gh` CLI authenticates separately: use an explicitly authenticated configuration
-in the persistent `~/.config/gh` Docker volume, or an optional host-process `GH_TOKEN`.
-If needed, the user chooses and performs authentication, for example with `gh auth login`.
-Setup and agents do not automatically log in, switch credentials, or change persistent Git settings.
-
-**Optional token forwarding:** `${localEnv:GH_TOKEN}` reads the environment inherited by the host
-VS Code process when it launches. Supply the token securely in that host environment before launching
-VS Code. Fully exit and relaunch an existing VS Code process, then reopen the container, when changing
-or rotating that value. An environment token takes precedence over stored `gh` credentials.
-
-:::caution[Terminal-only settings]
-`terminal.integrated.env.*` affects integrated terminals only. It does not populate `${localEnv:GH_TOKEN}`
-or supply credentials to all lifecycle hooks, MCP processes, and the extension host.
-Exporting a token inside the container does not change the host VS Code environment.
-:::
-
-A fine-grained PAT is optional, not mandatory. Limit repository access, permissions, and lifetime to
-the intended operations, subject to organization approval and policy. Never put secrets in repository
-files, paste tokens into chat, or ask an agent to receive or display them.
-
-**If Git denies access to an unexpected account**, compare the account named in the denial with:
+Check the tools inside the container:
 
 ```bash
-gh api user --jq .login
+az --version
+bicep --version
+terraform --version
+pwsh --version
+apex-recall --help
 ```
 
-Check the target repository and branch. Only after the user confirms the `gh` identity and explicitly
-authorizes using it for the push, use a per-command helper for the approved feature branch:
+Tool availability and authentication are separate checks. Consult
+[Azure setup](/getting-started/azure-setup/) before granting cloud access or running
+setup automation.
 
-```bash
-git -c credential.helper= -c credential.helper='!gh auth git-credential' push origin <approved-feature-branch>
-```
+## Alternative Docker options
 
-Replace the branch placeholder before running. The empty helper clears inherited helpers for this invocation;
-single quotes protect `!` from Bash history expansion. No persistent Git configuration is changed.
-This does not authorize a force push or a push to `main`. If identities match, investigate permissions
-or branch protection instead of switching credentials.
+<span id="rancher-desktop-free-docker-desktop-alternative"></span>
+<span id="colima-macos-only"></span>
+<span id="podman-linuxmacos"></span>
 
-### Step 5: Verify Setup
+Rancher Desktop, Colima, and Podman have their own compatibility and configuration
+requirements. This documentation does not claim a validated APEX setup on those
+runtimes or on ARM. Follow their documentation and verify the project lifecycle
+scripts before adopting an alternative.
 
-```bash
-az --version && bicep --version && pwsh --version
-```
+## What's included
 
-:::note[Azure CLI extension prompts are pre-configured away]
-The devcontainer sets Azure CLI config during `post-create.sh` so extension-backed commands can
-install stable extensions automatically without prompting:
+The product container declares Azure CLI, Bicep, Terraform, PowerShell, Python,
+Node.js, GitHub CLI, and Azure Developer CLI tooling. Its lifecycle scripts install
+project dependencies and `apex-recall`. VS Code loads the repository's agents,
+skills, instructions, hooks, and MCP configuration.
 
-```bash
-az config set extension.use_dynamic_install=yes_without_prompt
-az config set extension.dynamic_install_allow_preview=false
-```
-
-This avoids the common warning about dynamic extension installation. Preview extensions remain
-manual unless you explicitly change that setting.
-:::
-
-## Alternative Docker Options
-
-:::tip[Choose your Docker runtime before installing]
-If Docker Desktop licensing is a concern, consider one of these free alternatives.
-Choose your runtime **before** opening the dev container for the first time.
-:::
-
-### Rancher Desktop (Free Docker Desktop Alternative)
-
-1. Download from [rancherdesktop.io](https://rancherdesktop.io/)
-2. Choose "dockerd (moby)" as runtime
-3. Works with VS Code Dev Containers extension
-
-### Colima (macOS Only)
-
-```bash
-brew install colima docker
-colima start
-```
-
-### Podman (Linux/macOS)
-
-```bash
-# macOS
-brew install podman
-podman machine init
-podman machine start
-
-# Linux
-sudo apt install podman
-```
-
-Configure VS Code: `"dev.containers.dockerPath": "podman"`
-
-## What's Included
-
-The Dev Container includes:
-
-| Category               | Tools                                                                    |
-| ---------------------- | ------------------------------------------------------------------------ |
-| **Azure**              | Azure CLI, Bicep CLI, Azure Resource Manager MCP                         |
-| **Terraform**          | Terraform CLI and Registry API access                                    |
-| **PowerShell**         | PowerShell 7+, Az modules                                                |
-| **Python**             | Python 3.14, diagrams library, graphviz                                  |
-| **Node.js**            | Node LTS+, npm, markdownlint                                             |
-| **APEX Tools**         | `apex-recall` CLI (progressive session recall)                           |
-| **VS Code Extensions** | Curated language, IaC, Copilot, and GitHub extensions                    |
-
-Dependencies install during container creation from lockfiles and pinned
-manifests. `post-start.sh` only restores hook permissions and reports azd
-authentication status.
+Use the configuration in your template-derived repository as the setup authority.
+APEX main can contain changes that the template has not yet incorporated. Do not
+install a duplicate Azure MCP extension merely because an older guide recommends it.
 
 ## Troubleshooting
 
-### Container Won't Start
+### Container won't start
 
-```bash
-# Check Docker is running
-docker ps
+Check the Docker engine, WSL integration, available disk, and the first failing
+build or lifecycle command. Preserve the error message. Do not bypass certificate
+validation to get past a package-download failure.
 
-# Rebuild without cache
-# F1 → Dev Containers: Rebuild Container Without Cache
-```
+### Port conflicts
 
-### Port Conflicts
+Identify which process or container owns the port. Change the intended project's
+forwarded port or stop only a process you own and have chosen to stop.
 
-Stop other containers using the same ports:
+### Slow performance (Windows/macos)
 
-```bash
-docker ps
-docker stop <container-id>
-```
+On Windows, keep the checkout under the WSL Linux filesystem rather than `/mnt/c`.
+Review Docker's resource allocation and available disk before rebuilding caches.
+macOS performance and architecture support were not verified for this guide.
 
-### Slow Performance (Windows/macOS)
+### Extensions not loading
 
-- Increase Docker Desktop memory allocation (Settings → Resources)
-- Use WSL 2 backend on Windows (faster than Hyper-V)
-- Close unnecessary applications
-
-### Extensions Not Loading
-
-```bash
-# Force extension reinstall
-# F1 → Developer: Reload Window
-```
+Confirm that you are in the container window, inspect extension installation
+errors, and compare the enabled customizations with the repository configuration.
+A window reload may resolve a completed installation; it does not fix a failed
+container setup.
 
 ## References
 
-- [VS Code Dev Containers Documentation](https://code.visualstudio.com/docs/devcontainers/containers)
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
-- [Rancher Desktop](https://rancherdesktop.io/)
+- [VS Code Dev Containers](https://code.visualstudio.com/docs/devcontainers/containers)
+- [Quickstart](/getting-started/quickstart/)
+- [Troubleshooting](/guides/troubleshooting/)
+- [Pinned Accelerator configuration](https://github.com/jonathan-vella/apex-accelerator/blob/a77442889129b26a2a89c0d5faa5f1d35a84965c/.devcontainer/devcontainer.json)

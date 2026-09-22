@@ -1,6 +1,6 @@
 ---
 title: "Governance Review"
-description: "Challenger Agent adversarial review of the governance constraints for the Malta Catering demo project"
+description: "April 2026 governance review record. Preserved historical output, not current workflow guidance."
 sidebar:
   order: 3
 ---

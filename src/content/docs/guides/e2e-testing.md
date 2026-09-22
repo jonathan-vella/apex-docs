@@ -6,7 +6,7 @@ description: "Validate production workflow contracts and perform manual acceptan
 Use deterministic checks for source contracts and the production workflow for human-reviewed acceptance.
 Passing a source check does not prove native agent discovery, model availability, or generated-output quality.
 
-## Run Focused Checks
+## Run focused checks
 
 ```bash
 npm run test:tool-contracts
@@ -19,7 +19,7 @@ Select the suite that covers the changed behavior. Production artifact, policy, 
 remain available in the [validation reference](../../reference/validation-reference/).
 Artifact Markdown validation belongs to the commit hook and Challenger review.
 
-## Perform Manual Acceptance
+## Perform manual acceptance
 
 Start with `01-Orchestrator` and retain human approval gates on both Bicep and Terraform tracks.
 Verify fresh and resumed workflows, required reviews, handoffs, and recovery from failed validation.
@@ -29,7 +29,7 @@ Missing evidence or blocking findings must be resolved before advancing.
 Check Local and Agent Host discovery and model selection separately. Offline source tests cannot certify
 native harness behavior. Azure operations and deployment still require their normal authorization and checks.
 
-## Migrate From The Retired Harness
+## Migrate from the retired harness
 
 The autonomous RALPH E2E subsystem is no longer supported. Its orchestrator, dedicated launch and analysis
 prompts, benchmark scripts, exclusive fixtures, and scheduled workflow are retired.
@@ -45,6 +45,6 @@ configuration, and CI workflow from the pre-retirement revision together. Do not
 
 ## Related
 
-- [Quickstart](../../getting-started/quickstart/) — install and run your first project
-- [Workflow](../../concepts/workflow/) — how agents collaborate across steps
-- [Troubleshooting](../troubleshooting/) — diagnose failed deploys
+- [Quickstart](../../getting-started/quickstart/). install and run your first project
+- [Workflow](../../concepts/workflow/). how agents collaborate across steps
+- [Troubleshooting](../troubleshooting/). diagnose failed deploys

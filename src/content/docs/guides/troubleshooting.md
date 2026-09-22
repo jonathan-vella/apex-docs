@@ -1,549 +1,227 @@
 ---
-title: "Troubleshooting Guide"
-description: "Common issues and solutions"
+title: "Troubleshooting"
+description: "Diagnose agent, container, authentication, validation, and deployment failures without bypassing workflow gates."
 ---
 
-<img src="/images/hero-troubleshooting.jpg"
-    width="100%" height="250" style="object-fit: cover; border-radius: 10px;"
-    alt="Diagnostic tools and troubleshooting"/>
+Record the repository revision, project, selected agent, failing command, and
+exact error before changing anything. Work in the same environment that failed.
+Redact credentials and sensitive configuration from shared evidence.
 
-# Troubleshooting Guide
+<span id="troubleshooting-guide"></span>
+<span id="agent-codenames-quick-reference"></span>
 
-> Common issues and solutions for APEX
+## Agent names
 
-## Agent Codenames Quick Reference
+Use the current names in the agent picker rather than historical codenames.
+The [workflow roster](/concepts/workflow/#core-agents-by-workflow-step) lists main
+agents. `01-Orchestrator` helps identify the next step; the owner selects it.
 
-:::note[Related guides]
+## Quick decision tree
 
-- [Session Debugging](../session-debugging/) — session resume failures, stale locks, state recovery
-- [Cost Governance](../cost-governance/) — budget alert setup and post-deployment validation
-- [Validation & Linting](../../reference/validation-reference/) — all validation scripts and CI workflows
+| Failure | Start here |
+|---|---|
+| Missing agent or skill | Verify the checkout, file, invocation flags, and editor diagnostics. |
+| Corrupt or conflicting state | Use [session state debugging](/guides/session-debugging/). |
+| Authentication | Test the specific tool's context without printing tokens. |
+| Policy or preview | Preserve the failing evidence and return to the responsible step. |
+| Site build | Use apex-docs commands, not product validators. |
 
-:::
+## Common issues
 
-| Agent             | Codename        | Common Issues                    |
-| ----------------- | --------------- | -------------------------------- |
-| Orchestrator      | 🧠 Orchestrator | Subagent invocation not working  |
-| requirements      | 📜 Scribe       | Not appearing in list            |
-| architect         | 🏛️ Oracle       | MCP pricing not connecting       |
-| iac-planner       | 📐 Strategist   | Governance discovery failing     |
-| bicep-codegen     | ⚒️ Forge        | Validation subagents not running |
-| terraform-codegen | ⚒️ Forge        | Provider version mismatches      |
-| bicep-deploy      | 🚀 Envoy        | Azure auth issues                |
-| terraform-deploy  | 🚀 Envoy        | State lock / init failures       |
-| challenger        | ⚔️ Challenger   | —                                |
-| diagnose          | 🔍 Sentinel     | —                                |
+### 1. Agent not appearing in list
 
-## Quick Decision Tree
+Confirm that you opened the product or Accelerator repository, not this site-only
+checkout. Check `.github/agents/` and the relevant file's frontmatter. Confirm
+Copilot access and inspect editor diagnostics. Reload the window after a corrected
+configuration if needed.
 
-Before you start troubleshooting, confirm whether you are running inside the
-dev container or directly on your local machine. Setup fixes differ: container
-problems usually point to Docker or forwarded settings, while local problems
-usually point to missing CLIs or environment variables.
+<span id="2-orchestratorsubagent-invocation-not-working-vs-code-1109"></span>
 
-```mermaid
-flowchart TD
-    START["Problem?"] --> TYPE{"What type?"}
+### 2. Orchestrator does not invoke the next main agent
 
-    TYPE -->|"Agent won't start"| AGENT
-    TYPE -->|"Skill not activating"| SKILL
-    TYPE -->|"Deployment fails"| DEPLOY
-    TYPE -->|"Bicep errors"| VALIDATE_B
-    TYPE -->|"Terraform errors"| VALIDATE_T
-    TYPE -->|"Azure auth"| AUTH
+This is expected in the current workflow. Main agents, including Challenger,
+require human selection. Do not add wildcard `agents: ["*"]` permissions or an
+obsolete experimental setting to make Orchestrator delegate.
 
-    AGENT --> AGENT1["Check: Ctrl+Shift+A<br/>shows agent list?"]
-    AGENT1 -->|No| AGENT2["Reload VS Code window"]
-    AGENT1 -->|Yes| AGENT3["Agent missing from list?<br/>Check .agent.md exists"]
+If an allowed helper fails, inspect the parent agent's actual tool and helper
+declarations. Main-agent handoffs and bounded helper calls are different mechanisms.
 
-    SKILL --> SKILL1["Using trigger keywords?"]
-    SKILL1 -->|No| SKILL2["Add explicit keywords<br/>or reference skill by name"]
-    SKILL1 -->|Yes| SKILL3["Check SKILL.md file<br/>for correct triggers"]
+### 3. Skill not activating automatically
 
-    DEPLOY --> DEPLOY1["Run preflight first:<br/>deploy agent preflight check"]
+Read its `SKILL.md` invocation flags. Manual-only skills require explicit selection.
+Name the skill and requested task, or load its instructions explicitly when the
+client cannot discover it. Do not claim that keyword matching proves a skill loaded.
 
-    VALIDATE_B --> VALIDATE_B1["Run: bicep build main.bicep<br/>bicep lint main.bicep"]
-    VALIDATE_T --> VALIDATE_T1["Run: terraform validate<br/>terraform fmt -check"]
+### 4. Deployment fails with Azure policy error
 
-    AUTH --> AUTH1["az: az login\nazd: azd auth login --use-device-code"]
+Capture the assignment/definition, target scope, evaluated property, and exact
+failure. Return stale or incomplete policy discovery to Governance. Return design,
+plan, or code conflicts to their owners.
 
-    style START fill:#e1f5fe
-    style AGENT fill:#fff3e0
-    style SKILL fill:#f3e5f5
-    style DEPLOY fill:#c8e6c9
-    style VALIDATE_B fill:#fce4ec
-    style VALIDATE_T fill:#e8d5f5
-    style AUTH fill:#fff9c4
-```
+Do not choose a new SKU, remove a tag, or enable public access merely to pass a
+deployment. Effective policy and the approved design determine the correction.
 
-## Common Issues
+### 5. Bicep build errors
 
-### 1. Agent Not Appearing in List
-
-**Symptom**: `Ctrl+Shift+A` doesn't show expected agent.
-
-**Causes**:
-
-- Agent file not in `.github/agents/` folder
-- YAML front matter syntax error
-- VS Code extension not loaded
-
-**Solutions**:
+From the product root, replace `{project}` with the actual project:
 
 ```bash
-# Check agent files exist
-ls -la .github/agents/*.agent.md
-
-# Validate YAML front matter
-head -20 .github/agents/requirements.agent.md
+bicep --version
+bicep restore infra/bicep/{project}/main.bicep
+bicep lint infra/bicep/{project}/main.bicep
+bicep build infra/bicep/{project}/main.bicep
 ```
 
-Reload VS Code: `Ctrl+Shift+P` → "Developer: Reload Window"
+Check registry access, module versions, parameters, and the reported source location.
+Return repairs to Bicep CodeGen and renew the handoff after changes.
 
-### 2. Orchestrator/Subagent Invocation Not Working (VS Code 1.109+)
+### 5T. Terraform validation errors
 
-**Symptom**: The Orchestrator (🧠 Orchestrator) doesn't delegate to specialized agents.
-Responses are instant, no terminal commands execute, no files are created.
-
-**Root Cause**: The `chat.customAgentInSubagent.enabled` setting is not enabled in
-**User Settings**.
-
-**Solutions**:
-
-1. **Enable in User Settings** (not just workspace):
-   - Press `Ctrl+,` → Search for `customAgentInSubagent`
-   - Check the box to enable
-   - OR add to User Settings JSON:
-
-   ```json
-   {
-     "chat.customAgentInSubagent.enabled": true
-   }
-   ```
-
-2. **Verify agents have `agent` tool**:
-
-   ```bash
-   grep -l '"agent"' .github/agents/*.agent.md
-   # Should list all main agents
-   ```
-
-3. **Verify agents have wildcard `agents` array**:
-
-   ```bash
-   grep 'agents:.*\["\*"\]' .github/agents/*.agent.md
-   # Should show agents: ["*"] in each file
-   ```
-
-4. **Use Chat Diagnostics**:
-   - Right-click in Chat view → "Diagnostics"
-   - Check all agents are loaded correctly
-
-5. **If the session was interrupted** (no new output, truncated response):
-   - Check `agent-output/{project}/00-session-state.json` for the last completed step
-   - Restart the Orchestrator with: _"Resume the workflow from step X"_
-   - See [Workflow Engine](../../concepts/how-it-works/workflow-engine/) for session state details
-
-**Note**: Workspace settings (`.vscode/settings.json`) may not be sufficient
-for experimental features. User settings take precedence.
-
-If the workflow already produced files before failing, resume from the same step
-instead of restarting the whole run. Open the failing artifact, collect the exact
-validation output, and feed that back into the parent agent.
-
-### 3. Skill Not Activating Automatically
-
-**Symptom**: Prompt doesn't trigger expected skill.
-
-**Causes**:
-
-- Missing trigger keywords in prompt
-- Skill file not in `.github/skills/` folder
-- Description doesn't match user intent
-
-**Solutions**:
-
-Use explicit skill invocation:
-
-```text
-"Use the apex-python-diagrams skill to create a diagram"
-```
-
-Check skill triggers in `SKILL.md`:
+Check the project's provider constraints and lock file before changing versions.
+For configuration-only validation in the project directory:
 
 ```bash
-cat .github/skills/apex-python-diagrams/SKILL.md | head -30
+terraform version
+terraform init -backend=false
+terraform fmt -check -recursive
+terraform validate
 ```
 
-### 4. Deployment Fails with Azure Policy Error
+This does not establish remote-backend readiness or authorize a plan/apply.
+Do not force-unlock state as a routine fix. Confirm no operation owns the lock and
+obtain explicit authorization for a state-changing recovery action.
 
-**Symptom**: `az deployment group create` fails with policy violation.
-
-**Common policies**:
-
-| Error             | Cause                                    | Solution                                                                                                                                 |
-| ----------------- | ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| "Azure AD only"   | SQL Server needs Microsoft Entra ID auth | Set `azureADOnlyAuthentication: true`                                                                                                    |
-| "Zone redundancy" | Wrong SKU tier                           | Use P1v4+ for App Service                                                                                                                |
-| "Missing tags"    | Required tags absent                     | Add baseline tags (see `iac-bicep-best-practices.instructions.md` or `iac-terraform-best-practices.instructions.md`) + governance extras |
-
-**Run preflight check**:
-
-```text
-"Run deployment preflight for {project}"
-```
-
-### 5. Bicep Build Errors
-
-**Symptom**: `bicep build` fails.
-
-=== "Bicep"
-
-    **Common causes**:
-
-    ```bash
-    # Check Bicep CLI version
-    bicep --version  # Should be 0.30+
-
-    # Validate syntax
-    bicep lint infra/bicep/{project}/main.bicep
-    ```
-
-    **AVM module not found**:
-
-    ```bash
-    # Restore modules from registry
-    bicep restore infra/bicep/{project}/main.bicep
-    ```
-
-### 5t. Terraform Validation Errors
-
-**Symptom**: `terraform validate` or `terraform plan` fails.
-
-=== "Terraform"
-
-    **Common causes and solutions**:
-
-    ```bash
-    # Check Terraform CLI version
-    terraform --version  # Should be 1.5+
-
-    # Initialize providers (run from project directory)
-    cd infra/terraform/{project}
-    terraform init -backend=false
-
-    # Check formatting
-    terraform fmt -check -recursive
-
-    # Validate configuration
-    terraform validate
-    ```
-
-    **Provider version mismatch**:
-
-    ```bash
-    # Lock providers to specific versions
-    terraform providers lock -platform=linux_amd64
-    ```
-
-    **AVM-TF module not found**:
-
-    Verify the module source in `main.tf` matches the Terraform Registry path:
-
-    ```hcl
-    # Correct AVM-TF module source pattern
-    module "example" {
-      source  = "Azure/avm-res-<provider>-<resource>/azurerm"
-      version = "~> 0.x"
-    }
-    ```
-
-   **Terraform validation errors**:
-
-    ```bash
-   terraform fmt -check -recursive
-   terraform validate
-    ```
-
-**State lock issues**:
-
-:::danger[Destructive Operation]
-`terraform force-unlock` can corrupt state if used while another operation is
-genuinely in progress. Only use when you are certain the lock is stale.
-:::
-
-```bash
-terraform force-unlock <lock-id>
-```
-
-### 6. Azure Authentication Issues
-
-**Symptom**: "Not logged in" or subscription errors during `az` or `azd` operations.
-
-:::caution[Two separate auth contexts]
-`az` and `azd` use **independent** MSAL token caches. Being logged in to one does **not**
-authenticate the other. Container restarts, new devcontainer sessions, and VS Code remote
-connections can invalidate either context independently.
-:::
+### 6. Azure authentication issues
 
 #### Azure CLI (`az`)
 
+An account listing does not validate a token. Check both context and token acquisition:
+
 ```bash
-# Check (informational only — does NOT validate the token)
 az account show --output table
-
-# Mandatory — validate a real ARM token
-az account get-access-token \
-  --resource https://management.azure.com/ --output none
-
-# Recovery
-az login --use-device-code
-az account set --subscription "<subscription-id>"
+az account get-access-token --resource https://management.azure.com/ --output none
 ```
 
-#### Azure Developer CLI (`azd`)
+If authentication expired, sign in with the intended identity and recheck the
+subscription. Do not change identities merely to bypass a permission failure.
+
+#### Azure developer CLI (`azd`)
+
+Azure CLI and azd have separate caches. Check azd with:
 
 ```bash
-# Check azd auth status
 azd auth login --check-status
-
-# Login (device code works reliably in devcontainers/Codespaces)
-azd auth login --use-device-code
 ```
 
-#### Service Principal (both `az` and `azd`)
+Use the organization's approved sign-in method if it needs reauthentication.
+
+<span id="service-principal-both-az-and-azd"></span>
+
+#### Service principal authentication
+
+Verify tenant, application identity, and assigned scope without exposing secrets.
+Use the organization's approved automation identity and credential mechanism.
+Do not paste credentials into prompts, committed scripts, or diagnostic bundles.
+
+### 7. Artifact validation failures
+
+Compare the affected artifact with its current template under
+`.github/skills/apex-azure-artifacts/templates/`. Preserve required headings and
+their order. Run the check named in the failure through the supported product
+workflow. Do not delete mandatory sections to satisfy a prose cleanup.
+
+### 8. MCP server not responding
+
+Check `.vscode/mcp.json`, the client's registered servers, authentication, and the
+specific tool's error. Restart the failed server through the client's MCP controls
+when appropriate.
+
+Missing pricing evidence must remain missing. Work that does not depend on the
+failed tool may continue, but a required check cannot become a success by fallback.
+Governance uses Azure authentication independently of retail-pricing access.
+
+### 9. Dev container build fails
+
+Read the first failed build step. Confirm Docker is available and WSL integration
+is enabled. Check proxy, registry, disk, and port errors before rebuilding.
+Do not disable TLS verification to get past a package-download failure.
+
+Use [container setup](/getting-started/dev-containers/) for the supported environment.
+A successful native Windows dev preview does not establish Linux build compatibility.
+
+<span id="10-orphaned-vs-code-extensions-injecting-unwanted-instructions"></span>
+
+### 10. Unexpected extension instructions
+
+Inspect the active remote and local extension lists and the conversation's context
+diagnostics. Compare them with the actual container configuration. Product and
+template revisions can differ.
+
+Disable or uninstall a confirmed unwanted extension through VS Code, then reload.
+Do not recursively remove extension directories based on an unverified name match.
+If it returns, inspect image/configuration sources before rebuilding.
+
+### 11. Git push fails with Lefthook errors
+
+Identify whether the failure comes from pre-commit, commit-message, pre-push, or CI.
+Run the named check from the correct repository root and fix its cause.
+Product scripts do not necessarily exist in apex-docs.
+
+Do not use `--no-verify` as a routine workaround. A corrected commit message does
+not resolve a failing source or artifact validator.
+
+### 12. Handoff prompt not working
+
+Check that the target agent exists and matches the handoff declaration. Main-agent
+selection remains a human action. Inspect malformed frontmatter or a client discovery
+problem rather than adding delegation privileges.
+
+## Diagnostic commands
+
+### Environment check
+
+Run only the checks relevant to the failure:
 
 ```bash
-# az
-az login --service-principal \
-  -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET \
-  --tenant $AZURE_TENANT_ID
-
-# azd
-azd auth login \
-  --client-id "$AZURE_CLIENT_ID" \
-  --client-secret "$AZURE_CLIENT_SECRET" \
-  --tenant-id "$AZURE_TENANT_ID"
+node --version
+python3 --version
+git --version
+bicep --version
+terraform version
+az version
 ```
 
-### 7. Artifact Validation Failures
+### Workspace validation
 
-**Symptom**: `npm run validate` fails.
+Read the current repository's `package.json` and CI workflow. The
+[validation reference](/reference/validation-reference/) separates product and site
+checks. Run infrastructure checks in their actual project directory.
 
-**Causes**:
+### Azure status
 
-- Missing required H2 headings
-- Headings in wrong order
-- Using prohibited references
-
-**Check specific artifact**:
+These commands read the selected subscription and specified resource group:
 
 ```bash
-# See validation rules
-cat scripts/_lib/artifact-headings.mjs | grep -A20 "ARTIFACT_HEADINGS"
-```
-
-**Fix order issues**: Compare with template:
-
-```bash
-diff -u .github/skills/apex-azure-artifacts/templates/01-requirements.template.md agent-output/{project}/01-requirements.md
-```
-
-### 8. MCP Server Not Responding
-
-**Symptom**: Azure Resource Manager MCP pricing calls fail.
-
-**Solutions**:
-
-```bash
-# Check MCP configuration
-cat .vscode/mcp.json
-```
-
-In VS Code, run **MCP: List Servers**, select
-`azure-resource-manager-mcp`, and restart it. Install the preview server through
-<https://aka.ms/JoinARMMCP> if it is not registered, then sign in to Azure.
-
-:::tip[Graceful degradation]
-If MCP servers are temporarily unreachable, the workflow degrades gracefully.
-Steps that do not emit dollar figures can proceed without pricing. Cost estimates
-fail closed rather than substituting remembered prices. Governance discovery
-uses Azure CLI authentication independently of the pricing workflow.
-:::
-
-### 9. Dev Container Build Fails
-
-**Symptom**: Dev container won't start.
-
-**Common causes**:
-
-- Docker not running
-- Port conflicts
-- Outdated base image
-
-**Solutions**:
-
-```bash
-# Rebuild without cache
-# In VS Code: Ctrl+Shift+P → "Dev Containers: Rebuild Container Without Cache"
-```
-
-Check Docker is running:
-
-```bash
-docker ps
-```
-
-### 10. Orphaned VS Code Extensions Injecting Unwanted Instructions
-
-**Symptom**: Copilot loads instruction files from extensions that are not listed in `devcontainer.json`
-(e.g., `ms-azuretools.vscode-azure-github-copilot`). You may see unexpected rules or context being
-injected into agent conversations.
-
-**Cause**: Extension directories can persist in `~/.vscode-server/extensions/` even after an extension
-is removed from the `devcontainer.json` extensions list. VS Code auto-loads instruction files from any
-extension on disk, regardless of whether it is actively managed.
-
-**Solution**:
-
-1. List orphaned extensions:
-
-   ```bash
-   # Compare installed extensions against devcontainer.json
-   ls ~/.vscode-server/extensions/ | sort > /tmp/installed.txt
-   # Look for anything not in your devcontainer.json extensions list
-   ```
-
-2. Remove the orphaned extension directory:
-
-   ```bash
-   rm -rf ~/.vscode-server/extensions/<orphaned-extension-folder>
-   ```
-
-3. Reload the VS Code window (`Ctrl+Shift+P` → "Developer: Reload Window").
-
-> **Note**: Orphaned extensions may reappear after a dev container rebuild from a cached Docker layer.
-> If this happens, rebuild without cache:
-> `Ctrl+Shift+P` → "Dev Containers: Rebuild Container Without Cache".
-
-### 11. Git Push Fails with Lefthook Errors
-
-**Symptom**: Pre-commit hooks fail.
-
-**Common hooks**:
-
-| Hook                | Command            | Fix                            |
-| ------------------- | ------------------ | ------------------------------ |
-| Artifact validation | `npm run validate` | Fix H2 structure               |
-| Markdown lint       | `npm run lint:md`  | Fix markdown issues            |
-| Commitlint          | `commitlint`       | Use conventional commit format |
-
-**Skip hooks temporarily** (not recommended):
-
-:::danger[Use with caution]
-Skipping hooks bypasses all validation. Only use for emergency fixes that you will
-immediately follow up with a proper commit.
-:::
-
-```bash
-git commit --no-verify -m "fix: temporary"
-```
-
-### 12. Handoff Prompt Not Working
-
-**Symptom**: Agent handoff button does nothing.
-
-**Causes**:
-
-- Handoff target agent doesn't exist
-- YAML handoffs section malformed
-
-**Check handoffs syntax**:
-
-```yaml
-handoffs:
-  - label: "Create WAF Assessment"
-    agent: architect
-    prompt: "Assess requirements for WAF..."
-    send: true
-```
-
-Ensure target agent exists:
-
-```bash
-ls .github/agents/03-architect.agent.md
-```
-
-## Diagnostic Commands
-
-### Environment Check
-
-```bash
-# All-in-one status
-echo "=== Bicep ===" && bicep --version
-echo "=== Terraform ===" && terraform --version
-echo "=== Azure CLI ===" && az version --output table
-echo "=== Node ===" && node --version
-echo "=== Python ===" && python3 --version
-echo "=== Git ===" && git --version
-```
-
-### Workspace Validation
-
-```bash
-# Validate all artifacts
-npm run validate:all
-
-# Bicep validation
-bicep lint infra/bicep/{project}/main.bicep
-bicep build infra/bicep/{project}/main.bicep
-
-# Terraform validation
-cd infra/terraform/{project} && terraform init -backend=false && terraform validate
-npm run validate:terraform
-
-# Lint markdown
-npm run lint:md
-```
-
-### Azure Status
-
-```bash
-# Current subscription
 az account show --output table
-
-# List resource groups
-az group list --output table
-
-# Check deployments
-az deployment group list -g {resource-group} --output table
+az deployment group list --resource-group "{resource-group}" --output table
 ```
 
-## Getting Help
+Redact output before sharing it. A deployment record alone is not evidence that
+application endpoints are healthy.
 
-1. **Check prompt guide**: [Prompt Guide](../prompt-guide/) has usage examples
-2. **Read agent definitions**: `.github/agents/*.agent.md`
-3. **Check skill files**: `.github/skills/*/SKILL.md`
-4. **Review templates**: `.github/skills/apex-azure-artifacts/templates/`
+## Getting help
 
-### Still Stuck?
+Provide a reproducible failure, source revision, selected agent, and redacted logs.
+Use the product issue tracker for APEX behavior and the docs tracker for site problems.
 
-Use the `diagnose` agent (🔍 Sentinel):
+### Still stuck?
 
-```text
-Ctrl+Shift+A → diagnose
-"My bicep-code agent isn't generating valid templates"
-```
-
-Or start the Orchestrator (🧠 Orchestrator) for a guided workflow:
-
-```text
-Ctrl+Shift+I → Orchestrator
-"Help me troubleshoot my Azure deployment"
-```
+Select `09-Diagnose` for deployed-resource investigation or `01-Orchestrator` to
+identify the owning workflow step. State whether the request is read-only.
+Diagnosis does not authorize remediation.
 
 ## Related
 
-- [Quickstart](../../getting-started/quickstart/) — install and run your first project
-- [Workflow](../../concepts/workflow/) — how agents collaborate across steps
-- [Session Debugging](../session-debugging/) — inspect session state and resume
+- [Session state debugging](/guides/session-debugging/)
+- [Debug-log export](/guides/apex-debug-log-export/)
+- [Validation reference](/reference/validation-reference/)

@@ -1,9 +1,9 @@
 ---
-title: "Skills and Instructions"
+title: "Skills and instructions"
 description: "How skills and instructions guide agents"
 ---
 
-## Skills System
+## Skills system
 
 Repository skill names and directories use exactly one `apex-` prefix, including
 imported skills. Explicit integrations must use the new names: `azure-defaults`
@@ -14,7 +14,7 @@ and externally installed skills are unchanged. See the
 
 [skill-migration]: https://github.com/jonathan-vella/apex/blob/main/tools/tests/exec-plans/active/apex-workflow-audit.md#skill-merger-and-retirement-plan
 
-### Skill Structure
+### Skill structure
 
 Each skill follows a standard layout:
 
@@ -28,13 +28,13 @@ Each skill follows a standard layout:
     └── artifact.template.md
 ```
 
-### Progressive Loading
+### Progressive loading
 
 Skills use discovery metadata (`name` and `description`), then the full `SKILL.md`
 when selected, then references or templates only when needed. There is no alternate
 digest skill tier. Runtime artifact compression is a separate context-management concern.
 
-### Invocation And Harness Boundaries
+### Invocation and harness boundaries
 
 `user-invocable` defaults to `true`; `disable-model-invocation` defaults to `false`.
 A hidden skill is absent from the slash menu. A manual-only skill cannot be selected
@@ -46,12 +46,12 @@ Select the owning agent first; skills inherit its model/tools. Workflow recovery
 `apex-host-workflow-start` with an explicit `resume` operation. Source validation and
 model labels do not prove native discovery, runtime attachment, or model eligibility.
 
-### Skill Catalog
+### Skill catalog
 
-The system contains skills across several domains. The full, always-current
-list is generated from `.github/skills/*/SKILL.md` and surfaced in the
-[Architecture Explorer](../../../reference/architecture-explorer/). The total
-count is computed by `tools/registry/count-manifest.json`. A grouped overview:
+The [Architecture Explorer](/reference/architecture-explorer/) lists skills from
+the product revision pinned by this site. Inspect `.github/skills/*/SKILL.md` in
+your own checkout for its installed inventory. The following groups are examples,
+not an automatically updated catalog:
 
 | Domain               | Skills                                                                                                                                                                                                            |
 | -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -59,7 +59,6 @@ count is computed by `tools/registry/count-manifest.json`. A grouped overview:
 | Azure Operations     | `apex-azure-diagnostics`, `apex-azure-adr`, `apex-azure-deploy`                                                                                                                                                                  |
 | Diagram & Chart      | `apex-python-diagrams`, `apex-mermaid`                                                                                                                                                                                      |
 | Artefact Generation  | `apex-azure-artifacts`, `apex-context-management`                                                                                                                                                                           |
-| Documentation        | `apex-docs-writer`                                                                                                                                                                                                     |
 | Workflow and State   | `apex-workflow-engine`, `apex-golden-principles`                                                                                                                                                                            |
 | Deployment           | `apex-iac-common`                                                                                                                                                                                                      |
 | GitHub Operations    | `apex-github-operations`                                                                                                                                                                                               |
@@ -68,9 +67,9 @@ count is computed by `tools/registry/count-manifest.json`. A grouped overview:
 | Microsoft Learn      | `apex-microsoft-docs`                                                                                                                                                                                                  |
 | Meta / Tooling       | `apex-agent-authoring`, `apex-context-management`                                                                                                                                                                           |
 
-The table is a grouped overview; the filesystem and Explorer provide the current inventory.
-For procedure ownership, `apex-docs-writer` owns gardening and documentation reviews;
-`apex-agent-authoring` owns authoring assessments and their reference-only design history.
+`apex-docs-writer` was archived when documentation moved to apex-docs. Follow this
+site's [writing guide](/project/style-guide/) and explicit Unslop review instead.
+`apex-agent-authoring` owns product customization assessments.
 `apex-context-management` retains context audits, log export, and runtime compression;
 `apex-workflow-engine` retains entry, recovery, and DAG routing.
 
@@ -81,9 +80,9 @@ files, custom agents, agent skills, MCP servers, hooks, plugins) see
 and the per-mechanism files under
 [`.github/instructions/`](https://github.com/jonathan-vella/apex/tree/main/.github/instructions).
 
-## Instruction System
+## Instruction system
 
-### Glob-Based Auto-Application
+### Glob-based auto-application
 
 The `applyTo` glob declares a file-matching scope for automatic attachment. A matching
 authoring file does not prove a rule is attached during runtime in either harness.
@@ -99,13 +98,10 @@ duplicating every glob; exact patterns live in `.github/instructions/*.instructi
 | `azure-artifacts`              | `**/agent-output/**/*.md`                                            | H2 template compliance for artefacts                           |
 | `agent-authoring` | Agents and prompts | Frontmatter, handoffs, and body contracts |
 | `agent-skills`                 | `**/.github/skills/**/SKILL.md`                                      | Skill file format standards                                    |
-| `astro`                        | `site/**/*.{astro,mjs,ts}`                                           | Astro/Starlight site conventions                               |
 | `instructions`                 | `**/*.instructions.md`                                               | Meta: instruction file guidelines                              |
 | `markdown`                     | `**/*.md`                                                            | Documentation standards                                        |
 | `context-optimization`         | Agents, skills, instructions                                         | Context window management rules                                |
 | `code-quality`                 | `**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}`                    | Review priorities and comment quality                          |
-| `docs-trigger`                 | `**/*.agent.md`, `**/.github/skills/**/SKILL.md`, `**/scripts/*.mjs` | Trigger conditions for doc updates                             |
-| `docs`                         | `site/src/content/docs/**/*.md`, `site/src/content/docs/**/*.mdx`    | User-facing documentation standards                            |
 | `governance-discovery`         | `**/04-governance-constraints.*`                                     | Azure Policy discovery requirements                            |
 | `github-actions`               | `.github/workflows/*.yml`                                            | GitHub Actions workflow standards                              |
 | `javascript`                   | `**/*.{js,mjs,cjs}`                                                  | JavaScript/Node.js conventions                                 |
@@ -137,22 +133,17 @@ two mandatory rules across all IaC projects (Bicep and Terraform):
    be a parameter with no default; all tag values reference parameters;
    `.bicepparam`/`terraform.tfvars` is the only place for project-specific defaults.
 
-### Enforcement Over Documentation
-
-:::note[Golden Principle]
-Mechanical enforcement over documentation — if it can be a linter check, it
-should be one. Documentation is for humans; machines enforce rules.
-:::
+### Enforcement over documentation
 
 Deterministic validators enforce structural contracts where possible. Advisory guidance,
 runtime attachment, and human approvals still need execution evidence and review;
 not every instruction has an executable check.
 
-## Creating a Custom Skill
+## Creating a custom skill
 
 This section walks through creating a new skill from scratch.
 
-### Step 1: Scaffold
+### Step 1: scaffold
 
 Copy an existing skill (for example
 [`apex-azure-defaults`](https://github.com/jonathan-vella/apex/tree/main/.github/skills/apex-azure-defaults))
@@ -176,7 +167,7 @@ Authoring rules live in
 After scaffolding, review frontmatter against the authoring rules, then run
 `npm run validate:skills` plus `npm run validate:agents` to verify.
 
-### Step 2: Write SKILL.md
+### Step 2: write SKILL.md
 
 The SKILL.md file requires YAML frontmatter:
 
@@ -197,9 +188,9 @@ Quick-reference tables, decision frameworks, and pointers to deeper content.
 
 - `name` must match the folder name, use kebab-case and exactly one `apex-` prefix, and stay within 64 characters
 - `description` must be an inline string (not a YAML block scalar)
-- Keep SKILL.md under 500 lines — move deep content to `references/`
+- Keep SKILL.md under 500 lines. Move detailed content to `references/`.
 
-### Step 3: Add References and Templates
+### Step 3: add references and templates
 
 Use the three levels of disclosure:
 
@@ -213,7 +204,7 @@ Example: a pricing skill might have `SKILL.md` with a service-to-tool
 mapping table, `references/pricing-guidance.md` with detailed MCP tool
 usage, and `templates/cost-estimate.template.md` with the output skeleton.
 
-### Step 4: Wire Into Agent Bodies
+### Step 4: wire into agent bodies
 
 Add a skill reference in the relevant agent's `.agent.md` body:
 
@@ -223,19 +214,18 @@ Add a skill reference in the relevant agent's `.agent.md` body:
 1. **Read** `.github/skills/apex-my-new-skill/SKILL.md`
 ```
 
-That's the entire wiring. The skill is now connected to the agent.
-There is no separate registry entry to update — skill wiring is
-discovered at runtime by `tools/scripts/validate-orphaned-content.mjs`,
-which scans agent bodies for `Read .github/skills/{name}/SKILL.md`
-references.
+The reference declares the intended use. The static
+`tools/scripts/validate-orphaned-content.mjs` check scans references; it is not a
+runtime discovery mechanism. Exercise the skill in the intended client after
+validating its source.
 
 > Earlier versions of the registry carried a `skills` (and
 > `capability_skills`) array on each entry. Those fields were removed in
-> the context-window-optimization pass — they duplicated information
+> the context-window-optimization pass. They duplicated information
 > already present in agent bodies and made every agent edit a two-file
 > change.
 
-### Step 5: Validate
+### Step 5: validate
 
 ```bash
 # Check skill format, size, and references
@@ -248,21 +238,21 @@ npm run validate:skill-checks
 npm run validate:agent-registry
 ```
 
-### How Skill Discovery Works
+### How skill discovery works
 
-Agents discover skills through **description keywords**. When a user's
-request matches keywords in the skill's `description` field (USE FOR /
-DO NOT USE FOR), VS Code automatically suggests loading that skill.
-Write descriptions with specific, searchable trigger words.
+Write descriptions that identify the task and when the skill should not apply.
+Discovery depends on client configuration and invocation flags. A matching
+description does not prove that the skill loaded. Read required guidance explicitly
+when discovery does not provide it.
 
 ---
 
-:::tip[Further Reading]
+:::tip[Further reading]
 
-- [Core Concepts](../four-pillars/) — the four knowledge layers and how they interact
-- [Agent Architecture](../agents/) — how agents load and use skills via progressive disclosure
-- [Workflow Engine & Quality](../workflow-engine/) — validators that enforce instruction rules
-- [MCP Integration](../mcp-integration/) — external tool interfaces available to agents
-- [Validation & Linting](../../../reference/validation-reference/) — all validation scripts and hooks
+- [Core concepts](../four-pillars/)
+- [Agent architecture](../agents/)
+- [Workflow engine and validation](../workflow-engine/)
+- [MCP integration](../mcp-integration/)
+- [Validation reference](/reference/validation-reference/)
 
 :::

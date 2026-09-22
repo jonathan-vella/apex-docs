@@ -1,404 +1,152 @@
 ---
-title: "Agent Architecture"
-description: "Agent roles, orchestration, and delegation model"
+title: "Agent architecture"
+description: "Choose main agents, understand helper boundaries, and author changes without bypassing approvals."
 ---
 
-## Agent Anatomy
+## Agent anatomy
 
-Every agent definition follows a standard structure:
+An `.agent.md` file has metadata and an instruction body. Metadata declares the
+name, description, model, tools, invocation rules, and handoff targets. The body
+defines the task, expected evidence, constraints, and stop conditions.
 
-```yaml
-# Frontmatter
----
-name: 06b-Bicep CodeGen
-description: Expert Azure Bicep IaC specialist...
-model: ["GPT-5.6 Terra (copilot)"] # (1)!
-tools: [list of allowed tools] # (2)!
-disable-model-invocation: true
-handoffs:
-  - label: "Step 6: Deploy"
-    agent: 07b-Bicep Deploy # (3)!
-    prompt: "Deploy the Bicep templates..."
----
-# Body (≤ 500 lines)
-## MANDATORY: Read Skills First
-1. **Read** `.github/skills/apex-azure-defaults/SKILL.md` # (4)!
-2. **Read** `.github/skills/apex-azure-artifacts/SKILL.md`
-```
-
-1. Model selection — agent frontmatter is authoritative; changes require explicit approval
-2. Tool allowlist — agents only access tools they need
-3. Handoff target — the next agent in the workflow
-4. Skills are loaded on demand to preserve context budget
-
-The frontmatter is machine-readable metadata. The body is the agent's full operating
-manual — the runtime loads it into the system prompt at invocation.
+Read the actual
+[agent definitions](https://github.com/jonathan-vella/apex/tree/a656e66d83cfae8d525ce0d2012b124599b37252/.github/agents)
+instead of copying a model name or body-size limit from an old example.
 
 ### Tools
 
-Agents interact with external systems through **tools** — structured interfaces provided
-by MCP servers and the VS Code runtime. Each agent's frontmatter declares a `tools:`
-allowlist that restricts which tools it can call. Common tool categories:
-
-- **MCP tools**: Cloud API wrappers (Azure pricing queries, GitHub operations, Terraform registry lookups)
-- **File tools**: Read and write workspace files (create artifacts, read prior step outputs)
-- **Terminal tools**: Execute CLI commands (Bicep build, Terraform validate, Azure CLI)
-- **Subagent tools**: Delegate to specialised subagents via `#runSubagent`
+An agent's declared tools can include file operations, terminal commands, MCP
+queries, and permitted helper delegation. Registration or authentication does not
+authorize every possible operation. The task and its approval boundaries still apply.
 
 ### Handoffs
 
-Agents do not communicate directly. Instead, each agent produces **artifact files**
-in `agent-output/{project}/` that the next agent reads as input. The Orchestrator
-routes through human handoffs to the next main agent, preserving user approval
-at each gate. At approval gates, the Orchestrator writes a
-`00-handoff.md` summary document that enables session resume.
+Main agents produce artifacts under `agent-output/{project}/`. A handoff identifies
+the next main agent and its inputs. You select that agent and approve the scope.
+The Orchestrator is a routing aid, not a main-agent scheduler.
 
-### Local And Agent Host Boundaries
+### Local and Agent Host boundaries
 
-Local prompt files are adapters, not Agent Host entry points. On Agent Host, use
-the shared skill and explicitly select its owning main agent before consequential
-work. Skills inherit the caller's model/tools; they do not switch agents or grant
-permissions. Keep Local discovery settings where needed, but do not treat legacy
-discovery flags as a security boundary or proof of Host support.
+Local prompt files are adapters, not proof that another client supports the same
+entry point. Main agents, including `10-Challenger`, require human selection and
+use `disable-model-invocation: true`.
 
-Production main agents, including `10-Challenger`, use
-`disable-model-invocation: true` and require human selection. Explicit caller
-allowlists must not override that boundary. Keep essential approval, security,
-output, and stop rules in main agent bodies: authoring `applyTo` matches do not
-prove runtime attachment. Local and Agent Host behavior need separate verification;
-source validation alone does not establish runtime support or model eligibility.
+A skill inherits the selected agent's context and tool permissions. It does not
+switch agents or grant access. Validate client discovery, model availability,
+and instruction attachment separately from source-file syntax.
 
-### APEX And Generic Application Workflows
+### APEX and generic application workflows
 
-APEX deployment agents consume approved IaC handoff and environment artifacts. They do not restart
-the generic `apex-azure-prepare` workflow or require its application preparation plan. Missing APEX code,
-an expected manifest, or a usable handoff returns to CodeGen; legacy evidence must be converted to
-a current JSON handoff before preview or apply. Generic application workflows retain their own approved
-preparation plan and recorded Validation Proof.
+APEX deployment consumes its approved environment manifest and IaC handoff.
+Missing code or contract evidence returns to the owning step. Do not restart the
+generic `apex-azure-prepare` flow to repair an APEX handoff.
 
-A validation-only request returns check results and stops. A preview-only request returns not-applied
-results and stops. Neither starts preparation, creates infrastructure, or marks deployment complete.
-An explicit deployment request still requires current policy checks, preview review, and apply approval.
-When a project contains both workflow formats and the requested workflow is unclear, the agent asks first.
+Validation-only and preview-only requests return their results and stop. Neither
+authorizes apply. If both workflow formats exist and the requested one is unclear,
+ask the owner which workflow to use.
 
-## Top-Level Agents
+## Top-level agents
 
-| Agent                 | Role                                            | Primary Skills                                 |
-| --------------------- | ----------------------------------------------- | ---------------------------------------------- |
-| 01-Orchestrator       | Master orchestrator                             | apex-workflow-engine, apex-recall                   |
-| 02-Requirements       | Captures project requirements                   | apex-azure-defaults, apex-azure-artifacts                |
-| 03-Architect          | WAF assessment and cost estimation              | apex-azure-defaults                                 |
-| 04-Design             | Diagrams and ADRs                               | apex-python-diagrams, apex-azure-adr                     |
-| 04g-Governance        | Policy discovery and compliance                 | apex-azure-defaults                                 |
-| 05-IaC Planner        | IaC implementation planning (Bicep & Terraform) | apex-azure-bicep-patterns, apex-terraform-patterns       |
-| 06b-Bicep CodeGen     | Bicep template generation                       | apex-azure-bicep-patterns                           |
-| 06t-Terraform CodeGen | Terraform configuration generation              | apex-terraform-patterns                             |
-| 07b-Bicep Deploy      | Bicep deployment execution                      | apex-azure-validate, apex-iac-common                     |
-| 07t-Terraform Deploy  | Terraform deployment execution                  | apex-azure-validate, apex-iac-common, apex-terraform-patterns |
-| 08-As-Built           | Post-deployment documentation                   | apex-azure-artifacts, apex-python-diagrams               |
-| 09-Diagnose           | Azure resource troubleshooting                  | apex-azure-diagnostics                              |
-| 10-Challenger         | Standalone adversarial review                   | —                                              |
-| 11-Context Optimizer  | Context window audit and optimisation           | apex-context-management                             |
+See the [workflow roster](/concepts/workflow/#core-agents-by-workflow-step) for step
+owners and the [Architecture Explorer](/reference/architecture-explorer/) for the
+pinned source inventory. Diagnose, Challenger, and Context Optimizer support
+specific tasks outside the normal step sequence.
 
-For a live, always-current roster, see the
-[Architecture Explorer](../../../reference/architecture-explorer/). The count is
-computed from `tools/registry/count-manifest.json` and the source of truth is the
-`.github/agents/*.agent.md` files on disk.
+Explorer metadata describes source declarations. It is not a live view of a
+running session or proof of runtime permissions.
 
 ## First-run project decisions (`iac_tool`, `review_depth`)
 
-The **01-Orchestrator** captures two project-scoped decisions the first
-time a project boots (or during the first approval gate after `apex-recall
-init`). Both are persisted to `apex-recall` and **never re-asked** —
-every downstream agent reads them via `apex-recall show <project>
---json`.
+Requirements establishes the IaC choice. Review depth defaults to the workflow's
+normal review policy. Deep review requires an explicit owner decision; do not
+infer it from the workload's complexity.
 
-| Decision        | Default                                              | When asked                             | Persistence key         |
-| --------------- | ---------------------------------------------------- | -------------------------------------- | ----------------------- |
-| `iac_tool`      | none (must be chosen)                                | Step 1 (Requirements), Phase 2         | `decisions.iac_tool`    |
-| `review_depth`  | `default` — single-pass `comprehensive` (recommended) | Project boot or first gate after init  | `decisions.review_depth` |
+Read existing decisions before asking again. If the owner changes a decision,
+record the change through the supported recall command and reassess affected
+artifacts. Do not treat the earlier answer as permanently immutable.
 
-**`review_depth` values**:
+## Per-step user gates (architect, design, governance)
 
-- `default` — one comprehensive challenger pass at Steps 1, 2, 4 (plus
-  a separate cost-feasibility review at Step 2 and `governance-reconciliation` at Step 3.5). Right for most workshops,
-  MVPs, and single-region projects.
-- `deep` — rotating-lens multi-pass cascade per
-  [`adversarial-review-protocol.md`](https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-defaults/references/adversarial-review-protocol.md)
-  (Pass 1 security-governance → Pass 2 architecture-reliability →
-  conditional Pass 3 cost-feasibility). Worth the ~3× challenger
-  cost for regulated workloads (HIPAA/PCI), prod migrations, or
-  multi-region designs.
+The owner resolves choices such as SKU selection, budget trade-offs, review
+findings, and governance constraints. Record actual decisions, not inferred
+acceptance. Use the product's
+[decision-key contract](https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/tools/apex-recall/docs/decision-keys.md)
+for supported keys.
 
-**Changing the value later** — `01-Orchestrator` writes once and never
-re-prompts. To switch a project from `default` to `deep` (or vice
-versa) after boot, edit the persisted decision directly:
-
-```bash
-apex-recall decide <project> --key review_depth --value deep --rationale "Escalated to deep review after Step 2 reliability gap" --json
-```
-
-Alternatively, escalate a **single** artifact without flipping the
-whole project by invoking the `10-Challenger` user-invocable agent
-manually — it runs the rotating-lens passes against one file on
-demand.
-
-Authoritative contract: [01-orchestrator.agent.md
-→ `Computing decisions.review_depth`](https://github.com/jonathan-vella/apex/blob/main/.github/agents/01-orchestrator.agent.md#computing-decisionsreview_depth-project-scoped-opt-in).
-
-## Per-Step User Gates (Architect, Design, Governance)
-
-Each user-facing step raises a small, predictable set of questions
-before continuing to the next step. The questions exist to keep
-creative AI decisions in the user's hands; the agent never
-silently assumes a non-default value.
-
-| Step | Gate                              | Question type                                                    | Decision key recorded               |
-| ---- | --------------------------------- | ---------------------------------------------------------------- | ----------------------------------- |
-| 2    | SKU confirmation (before pricing) | Approve / Revise / Discuss                                       | `sku_confirmation_status`           |
-| 2    | Budget gate (after pricing)       | Approve / Revise SKUs / Revise requirements                      | `budget_decision`                   |
-| 2    | Per-finding decisions             | Accept / Reject / Defer / Edit; independent questions in a batched panel | `decision_log` |
-| 3    | Diagram generator                 | Python diagrams                                                  | `diagram_tool`                      |
-| 3.5  | Phase 2.7 resolution              | RG tag keys + casing, allowed locations (two questions)          | `tag_contract`, `governance_status` |
-
-The full registry of valid decision keys lives at
-`tools/apex-recall/docs/decision-keys.md`; the validator
-`tools/scripts/validate-decision-keys.mjs` enforces that every
-`apex-recall decide --key` reference in an agent file appears in the
-registry.
-
-**Tag schema**: discovered Azure Policy defines required keys, values, and casing.
-When no inherited tag policy applies, use the canonical greenfield fallback in
-`.github/copilot-instructions.md` rather than another tag list.
-Legacy casing is preserved only under that source's compatibility rule; `ManagedBy` is optional provenance.
-
-**SKU manifest MD ↔ JSON sync**: the human-readable
-`agent-output/{project}/sku-manifest.md` is rendered deterministically
-from `sku-manifest.json` via
-`node tools/scripts/render-sku-manifest-md.mjs <project>`. Agents
-mutate the JSON; the renderer (wired into `lefthook` pre-commit and
-CI) re-emits the MD. Hand-editing the MD is forbidden and reverted on
-the next commit.
+Discovered tag policy controls required keys, values, and casing. When no inherited
+tag policy applies, use the current product fallback rather than a copied tag list
+from a historical example.
 
 ## Subagents
 
-Subagents are not user-invocable. They are delegated to by parent agents for isolated,
-specific tasks:
+Helpers perform bounded tasks such as pricing, code validation, preview, or
+policy precheck. Their parent must permit that delegation. They return evidence
+to the owner and do not take over the main workflow.
 
-| Subagent                    | Purpose                            | Invoked By          |
-| --------------------------- | ---------------------------------- | ------------------- |
-| challenger-review-subagent  | Adversarial review of artifacts    | Required at Steps 1, 2, 3.5, 4; opt-in at Design and CodeGen |
-| cost-estimate-subagent      | ARM MCP pricing queries            | Steps 2, 7          |
-| bicep-validate-subagent     | Lint + AVM/security code review    | Step 5 (Bicep)      |
-| bicep-whatif-subagent       | `az deployment what-if` preview    | Step 6 (Bicep)      |
-| terraform-validate-subagent | Lint + AVM-TF/security code review | Step 5 (Terraform)  |
-| terraform-plan-subagent     | `terraform plan` preview           | Step 6 (Terraform)  |
+Challenger is a human-selected main agent. Do not route its work through a
+`challenger-review-subagent` example from older documentation.
 
-## The Challenger Pattern
+## The challenger pattern
 
-:::note[Adversarial Review]
-The Challenger finds what everyone else missed — untested assumptions,
-governance gaps, WAF blind spots, and architectural weaknesses.
-:::
+Use the [current review matrix](/concepts/workflow/#adversarial-review-matrix).
+Architecture and cost-estimate reviews are independent. Deep review is opt-in.
+Design and CodeGen reviews are optional; Deploy has no Challenger review.
 
-The `challenger-review-subagent` implements adversarial review at critical workflow steps.
-It operates with rotating lenses:
+Inspect the findings and resolve required changes against the reviewed inputs.
+When a reviewer is unavailable, stop and use the human handoff. Missing, empty,
+or stale review output cannot be replaced with a success-shaped summary.
 
-:::note[Challenger Selection Rules]
-Pass 1 (security-governance) always uses `challenger-review-subagent`.
-Additional passes also use `challenger-review-subagent` for
-architecture-reliability and cost-feasibility lenses.
-See `.github/skills/apex-azure-defaults/references/adversarial-review-protocol.md`
-(`## Lenses`, `## Default flow`, `## Opt-in: Deep adversarial review`) for
-the full routing table and conditional skip rules.
-:::
+## Handoffs and delegation
 
-- **Default review**: comprehensive review is mandatory for Requirements, Architecture, and IaC Plan.
-  Architecture also requires an independent cost-feasibility review. Governance uses reconciliation;
-  Design and CodeGen review are opt-in. Deploy has no Challenger review; live policy precheck remains required.
-- **Multi-pass review** (rotating lenses, opt-in): Multiple separate reviews, each focused on a
-  specific dimension (security, reliability, cost). Available for architecture (Step 2),
-  planning (Step 4), and code (Step 5) when explicitly requested. Recommended for complex projects.
+Handoffs preserve task ownership and evidence through files. They do not guarantee
+that every earlier detail is in the next agent's context. Name the required
+artifacts and unresolved issues explicitly, and use
+[state recovery](/guides/session-debugging/) when reads or writes fail.
 
-Findings are classified as `must_fix` (blocking) or `should_fix` (advisory). Only
-`must_fix` findings block workflow progression.
+## Creating a custom agent
 
-**Conditional passes (when multi-pass is opted in)**: Pass 3 of the rotating lens review is
-conditional — it only runs if Pass 2 returned ≥1 `must_fix` finding. If Pass 2 returns zero
-  `must_fix` items, Pass 3 is skipped entirely. Runtime savings depend on the actual review.
+Make product-agent changes in APEX or your template-derived project, not apex-docs.
+Follow the current
+[agent-authoring instructions](https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/instructions/agent-authoring.instructions.md).
 
-**Context Shredding for Challenger Inputs**: The challenger is instructed to apply
-context compression tiers when loading predecessor artefacts for review:
+### Step 1: choose agent type and model
 
-| Context Usage | Loading Strategy                                               |
-| ------------- | -------------------------------------------------------------- |
-| < 60%         | Full artefact                                                  |
-| 60–80%        | Key H2 sections only (resource list, SKUs, WAF scores, budget) |
-| > 80%         | Decision summary from `00-session-state.json` + resource list  |
+Choose a human-facing main agent or a bounded helper. Use an approved model that
+the intended runtime and account can access. Do not infer a helper's model from
+its parent or silently substitute another model.
 
-:::caution[Reliability note]
-The tier selection above depends on the LLM estimating its own context usage —
-there is no runtime API to measure actual token consumption. The LLM may not
-apply compression consistently. The **`compact_for_parent` carry-forward** (below)
-is the part that reliably works because it is a structural contract in the
-subagent's JSON output format, not a voluntary LLM behaviour.
-:::
+### Step 2: create the agent file
 
-After each review pass, only the `compact_for_parent` string (~200 characters) is carried
-forward — not the full JSON findings. This prevents context bloat across multi-pass reviews
-and is enforced by the output schema.
+Use an existing agent of the same type as a starting point, then review every
+metadata field. Production main agents need human-entry restrictions. Use an
+empty helper allowlist when no delegation is needed.
 
-:::caution[Unavailable Or Empty Review]
-If a required reviewer is unavailable, stop and request a human handoff to
-`10-Challenger`. Missing or empty reviewer output permits exactly one
-identical-input retry, then a human handoff. Never invoke a nested main-agent
-wrapper or fabricate an inline review. Resume from current evidence via
-`apex-recall show <project> --json`; missing evidence does not satisfy a gate.
-:::
+### Step 3: write the agent body
 
-**New Challenger Checklists**: Two mandatory checklist categories were added:
+State the role, goal, success criteria, constraints, output, and stop rules.
+Reference skills for detailed procedures. Keep essential approval and safety
+requirements explicit rather than assuming an authoring glob attaches at runtime.
 
-- **Cost Monitoring**: Budget resource, governed notifications, Action Group routing, and anomaly detection.
-- **Repeatability**: Parameterised values, multi-tenant deploy, `projectName` required.
+### Step 4: register the agent
 
-## Handoffs and Delegation
+Update the source registry and any workflow references required by the product's
+authoring rules. Keep metadata consistent with the agent file. Do not copy stale
+skill inventories into multiple registries.
 
-Agents communicate through artefact files, not direct message passing. The Orchestrator
-offers a human handoff to a step agent, which produces output files in `agent-output/{project}/`.
-The next agent reads those files as input. This design:
+### Step 5: validate
 
-- Eliminates context leakage between agents
-- Enables resume from any point (artefacts are persistent)
-- Allows human review at every gate (artefacts are human-readable markdown)
-- Supports parallel development of different steps
-
-**Phase Handoff Document**: At each approval gate, the Orchestrator writes a
-`00-handoff.md` file containing a summary of what was completed, key decisions
-made, what comes next, and (at Gates 2 and 3) a session break recommendation.
-This enables resume from any gate without needing to re-read all prior artefacts.
-
----
-
-## Creating a Custom Agent
-
-This section walks through creating a new agent from scratch.
-
-### Step 1: Choose Agent Type and Model
-
-| Type            | File Location                               | User-Invocable | Use When                                  |
-| --------------- | ------------------------------------------- | -------------- | ----------------------------------------- |
-| Top-level agent | `.github/agents/{name}.agent.md`            | Yes            | User-facing workflow steps                |
-| Subagent        | `.github/agents/_subagents/{name}.agent.md` | No             | Isolated tasks delegated by parent agents |
-
-Agent frontmatter is the canonical model assignment; `tools/registry/agent-registry.json`
-mirrors it. Model changes require explicit approval. The current approved main-agent map is:
-
-| Main Agents | Model |
-| --- | --- |
-| Requirements, Architect, IaC Planner, Context Optimizer | `gpt-5.6-sol` |
-| Orchestrator | `MAI-Code-1.1-Flash` |
-| Design, Bicep CodeGen, Terraform CodeGen, As-Built, Diagnose, Challenger | `GPT-5.6-Terra` |
-| Governance, Bicep Deploy, Terraform Deploy | `GPT-5.6-Luna` |
-
-Subagent assignments also come from their own frontmatter; do not infer them from
-the parent's model. Labels do not establish runtime cost-tier eligibility,
-availability, or API support. Stop on unsupported routing rather than substituting
-models automatically; preserve unknown Sol metadata as unknown.
-
-Sol, Terra, and Luna main bodies use concise Markdown outcome contracts: Role,
-Goal, Success criteria, Constraints, Output, and Stop rules. This is an APEX
-authoring convention, not a vendor-specific XML requirement. Leaf workers use
-bounded role contracts and return to their parent without nested delegation.
-
-### Step 2: Create the Agent File
-
-Create a `.agent.md` file with the required frontmatter:
-
-```yaml
----
-name: My Custom Agent
-description: "Describe the task. USE FOR: keyword triggers. DO NOT USE FOR: anti-triggers."
-model:
-  - GPT-5.6-Terra
-tools:
-  - read
-  - edit
-  - execute
-agents: []
-user-invocable: true
-disable-model-invocation: true
-handoffs:
-  - label: "Next Step"
-    agent: next-agent-name
-    prompt: "Hand off with context..."
----
-```
-
-Required frontmatter fields: `name`, `description`, `model`, `tools`.
-Production main agents also set `disable-model-invocation: true` for human entry.
-Use `agents: []` when no leaf delegation is needed; a nonempty allowlist requires
-the `agent` tool and must not target production main agents. Handoffs are optional.
-
-See `.github/instructions/agent-authoring.instructions.md` for the
-complete frontmatter specification.
-
-### Step 3: Write the Agent Body
-
-The body (below the frontmatter) is the agent's operating manual:
-
-```markdown
-## MANDATORY: Read Skills First
-
-1. **Read** `.github/skills/apex-azure-defaults/SKILL.md`
-
-## DO (required behaviours)
-
-- Always check for existing session state before starting
-- Load skills progressively (SKILL.md first, then references/ on demand)
-
-## DO NOT (prohibited behaviours)
-
-- Do not skip approval gates
-- Do not hardcode project-specific values
-```
-
-Keep the body under 350 lines. Use skill references for deep domain
-knowledge rather than inlining it.
-
-### Step 4: Register the Agent
-
-Update the registry file:
-
-1. **`tools/registry/agent-registry.json`** — add the agent's role, file path,
-   model, and skill list
-
-### Step 5: Validate
+Run from the product repository:
 
 ```bash
-# Validate frontmatter syntax, body size, and language quality
 npm run validate:agents
-
-# Verify registry consistency
 npm run validate:agent-registry
 ```
 
+Then exercise discovery and the intended handoff in the supported client.
+Static validation alone does not verify runtime behavior.
+
 ### Troubleshooting
 
-| Problem                     | Cause                           | Fix                                                 |
-| --------------------------- | ------------------------------- | --------------------------------------------------- |
-| Agent not appearing in chat | Missing or invalid frontmatter  | Run `npm run validate:agents`                       |
-| Tool not available          | Tool not in `tools:` allowlist  | Add the tool name to frontmatter                    |
-| Handoff not triggering      | Wrong agent name in `handoffs:` | Verify target agent file exists                     |
-| Skills not loading          | Typo in skill path              | Check path matches `.github/skills/{name}/SKILL.md` |
-
----
-
-:::tip[Further Reading]
-
-- [Core Concepts](../four-pillars/) — the four knowledge layers (agents, skills, instructions, registries)
-- [Skills & Instructions](../skills-and-instructions/) — progressive skill loading and glob-based enforcement
-- [Workflow Engine & Quality](../workflow-engine/) — DAG model, approval gates, circuit breakers
-- [MCP Integration](../mcp-integration/) — MCP servers and their tool catalogs
-- [Validation & Linting](../../../reference/validation-reference/) — all validation scripts and hooks
-
-  :::
+For a missing agent, inspect file location, frontmatter, and discovery settings.
+For a missing tool, inspect registration, authentication, the agent's allowlist,
+and the requested operation. Do not broaden permissions merely to hide a failure.

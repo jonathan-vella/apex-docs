@@ -1,141 +1,79 @@
 ---
-title: "Core Concepts"
-description: "Core concepts behind the agent framework"
+title: "Core concepts"
+description: "Distinguish APEX agents, skills, instructions, registries, and external tools."
 ---
 
-The system's knowledge architecture is built on four distinct layers, each serving
-a specific purpose in the agent's context window.
+APEX stores task ownership, procedures, authoring rules, and configuration in
+different files. Knowing which file owns a decision makes changes easier to review.
 
 ## 1. Agents
 
-**What they are**: Agent definitions (`.agent.md` files) define a specialised AI persona
-with a specific role, allowed tools, handoff targets, and a body of instructions.
+An agent definition describes a role, selected model, allowed tools, and handoff
+targets. Its body defines the task, expected output, and stop conditions.
+Main agents live under `.github/agents/`; helpers live under `_subagents/`.
 
-**Where they live**: `.github/agents/` (top-level) and `.github/agents/_subagents/`
-
-**How they work**: Each agent file contains YAML frontmatter (name, description, model,
-tools, handoffs) and a markdown body with the agent's operating instructions. When a user
-invokes an agent in VS Code Copilot Chat, the entire body becomes part of the system prompt.
-
-**Key constraint**: Agent bodies are limited to 350 lines to preserve context window space.
-Heavy knowledge is externalised into skills and loaded on demand.
-
-:::note[Context Budget]
-Every token counts. Agent bodies stay under 350 lines; deep knowledge lives in
-skills and is loaded progressively only when needed.
-:::
+You select main agents in Copilot Chat. Production main agents use
+`disable-model-invocation: true`. A helper allowlist must not turn a main agent
+into a nested worker.
 
 ## 2. Skills
 
-**What they are**: Reusable domain knowledge packages that agents load when they need
-specialised context.
+A skill provides a procedure and supporting reference material in
+`.github/skills/{name}/SKILL.md`. References and templates load when the task
+needs them. A skill does not choose a different agent or grant permission to use tools.
 
-**Where they live**: `.github/skills/{name}/SKILL.md` with optional `references/` and
-`templates/` subdirectories.
-
-**How they work**: An agent's body contains explicit `Read .github/skills/{name}/SKILL.md`
-directives. The `SKILL.md` file provides a compact overview (under 500 lines), and heavy
-reference material is stored in subdirectories, loaded only when the agent's task demands it.
-
-**Key constraint**: Skills implement progressive disclosure — agents start with the overview
-and drill into `references/` only when needed. This preserves context window space for
-task-specific knowledge.
+Discovery depends on the client, configuration, and skill metadata. If a required
+skill did not load, the agent must read it explicitly rather than assume the
+procedure is already in context.
 
 ## 3. Instructions
 
-**What they are**: Enforcement rules that apply automatically based on file type. Unlike
-skills (which must be explicitly read), instructions are injected into context whenever
-a matching file is opened or edited.
+Instruction files under `.github/instructions/` describe rules for a declared
+file scope. Their `applyTo` patterns express intended matching behavior.
+A matching authoring file does not prove that the instruction attached during
+every runtime operation.
 
-**Where they live**: `.github/instructions/{name}.instructions.md`
+Keep essential approval, output, security, and stop rules in the main agent's
+instructions. Use validators where a rule can be checked deterministically,
+and verify runtime behavior separately.
 
-**How they work**: Each instruction file has YAML frontmatter with a `description` and
-an `applyTo` glob pattern. When an agent works with a file matching the pattern, the
-instruction is automatically loaded. For example, `iac-bicep-best-practices.instructions.md`
-applies to `**/*.bicep` and enforces AVM-first patterns, security baselines, and unique
-suffix conventions.
+## 4. Configuration registries
 
-**Key constraint**: Instruction files are limited to 150 lines and use narrow glob patterns.
-`applyTo: "**"` is reserved for truly universal rules only.
+| File | Purpose |
+|---|---|
+| `tools/registry/agent-registry.json` | Agent paths, roles, and source metadata |
+| `.github/skills/apex-workflow-engine/templates/workflow-graph.json` | Step dependencies, gates, artifacts, and review defaults |
 
-## 4. Configuration Registries
+The [Architecture Explorer](/reference/architecture-explorer/) displays metadata
+generated from the product revision pinned by this site. It does not query a
+running agent session.
 
-**What they are**: Machine-readable JSON files that provide runtime configuration for
-the agent system.
+<span id="agentsmd--the-table-of-contents"></span>
 
-**Where they live**: `.github/` root and within skills.
+## Agents.md
 
-| Registry       | Path                                                           | Purpose                                      |
-| -------------- | -------------------------------------------------------------- | -------------------------------------------- |
-| Agent Registry | `tools/registry/agent-registry.json`                                  | Agent role → file, model, step               |
-| Workflow Graph | `.github/skills/apex-workflow-engine/templates/workflow-graph.json` | Multi-step DAG with nodes, edges, conditions |
+The product's root `AGENTS.md` introduces repository structure, commands,
+conventions, and workflow boundaries. Follow its references for detailed domain
+procedures rather than copying them into each agent.
 
-## AGENTS.md — The Table of Contents
+<span id="copilot-instructionsmd--the-vs-code-bridge"></span>
 
-Following the Harness Engineering principle of "map, not manual," the root `AGENTS.md`
-serves as the entry point for all agents. At approximately 250 lines, it provides:
+## Copilot-instructions.md
 
-- **Setup commands**: How to clone, install dependencies, and open the dev container
-- **Build and validation commands**: The complete `npm run` command reference
-- **Code style conventions**: CAF naming prefixes, required tags, default regions, AVM-first rules
-- **Security baseline**: Non-negotiable security requirements for all generated infrastructure
-- **Testing procedures**: How to validate before committing
-- **Commit conventions**: Conventional commit format with scopes
-- **Project structure**: Directory layout overview
-- **Workflow summary**: The multi-step table
+The product's `.github/copilot-instructions.md` supplies repository-wide guidance
+and links to the relevant customization files. This documentation repository has
+its own instructions for writing and validation. They are not interchangeable.
 
-`AGENTS.md` does not contain deep architectural guidance, Azure service details, or
-template structures. Those are delegated to skills.
+## Tools and MCP servers
 
-## copilot-instructions.md — The VS Code Bridge
+Tools perform operations such as reading a file, running a validator, or querying
+Azure pricing. Tool availability and authentication are distinct from authorization
+for a particular action.
 
-The `.github/copilot-instructions.md` file is VS Code Copilot's orchestration layer.
-It provides:
+The configured integrations include hosted Azure Resource Manager MCP for pricing
+and cost queries, workspace stdio Azure MCP, and GitHub MCP. The old custom Python
+pricing server is not the current integration.
 
-- **Quick start**: How to enable subagents and invoke the Orchestrator
-- **Multi-step workflow table**: Quick reference for which agent handles which step
-- **Skills catalog**: Table mapping skill names to their purposes
-- **Chat triggers**: Rules for handling `gh` commands via GitHub operations
-- **Key files**: Table mapping critical paths to their purposes
-- **Conventions**: Pointers to skill files for detailed Azure and Terraform conventions
-
-This file is shorter than `AGENTS.md` and focused on VS Code-specific orchestration
-concerns rather than repository-wide conventions.
-
-## Tools and MCP Servers
-
-Agents do not call cloud APIs or execute commands directly. Instead, they invoke
-**tools** — structured interfaces provided by the Model Context Protocol (MCP)
-and the VS Code runtime. Tools give agents real-time access to external systems:
-
-- **MCP tools**: JSON-RPC endpoints that wrap cloud APIs. Each MCP server provides
-  typed tools such as `get_retail_prices` and `query_costs` that agents
-  discover and call at runtime. The server handles authentication, caching, pagination,
-  and response formatting.
-- **VS Code tools**: Built-in capabilities like file reads/writes, terminal commands,
-  search, and subagent invocation.
-- **Handoffs**: Agents delegate to the next step by writing artifact files to
-  `agent-output/{project}/`. The next agent reads those files as input — there is no
-  direct message passing between agents.
-
-This project integrates MCP servers for live external capabilities:
-
-| Server            | Purpose                            | Transport          |
-| ----------------- | ---------------------------------- | ------------------ |
-| **Azure MCP**     | RBAC-aware Azure Resource Manager  | VS Code extension  |
-| **Azure Pricing** | Cost estimation (19 tools)         | stdio (Python)     |
-| **GitHub MCP**    | Issues, PRs, code search, branches | HTTP (Copilot API) |
-| **MS Learn MCP**  | Official docs search, code samples | HTTP               |
-
-[MCP Integration details →](../mcp-integration/)
-
----
-
-:::tip[Further Reading]
-
-- [Agent Architecture](../agents/) — top-level agents, subagents, the Challenger pattern
-- [Skills & Instructions](../skills-and-instructions/) — progressive loading, glob-based enforcement
-- [Workflow Engine & Quality](../workflow-engine/) — DAG model, approval gates, validators
-- [MCP Integration](../mcp-integration/) — MCP servers and their tool catalogs
-
-  :::
+See [MCP integration](/concepts/how-it-works/mcp-integration/) for configuration and
+access requirements, and [skills and instructions](/concepts/how-it-works/skills-and-instructions/)
+for authoring guidance.

@@ -22,12 +22,12 @@ const firstSegment = trimmed.split("/")[0] || "home";
 const knownSections = new Set(["getting-started", "concepts", "guides", "reference", "project", "demo"]);
 const sectionSlug = knownSections.has(firstSegment) ? firstSegment : "home";
 const sectionLabelMap = {
-  "getting-started": "Getting Started",
+  "getting-started": "Get started",
   concepts: "Concepts",
-  guides: "How-to & Tutorials",
+  guides: "Guides and troubleshooting",
   reference: "Reference",
-  project: "Project",
-  demo: "Demo",
+  project: "Contribute",
+  demo: "Case study",
   home: "Home",
 };
 const sectionLabel = sectionLabelMap[sectionSlug];
@@ -38,7 +38,29 @@ const sectionLabel = sectionLabelMap[sectionSlug];
   data-pagefind-filter={`section:${sectionSlug}`}
   data-section-label={sectionLabel}
 >
+  {firstSegment === "demo" && (
+    <aside class="historical-note" aria-label="Historical case study">
+      <p>
+        This case study records an April 2026 run. Resource provisioning succeeded,
+        but the recorded application checks returned HTTP 503. The generated
+        records retain their original findings and are not a current deployment tutorial.
+        Use the <a href={`${SITE_BASE}/concepts/workflow/`}>current workflow</a> for agent handoffs and approvals.
+      </p>
+    </aside>
+  )}
   <DemoBreadcrumb />
   <DemoStepHeader />
   <slot />
 </div>
+
+<style>
+  .historical-note {
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--sl-color-hairline);
+    border-radius: 0.5rem;
+    background: var(--sl-color-gray-6);
+    color: var(--sl-color-text);
+  }
+  .historical-note p { margin: 0; }
+</style>

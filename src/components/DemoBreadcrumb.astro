@@ -28,8 +28,8 @@ const stepHref = step ? `${SITE_BASE}/${step.slug}/` : null;
 
 {
   inDemo && (
-    <nav class="apex-demo-breadcrumb" aria-label="Demo breadcrumb">
-      <a href={demoHref}>Demo</a>
+    <nav class="apex-demo-breadcrumb" aria-label="Case study breadcrumb">
+      <a href={demoHref}>Case study</a>
       {step && (
         <>
           <span class="sep" aria-hidden="true">›</span>
@@ -65,8 +65,8 @@ const stepHref = step ? `${SITE_BASE}/${step.slug}/` : null;
     color: var(--sl-color-gray-2);
   }
   .apex-demo-breadcrumb a {
-    color: var(--sl-color-accent);
-    text-decoration: none;
+    color: var(--sl-color-accent-high);
+    text-decoration: underline;
   }
   .apex-demo-breadcrumb a:hover,
   .apex-demo-breadcrumb a:focus-visible {

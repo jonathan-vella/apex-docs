@@ -1,13 +1,15 @@
 ---
-title: "Security Baseline"
-description: "Non-negotiable security requirements for IaC"
+title: "Security baseline"
+description: "Apply APEX security defaults, effective Azure Policy, and documented service-specific exceptions."
 ---
 
-> Non-negotiable security requirements for all generated infrastructure code.
+Apply the product's security defaults together with effective Azure Policy and
+approved requirements. Source validation checks specific patterns; reviews and
+runtime evidence cover requirements that source scans cannot establish.
 
-The security baseline is enforced by the `validate:iac-security-baseline` validator
-(pre-commit hook + CI pipeline) and the `challenger-review-subagent` at adversarial
-review gates. Violations block code generation and deployment.
+The [pinned baseline](https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/instructions/references/iac-security-baseline.md)
+is the behavioral reference. Required adversarial reviews use the human-selected
+`10-Challenger` agent, not a Challenger subagent.
 
 ## Rules
 
@@ -23,13 +25,26 @@ review gates. Violations block code generation and deployment.
 | 8   | App Service HTTP/2 enabled             | `http20Enabled: true`                  | `http2_enabled = true`                    | SE:07      |
 | 9   | Container Registry admin user disabled | `adminUserEnabled: false`              | `admin_enabled = false`                   | SE:05      |
 
-## Private Networking
+## Private networking
 
-PaaS data services use private endpoints and disabled public access in every environment, including development.
+PaaS data services use private endpoints and disabled public access in every
+environment, including development, except for the Azure Monitor case below.
 App Service APIs must be private. App Service hosting a public-facing web application may use public HTTPS ingress;
 the remaining identity and security controls still apply. VNet integration is outbound connectivity, not an
 inbound private endpoint. Unsupported services or incompatible SKUs require an explicit design decision,
 not a silent public fallback.
+
+Log Analytics and workspace-based Application Insights may use authenticated
+public query and ingestion endpoints when effective policy and approved requirements
+allow them. Record query and ingestion settings separately. Retain HTTPS/TLS,
+Entra query authentication, least-privilege access, supported authenticated ingestion,
+and local-auth controls.
+
+This exception does not apply to Storage, SQL, Key Vault, ACR, or other data services.
+Require Azure Monitor Private Link Scope when policy or approved isolation
+requirements demand private monitoring. Plan its scoped resources, endpoints, DNS,
+and client connectivity before disabling public endpoints. Do not silently relax
+existing private-only requirements.
 
 Private DNS resolution is mandatory. Project IaC provisions DNS unless verified central infrastructure or an
 effective DeployIfNotExists policy owns the specific components. Check assignment scope, parameters, zone IDs,
@@ -39,7 +54,7 @@ See [DINE evaluation][dine] and [private endpoint DNS][private-dns].
 
 > **WAF pillar key**: SE:05 = Identity & access, SE:06 = Network security, SE:07 = Encryption.
 
-## Extended Checks
+## Extended checks
 
 The validator also catches these anti-patterns:
 
@@ -55,19 +70,17 @@ The validator also catches these anti-patterns:
 | Wildcard CORS           | `allowedOrigins: ['*']`               | `allowed_origins = ["*"]`                 | Warning           |
 | Storage OAuth default   | `defaultToOAuthAuthentication: false` | `default_to_oauth_authentication = false` | Warning           |
 
-## Enforcement Points
+## Enforcement points
 
 The security baseline is checked at multiple points in the workflow:
 
-1. **CodeGen Phase 4** — `npm run validate:iac-security-baseline` runs after lint/review
-   subagents. Violations are a hard gate before adversarial review.
-2. **Deploy Preflight** — the validator runs again before what-if/plan analysis.
-   Conditional skip if CodeGen already passed (`security_validation_status: PASSED`).
-3. **Pre-commit hook** — `lefthook.yml` runs the validator on staged `.bicep`/`.tf` files.
-4. **CI pipeline** — `validate:_node` includes the security baseline in the parallel
-   validation suite.
+1. CodeGen runs the required source checks before preparing the deployment handoff.
+2. Deploy checks current code and evidence before preview and apply. Reuse requires
+   matching inputs, scope, and freshness. A prior PASSED string alone is insufficient.
+3. Product git hooks and CI run their configured checks. Inspect their actual scope
+   rather than assuming every operation passed through them.
 
-## Running the Validator
+## Running the validator
 
 ```bash title="Run the security baseline validator" frame="terminal"
 # Check all IaC files
@@ -84,8 +97,8 @@ npm run validate:all
 
 The validator uses regex-based single-line pattern matching. Nested or multi-line
 property assignments (e.g., a property split across multiple lines) may not be caught.
-The challenger-review-subagent provides a second layer of defense for patterns the
-regex cannot detect.
+Plan/code review must cover the requirements that the source scan cannot prove.
+A review is not a substitute for actual connectivity or application-health checks.
 
 The public-web flag accepts a dedicated known Web App resource or AVM-module file, not mixed-resource files.
 Use the corresponding `.tf` path for Terraform. The flag declares reviewed scope; it does not approve an API's
@@ -96,13 +109,13 @@ When refining previously approved requirements under this baseline, return to Re
 independent review and renewed approval. Do not silently rewrite approved project artifacts or treat old findings
 as current evidence for changed inputs.
 
-## Further Reading
+## Further reading
 
-- [Microsoft Cloud Security Benchmark][mcsb] — per-service security baselines
-- [WAF Security Pillar][waf-sec] — Well-Architected Framework security patterns
-- [Validation Reference](/reference/validation-reference/) — full list of validators
-- [Cost Governance](/reference/cost-governance/) — budget and cost monitoring rules
-- [Workflow](/concepts/workflow/) — where security checks fit in the agent pipeline
+- [Microsoft Cloud Security Benchmark][mcsb]
+- [WAF security pillar][waf-sec]
+- [Validation reference](/reference/validation-reference/)
+- [Cost governance](/reference/cost-governance/)
+- [Workflow](/concepts/workflow/)
 
 [mcsb]: https://learn.microsoft.com/security/benchmark/azure/overview
 [waf-sec]: https://learn.microsoft.com/azure/well-architected/security/
@@ -111,6 +124,5 @@ as current evidence for changed inputs.
 
 ## Related
 
-- [Quickstart](/getting-started/quickstart/) — install and run your first project
-- [Workflow](/concepts/workflow/) — how agents collaborate across steps
-- [Troubleshooting](/guides/troubleshooting/) — diagnose failed deploys
+- [Quickstart](/getting-started/quickstart/)
+- [Troubleshooting](/guides/troubleshooting/)

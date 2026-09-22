@@ -1,12 +1,14 @@
-# APEX Documentation
+# APEX documentation
 
 Astro Starlight documentation for [APEX](https://github.com/jonathan-vella/apex).
 The complete site was imported from the commit recorded in [migration-source.json](migration-source.json).
 The original repository retains its history. Runtime agents, skills, templates and product tooling remain in APEX.
 
-## Build and Test
+## Build and test
 
-### VS Code Container (WSL x86-64)
+<a id="vs-code-container-wsl-x86-64"></a>
+
+### VS Code container on WSL x86-64
 
 Clone this repository into the WSL Linux filesystem (for example `~/src/apex-docs`, not `/mnt/c`).
 Enable Docker Desktop's WSL integration, open the folder through VS Code's WSL extension,
@@ -25,7 +27,10 @@ Run `npm run dev -- --host 0.0.0.0` for the site; VS Code forwards port 4321.
 No server or deployment starts automatically. Rebuild the container after changing its Dockerfile or Playwright lock version.
 The **Docs Dev Container** CI job builds and tests this configuration on x86-64; ARM is not a supported target.
 
-### Local Toolchain
+### Local toolchain
+
+Use Linux with Node 24, Python 3.14, and Graphviz. The build command uses POSIX shell
+syntax. A native Windows dev preview does not establish full build compatibility.
 
 ```bash
 npm ci
@@ -47,11 +52,64 @@ directly from the workflow graph; source updates require review for semantic ali
 The source updater proposes reviewed changes from APEX main. Browser tests exercise desktop and mobile navigation,
 search, diagrams, Explorer metadata and downloads; CI retains reports and traces.
 
-## Hosting Cutover
+## Reviewing source updates
 
-The intended domain remains `https://apexops.pro`, with existing paths unchanged.
-Pages publication is disabled until a human approves the cutover and sets `DOCS_PUBLISH_ENABLED=true`.
-Do not set that variable or move the domain while the old APEX site is still the active publisher.
-The original site must remain available until preview checks and post-cutover live tests pass.
-Removal of the old site is a separate reviewed APEX change, not part of this import.
-APEX documentation and Astro Starlight site
+The generated source pin in `apex-source.json` and the guidance baseline in
+`docs-review.json` are separate. Automated pin updates do not certify that the
+maintained prose matches the new source. The footer and
+[update guide](src/content/docs/guides/updating-apex.mdx) expose that distinction.
+
+Source-update PRs include a path-based impact report from the last guidance
+review to the candidate pin. It suggests affected pages and lists unmatched
+changes for manual review. It does not determine semantic impact or perform
+cloud validation. Review Accelerator changes separately.
+
+To inspect a local comparison after fetching both commits into `.apex-source`:
+
+```bash
+npm run source:impact
+```
+
+The command defaults to `docs-review.json` and `apex-source.json`; use `--base`
+and `--head` after `--` to compare explicit full commit SHAs. Missing commits
+are errors, not an empty report. Update `docs-review.json` only after reviewing
+the guidance against the recorded product and template revisions.
+
+## Writing documentation
+
+Read the [writing guide](src/content/docs/project/style-guide.md) and apply the
+[Unslop skill](.github/skills/unslop/SKILL.md) explicitly. If your client does not
+expose the skill, read its file and apply the rules directly.
+
+Check product claims against the pinned source and adopter setup against the
+Accelerator template. Preserve exact commands and historical evidence. Keep
+published routes, heading anchors, and imported binary assets. New diagrams should
+use new filenames and editable source.
+
+`npm run check:links` checks built local paths and fragments, including static
+redirects. Run `npm run check:external-links` when changing external destinations.
+Network restrictions are not proof that a page no longer exists.
+
+`npm run check:docs` checks all pages' required metadata and checks maintained
+prose for heading structure and known identifier casing. It excludes fenced
+examples and historical demo bodies from prose checks. The Node suite runs the
+same checks, so existing CI, weekly, container and publishing jobs enforce them.
+Unslop remains an explicit editorial review, not an automatic prose replacement.
+
+The browser suite also runs selected axe accessibility checks in light and dark
+themes on desktop and mobile, including the Explorer dialog. Reports retain
+violations and checks that require manual assessment. Passing does not certify
+site-wide accessibility.
+
+<a id="hosting-cutover"></a>
+
+## Publishing
+
+GitHub Pages for this repository serves `https://apexops.pro`. The domain cutover
+was complete when checked on September 22, 2026, and `DOCS_PUBLISH_ENABLED` was true.
+The workflow and repository settings control publication; a local build does not
+publish anything.
+
+Do not change the domain, publishing controls, or source repository as part of an
+ordinary content edit. Preview and review the changes before merging to the
+publishing branch.

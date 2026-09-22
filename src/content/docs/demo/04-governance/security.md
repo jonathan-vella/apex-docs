@@ -1,6 +1,6 @@
 ---
 title: "Security & Network Policies"
-description: "Security hardening, cost governance, network isolation policies, and deployment blockers discovered for the Malta catering project"
+description: "April 2026 security & network policies record. Preserved historical output, not current workflow guidance."
 sidebar:
   order: 2
 ---

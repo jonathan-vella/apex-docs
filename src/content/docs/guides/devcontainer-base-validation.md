@@ -1,15 +1,16 @@
 ---
-title: "Dev Container Base Validation"
+title: "Dev container base validation"
 description: "Compare candidate Ubuntu base images on native amd64 and arm64 runners before promotion"
 sidebar:
   order: 9
 ---
 
+This is an APEX product contributor procedure, not an apex-docs build command.
 Use the Dev Container Base Validation workflow to test a new Ubuntu base image without granting the workflow write
 access or merging the change. The workflow builds the current baseline and candidate on native amd64 and arm64 GitHub
 runners, then publishes one fail-closed verdict.
 
-## Safety Boundaries
+## Safety boundaries
 
 The validation workflow is intentionally constrained:
 
@@ -25,7 +26,7 @@ A `PASS` verdict establishes compatibility with the checks in this repository. I
 base-image release notes or the draft pull request.
 :::
 
-## Pull Request Validation
+## Pull request validation
 
 A pull request that changes the dev container or its validation harness starts the workflow automatically. The matrix
 compares:
@@ -43,12 +44,12 @@ This separation tests the same container boundary contributors use locally.
 Each matrix leg creates an untracked, repo-relative validation config. The tracked
 `.devcontainer/devcontainer.json` is never rewritten by a workflow step.
 
-## Manual Validation
+## Manual validation
 
 After the workflow exists on `main`, dispatch it for future base-image evaluations:
 
 ```bash
-gh workflow run validate-devcontainer-base.yml \
+gh workflow run validate-devcontainer-base.yml --repo jonathan-vella/apex \
   --ref main \
   -f candidate_image=mcr.microsoft.com/devcontainers/base:ubuntu26.04 \
   -f candidate_os=26.04
@@ -57,16 +58,17 @@ gh workflow run validate-devcontainer-base.yml \
 Use the base image's expected `/etc/os-release` `VERSION_ID` for `candidate_os`. The workflow verifies that the image
 manifest advertises both `linux/amd64` and `linux/arm64` before starting container builds.
 
-## Validation Coverage
+## Validation coverage
 
 Each container run checks:
 
 - The observed Ubuntu version and CPU architecture.
 - Completion of the dev container lifecycle, including a repeated `post-start` idempotency smoke test.
 - All tools reported by the setup script, including Azure CLI, Bicep, PowerShell, Python, Node.js, and Terraform.
-  gitleaks, azd, and the configured MCP servers.
-- Repository formatting, hooks, linting, unit tests, infrastructure validation, and documentation build through existing
-  npm scripts.
+  It also checks gitleaks, azd, and configured MCP tooling.
+- Repository formatting, hooks, linting, unit tests, and infrastructure validation
+  through the product's configured scripts. The separate apex-docs site build is
+  not part of this product container check.
 - Minimal Bicep compilation and Terraform provider initialization/validation.
 - No-auth Azure Retail Prices searches for virtual machine and storage pricing.
 - A non-empty Azure architecture diagram rendered through Graphviz and the Python `diagrams` package.
@@ -74,7 +76,7 @@ Each container run checks:
 Logs and machine-readable verdicts are uploaded as workflow artifacts for every matrix leg that reaches the validation
 script.
 
-## Interpret the Verdict
+## Interpret the verdict
 
 | Verdict | Meaning | Action |
 | --- | --- | --- |
@@ -85,7 +87,7 @@ A blocked result is categorized as `compatibility`, `network`, `runner`, `harnes
 failures may be retried once. A repeated infrastructure failure remains blocked but is not automatically labeled as an
 Ubuntu incompatibility.
 
-## Troubleshoot a Blocked Run
+## Troubleshoot a blocked run
 
 1. Open the comparison job summary and identify the affected variant and architecture.
 2. Download the consolidated verdict and the matching matrix artifact.
@@ -96,6 +98,6 @@ Ubuntu incompatibility.
 
 ## Related
 
-- [Dev Container Hygiene](../devcontainer-hygiene/) — maintain a focused contributor environment
-- [Validation & Linting](../../reference/validation-reference/) — understand repository validation commands
-- [Troubleshooting](../troubleshooting/) — diagnose local and workflow failures
+- [Dev Container Hygiene](../devcontainer-hygiene/). maintain a focused contributor environment
+- [Validation & Linting](../../reference/validation-reference/). understand repository validation commands
+- [Troubleshooting](../troubleshooting/). diagnose local and workflow failures
