@@ -37,7 +37,7 @@
   "devDependencies": {
     "@axe-core/playwright": "^4.11.1",
     "@playwright/test": "^1.63.0",
-    "js-yaml": "^4.3.2",
+    "js-yaml": "^5.4.2",
     "jsdom": "^30.0.1",
     "remark-parse": "^11.0.0",
     "unified": "^11.0.5"
