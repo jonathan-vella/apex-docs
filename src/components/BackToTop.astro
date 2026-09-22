@@ -8,6 +8,7 @@
   class="apex-back-to-top"
   aria-label="Back to top"
   data-state="hidden"
+  hidden
 >
   <svg
     aria-hidden="true"
@@ -30,10 +31,18 @@
     const btn = document.querySelector(".apex-back-to-top");
     if (!btn) return;
     const reveal = () => {
-      btn.dataset.state = window.scrollY > 800 ? "visible" : "hidden";
+      const visible = window.scrollY > 800;
+      btn.hidden = !visible;
+      btn.dataset.state = visible ? "visible" : "hidden";
     };
     btn.addEventListener("click", () => {
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      const heading = document.querySelector("h1");
+      if (heading) {
+        heading.tabIndex = -1;
+        heading.focus({ preventScroll: true });
+      }
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      window.scrollTo({ top: 0, behavior: reduceMotion ? "instant" : "smooth" });
     });
     window.addEventListener("scroll", reveal, { passive: true });
     reveal();
@@ -41,6 +50,10 @@
 </script>
 
 <style>
+  .apex-back-to-top[hidden] {
+    display: none;
+  }
+
   .apex-back-to-top {
     position: fixed;
     right: 1.25rem;
@@ -76,7 +89,8 @@
   .apex-back-to-top:focus-visible {
     border-color: var(--sl-color-accent);
     color: var(--sl-color-accent);
-    outline: none;
+    outline: 2px solid var(--sl-color-accent);
+    outline-offset: 3px;
   }
 
   @media (max-width: 50rem) {

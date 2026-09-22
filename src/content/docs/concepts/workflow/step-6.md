@@ -1,54 +1,65 @@
 ---
-title: "Step 6 — Deploy"
-description: "Execute the Azure deployment with what-if/plan preview, security baseline, and policy precheck."
+title: "Step 6: Deploy"
+description: "Authorize deployment only after current IaC validation, a plan or what-if preview, and policy precheck."
 sidebar:
   order: 7
-  label: "Step 6 — Deploy"
+  label: "Step 6: Deploy"
 ---
 
 ## Purpose
 
-Execute the Azure deployment using the generated IaC. Both tracks run a preview step (what-if for
-Bicep, `terraform plan` for Terraform), apply the security baseline, and gate the apply behind a
-live policy precheck.
+Deploy the generated IaC to the approved Azure scope. Validate the current inputs,
+review the proposed changes, and obtain explicit authorization before apply.
+A request for a plan or validation does not authorize deployment.
 
 ## Agents
 
-- [`07b-Bicep
-  Deploy`](https://github.com/jonathan-vella/apex/blob/main/.github/agents/07b-bicep-deploy.agent.md)
-  — uses `azd provision` (default) and `bicep-whatif-subagent` for preview.
-- [`07t-Terraform
-  Deploy`](https://github.com/jonathan-vella/apex/blob/main/.github/agents/07t-terraform-deploy.agent.md)
-  — uses `bootstrap.sh` / `deploy.sh` and `terraform-plan-subagent` for preview.
-- [`policy-precheck-subagent`](https://github.com/jonathan-vella/apex/blob/main/.github/agents/_subagents/policy-precheck-subagent.agent.md)
-  — live policy + governance reconciliation, returns `deploy_gate = PROCEED|BLOCK`.
+- [`07b-Bicep Deploy`](https://github.com/jonathan-vella/apex/blob/main/.github/agents/07b-bicep-deploy.agent.md)
+  owns Bicep deployment and its what-if preview.
+- [`07t-Terraform Deploy`](https://github.com/jonathan-vella/apex/blob/main/.github/agents/07t-terraform-deploy.agent.md)
+  owns Terraform deployment and its plan preview.
+- The permitted `policy-precheck-subagent` supplies policy and governance evidence.
+  Its `PROCEED` result is evidence for the deployment decision, not user authorization.
 
 ## Pre-deploy gates
 
-:::caution[Pre-Deploy Security Review]
-`npm run validate:iac-security-baseline` runs (TLS 1.2, HTTPS-only, no public blob, managed
-identity, SQL Entra-only auth) and `challenger-review-subagent` performs a security-governance pass
-on the what-if/plan output. Violations block deployment.
-:::
+Confirm the tenant, subscription, target environment, resource scope, and approved
+plan. Check `04-environment-manifest.json`, `05-iac-handoff.json`, current code,
+and the required governance evidence.
+
+Run the required deterministic checks, preview, and policy precheck. Reuse prior
+validation only when its evidence covers the current inputs and meets the
+freshness and scope requirements. A stored `security_validation_status: PASSED`
+string is not sufficient by itself.
+
+The [shared deployment contract](https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/skills/apex-iac-common/references/deploy-shared-workflow.md)
+defines the checks. Resolve missing evidence through the owning step rather than
+regenerating the project through a generic application-preparation workflow.
 
 ## Invocation
 
+Select the main agent for the chosen track in Copilot Chat:
+
 ```text
-Bicep:     Invoke → 07b-Bicep Deploy
-Terraform: Invoke → 07t-Terraform Deploy
-Output:    agent-output/{project}/06-deployment-summary.md
+Bicep:     07b-Bicep Deploy
+Terraform: 07t-Terraform Deploy
+Outputs:   agent-output/{project}/06-deployment-summary.md
+           agent-output/{project}/06-policy-precheck.json
 ```
+
+Review the proposed changes and costs before authorizing apply. Do not approve an
+unexpected service or SKU substitution merely to get past a deployment failure.
 
 ## Review
 
-No standalone challenger pass — policy precheck output is folded into the deployment summary as an
-informational H2.
+Step 6 does not require a Challenger review. That does not remove deterministic
+validation, policy precheck, deployment approval, or post-deployment verification.
 
-:::note[Approval Gate]
-The user verifies deployed resources before proceeding to As-Built documentation.
-:::
+Check resource provisioning and application health separately. Record failed
+endpoints, unresolved configuration, and any checks that could not run.
 
 ## Hand-off
 
-The Orchestrator routes context to [`Step 7 —
-As-Built`](/concepts/workflow/step-7/).
+After reviewing the observed results, select
+[Step 7: As-built](/concepts/workflow/step-7/). Include unresolved issues in the
+handoff; do not describe an unhealthy application as a successful delivery.

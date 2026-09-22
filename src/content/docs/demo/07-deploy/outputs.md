@@ -1,6 +1,6 @@
 ---
 title: "Resource Outputs"
-description: "Deployed resources with actual names and deployment output values from the Malta catering infrastructure deployment"
+description: "April 2026 resource outputs record. Preserved historical output, not current workflow guidance."
 sidebar:
   order: 2
 ---

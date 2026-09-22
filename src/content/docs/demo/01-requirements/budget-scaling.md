@@ -1,6 +1,6 @@
 ---
 title: "Budget, NFRs & Scaling"
-description: "Non-functional requirements, budget envelope, operational requirements, regional preferences, and complexity classification"
+description: "April 2026 budget, nfrs & scaling record. Preserved historical output, not current workflow guidance."
 sidebar:
   order: 4
 ---

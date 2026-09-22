@@ -1,178 +1,98 @@
 ---
-title: "Prompting Best Practices"
-description: "Best practices for writing effective prompts"
+title: "Prompting practices"
+description: "State scope, provide evidence, and ask for checks that match the owning APEX step."
 ---
 
-## Choose the Right Interface
+## Choose the right interface
 
-| Interface                    | Best For                                                    |
-| ---------------------------- | ----------------------------------------------------------- |
-| **Inline suggestions** (Tab) | Completing code snippets, variable names, repetitive blocks |
-| **Copilot Chat**             | Questions, generating larger sections, debugging            |
-| **APEX Agents**              | Multi-step workflows, end-to-end projects                   |
+Use inline completion for a small code edit, chat for a question, and the selected
+APEX main agent for its workflow step. Attaching a file or typing another agent's
+name does not select that agent.
 
-## Break Down Complex Tasks
+## Break down complex tasks
 
-Do not ask for an entire solution in one prompt. Start with the business outcome,
-then iterate on specifics.
+Ask Requirements to establish the workload before asking CodeGen for resources.
+Identify the intended result and what must remain unchanged:
 
 ```text
-❌ Design the full platform for our new customer support product
-
-✅ We're launching a customer support SaaS for mid-market retailers.
-   Start with the core application stack:
-   - Public web frontend for support agents and administrators
-   - Private API layer for tickets, users, and reporting
-   - Managed database for customer conversations and account data
-   - No direct access from the frontend to the database
-
-   (Then follow up: "Now add identity, role separation, monitoring,
-   and backup requirements for production")
+Capture requirements for a customer-support service.
+The web frontend is public; the API and database must remain private.
+Ask about identity, traffic, retention, recovery, and budget before choosing services.
+Do not generate code yet.
 ```
 
-## Be Specific About Requirements
+## Be specific about requirements
+
+Give quantities and constraints that your team can support:
 
 ```text
-❌ Create a storage account
-
-✅ Our e-commerce platform stores customer order documents that must be
-   retained for 7 years (regulatory). We need:
-   - Zone-redundant storage for durability
-   - No public access (internal services only)
-   - Soft delete enabled so ops can recover accidental deletions
-   - HTTPS only, TLS 1.2 minimum
-   Use Bicep with Azure Verified Modules.
-
-✅ Our data analytics pipeline ingests CSV uploads from partner APIs.
-   We need blob storage that:
-   - Handles ~500 GB/month of incoming data
-   - Automatically moves files older than 30 days to cool tier
-   - Is accessible only from our processing VNet
-   Use Terraform with Azure Verified Modules.
+We ingest 500 GB of partner documents each month.
+Documents must remain available for seven years.
+Only the processing workload can read them.
+We need an owner decision on retrieval frequency before choosing storage tiers.
 ```
 
-## Provide Context in Your Prompts
+Separate business requirements from proposed implementations. Do not present a
+chosen SKU or compliance conclusion as a fact unless it has been established.
 
-Include the business context, compliance requirements, and operational
-constraints — not just the resource type:
+## Provide context in your prompts
+
+Name the project, current step, approved artifacts, and change:
 
 ```text
-We're building the claims processing database for a healthcare insurer.
-
-Business context:
-- HIPAA-regulated environment, audit logging is mandatory
-- 200 concurrent internal users, peak during open enrollment
-- RPO < 1 hour, RTO < 4 hours (business continuity requirement)
-
-Technical constraints:
-- Region: swedencentral (EU data residency)
-- Authentication: Microsoft Entra ID only — no SQL credentials
-- Naming follows our convention: sql-{projectName}-{environment}-{uniqueSuffix}
-
-Create a Bicep module for Azure SQL Database that meets these requirements.
+For patient-portal, review the approved architecture after the user-count change.
+Expected concurrent users increased from 200 to 500.
+Identify affected sizing, cost, and recovery assumptions.
+Do not modify deployed resources.
 ```
 
-## Use Chat Variables
+## Use chat variables
 
-| Variable               | Purpose                 | Example                                    |
-| ---------------------- | ----------------------- | ------------------------------------------ |
-| `@workspace`           | Search entire workspace | `@workspace Find all Key Vault references` |
-| `#file`                | Reference specific file | `#file:main.bicep Explain this module`     |
-| `#selection`           | Current selection       | Select code, then ask about it             |
-| `#terminalLastCommand` | Last terminal output    | `#terminalLastCommand Why did this fail?`  |
+Use the client's attachment controls to provide exact files or selected text.
+VS Code can expose file, selection, terminal, and workspace context, but supported
+syntax varies by client. Check what was attached rather than assuming a variable
+searched the entire repository.
 
-## Prompt Patterns
+## Prompt patterns
 
-:::tip[Effective prompt structures]
-These patterns work well across all agents. Combine them for best results.
-:::
-
-**Explain Then Generate**:
+For explanation, request the evidence and its limits:
 
 ```text
-Our team is new to private endpoints. First, explain the networking
-concepts and security benefits for an App Service that serves an
-internal HR portal. Then, create a Bicep module that implements
-private endpoint access for the app.
+Explain how this plan provides private DNS resolution.
+Identify the zone owner, links, and intended client path.
+List anything the evidence does not establish.
 ```
 
-**Review Then Fix**:
+For a repair, select the owning agent:
 
 ```text
-Our compliance team flagged this Bicep template before go-live.
-Review it against:
-1. HIPAA security requirements
-2. Well-Architected Framework reliability pillar
-3. Missing outputs our CI pipeline needs
-
-Then provide a corrected version.
+Fix this CodeGen validation failure in the approved implementation.
+Preserve the architecture and policy decisions.
+If the fix requires a plan change, stop and identify it.
+Re-run the affected checks and renew the handoff.
 ```
 
-**Compare Approaches**:
+For a comparison, keep approval separate:
 
 ```text
-We're deploying a containerised order-processing API.
-Show two approaches:
-1. Using native Bicep resources
-2. Using Azure Verified Modules (AVM)
-
-Compare cost, maintainability, and compliance coverage
-for our PCI-DSS production workload.
+Compare the supported hosting options against our availability and cost constraints.
+Use current evidence and record uncertainty. Do not change the approved choice yet.
 ```
 
-**Incremental Refinement**:
+## Anti-patterns to avoid
 
-```text
-Prompt 1: We need a VNet for our customer-facing web tier — create the base module
-Prompt 2: Add network security rules — only HTTPS inbound, deny everything else
-Prompt 3: Add diagnostic settings so the SOC team gets NSG flow logs
-Prompt 4: Make the address space configurable — we have 3 environments
-```
+Do not ask Deploy to rewrite IaC, let a generic Azure skill restart APEX planning,
+or treat a passed syntax check as deployment readiness. Do not request broad
+resource changes when the intent is only diagnosis.
 
-## Anti-Patterns to Avoid
+Missing context should produce a question or an explicit limitation, not an
+invented price, requirement, approval, or successful check.
 
-:::caution[Common mistakes that reduce output quality]
-Avoid these patterns — they lead to incomplete, generic, or incorrect AI output.
-:::
+## Always validate ai output
 
-| Anti-Pattern             | Problem                 | Better Approach                                                                    |
-| ------------------------ | ----------------------- | ---------------------------------------------------------------------------------- |
-| "Generate everything"    | Output too broad        | Break into business capabilities: networking, then identity, then monitoring       |
-| Accepting without review | Bugs, security issues   | Always run `bicep lint` / `terraform validate` and review for hardcoded secrets    |
-| Ignoring context         | Generic suggestions     | Open relevant files first, use `@workspace` and `#file:` references                |
-| One-shot complex prompts | Incomplete output       | Iterate: start with the core use case, add compliance, add monitoring, add DR      |
-| Not providing examples   | Inconsistent formatting | Show the naming pattern or module structure you want the agent to follow           |
-| Infrastructure-only asks | Misses constraints      | Lead with who uses it, compliance needs, and SLAs — let the agent derive the infra |
+Check module and API support, policy-property coverage, required outputs, security,
+and the actual preview. A recent-looking API year does not prove compatibility.
+Static checks cannot prove private DNS resolution or application health.
 
-## Always Validate AI Output
-
-| Check                                               | Why                          |
-| --------------------------------------------------- | ---------------------------- |
-| API versions are recent (2023+)                     | Older versions lack features |
-| `supportsHttpsTrafficOnly: true`                    | Security baseline            |
-| `minimumTlsVersion: 'TLS1_2'`                       | Compliance requirement       |
-| Unique names use `uniqueString()` / `random_string` | Avoid naming collisions      |
-| Outputs include both ID and name                    | Downstream modules need both |
-
-```bash
-# Validate Bicep syntax
-bicep build main.bicep
-
-# Lint for best practices
-bicep lint main.bicep
-
-# Preview Bicep deployment
-az deployment group what-if \
-  --resource-group myRG \
-  --template-file main.bicep
-
-# Validate Terraform syntax
-terraform fmt -check
-terraform validate
-
-# Validate Terraform configuration
-terraform fmt -check && terraform validate
-
-# Preview Terraform deployment
-terraform plan -out=tfplan
-```
+Use the [validation reference](/reference/validation-reference/) and the owning
+step's procedure. Preserve raw failure evidence and report unperformed checks.

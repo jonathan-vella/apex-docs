@@ -12,7 +12,7 @@ Agent Host discovery or execution support.
 Use them for repeatable operational tasks where the prompt needs a precise tool
 sequence, predictable exclusions, or a safe confirmation gate.
 
-## Prompt Reference
+## Prompt reference
 
 - `/apex-resume-workflow`: resumes an APEX workflow after `/clear`.
   Source: `.github/prompts/apex-resume-workflow.prompt.md`.
@@ -21,7 +21,7 @@ sequence, predictable exclusions, or a safe confirmation gate.
 - `/apex-debug-log-export`: bundles Copilot debug logs for review.
   Source: `.github/prompts/apex-debug-log-export.prompt.md`.
 
-## Resume Workflow
+## Resume workflow
 
 On Agent Host, select `01-Orchestrator` with its configured model and invoke
 `/apex-host-workflow-start resume [project]`. The `resume` operation is explicit;
@@ -36,7 +36,7 @@ The prompt is bound to `01-Orchestrator` and uses its canonical recovery procedu
 A supplied project is used directly; otherwise it selects a unique candidate or asks which project to resume.
 The workflow graph and current evidence determine the next gate or handoff, not a separate next-step questionnaire.
 
-### Resume Behavior
+### Resume behavior
 
 - Lists candidate projects under `agent-output/`.
 - Resolves a project from your answer or from the prompt argument.
@@ -44,18 +44,18 @@ The workflow graph and current evidence determine the next gate or handoff, not 
 - Maps the detected workflow node to an orchestrator handoff button.
 - Surfaces the correct handoff without invoking the next agent automatically.
 
-### Resume Usage
+### Resume usage
 
 Use the slash prompt, attach `tools/apex-prompts/workflow-prompts/00-resume-workflow.prompt.md`,
 or send `resume <project>` to the selected Orchestrator. All use the same agent-owned procedure;
 plain chat text does not invoke a prompt file automatically. Required approvals remain explicit.
 
-### Resume Boundaries
+### Resume boundaries
 
 The prompt does not re-run completed steps by itself, change recorded decisions,
 or call `#runSubagent`. It only gets you back to the right orchestrator handoff.
 
-## Git Commit
+## Git commit
 
 On Host, use `/apex-host-git-commit` with the required owner and tools already selected.
 Commit and debug-log capture are separate operations, not workflow-start modes.
@@ -64,7 +64,7 @@ Use `/apex-git-commit` when you want the repository's standard commit workflow:
 inspect scoped changes, stage allowed paths, create a conventional commit, push
 the current branch, and decide what to do with the pull request.
 
-### Commit Behavior
+### Commit behavior
 
 - Computes pathspec exclusions for `agent-output/`, `infra/`, and the Sensei
   skill directory when applicable.
@@ -76,18 +76,18 @@ the current branch, and decide what to do with the pull request.
 - Checks whether an open pull request already exists for the branch.
 - Asks whether to update an existing PR, create a new PR, or skip the PR step.
 
-### Commit Usage
+### Commit usage
 
 Use this prompt after a focused code or documentation change when you want the
 repo's commit exclusions and PR decision flow applied consistently.
 
-### Commit Boundaries
+### Commit boundaries
 
 The prompt never force-pushes, never stages excluded infrastructure or
 `agent-output/` artifacts, and keeps the pull-request action as the final human
 confirmation gate.
 
-## Debug Log Export
+## Debug log export
 
 On Host, use `/apex-host-debug-log-export` with confirmed workspace/session paths.
 Do not substitute Local log variables for Host paths. Skills inherit the caller's
@@ -97,7 +97,7 @@ Use `/apex-debug-log-export` when you need to package Copilot Chat debug logs
 for review. It is especially useful when investigating custom-agent loading,
 skill loading, tool behavior, latency, token use, or unexpected retries.
 
-### Export Behavior
+### Export behavior
 
 - Enumerates debug-log sessions for the current workspace.
 - Recommends the most recent non-active session by default.
@@ -107,18 +107,18 @@ skill loading, tool behavior, latency, token use, or unexpected retries.
 - Redacts common secret patterns from filtered output.
 - Creates a `.tar.gz` bundle under `.apex-logs/`.
 
-### Export Usage
+### Export usage
 
 Use this prompt before filing an upstream Copilot issue or asking another
 maintainer to review an APEX agent session. The companion guide is
 [Debug Log Export](/guides/apex-debug-log-export/).
 
-### Export Boundaries
+### Export boundaries
 
 The prompt does not upload anything. It preserves raw session logs for auditing,
 so you should review the bundle before sharing it outside the repository team.
 
-## Choosing The Right Prompt
+## Choosing the right prompt
 
 Host entries are manual-only (`disable-model-invocation: true`). The source flags
 and static tests do not establish native runtime support; verify each harness separately.
@@ -131,6 +131,6 @@ and static tests do not establish native runtime support; verify each harness se
 
 ## Related
 
-- [Prompt Guide](/guides/prompt-guide/) — prompt patterns for agents and skills
-- [Workflow Prompts](/reference/prompts/workflow-prompts/) — examples for workflow agents
-- [Debug Log Export](/guides/apex-debug-log-export/) — export prompt operating guide
+- [Prompt Guide](/guides/prompt-guide/). prompt patterns for agents and skills
+- [Workflow Prompts](/reference/prompts/workflow-prompts/). examples for workflow agents
+- [Debug Log Export](/guides/apex-debug-log-export/). export prompt operating guide

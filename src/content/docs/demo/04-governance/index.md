@@ -1,17 +1,14 @@
 ---
 title: "Governance Overview"
-description: "Azure Policy discovery results, compliance analysis, and plan adaptations from the Governance Agent for the Malta catering online ordering app"
+description: "April 2026 governance overview record. Preserved historical output, not current workflow guidance."
 sidebar:
   order: 4
 ---
 
-:::tip[Editorial Context]
-This artifact was produced by the **Governance Agent** (Step 3.5 of the APEX pipeline).
-The Governance Agent queries the live Azure subscription to discover active Azure Policy
-assignments — including management-group-inherited policies — and assesses their impact
-on the planned architecture. It identifies deployment blockers, required adaptations,
-and auto-applied configurations before IaC code generation begins. Governance discovery
-runs against the live Azure subscription, not assumed best-practice defaults.
+:::note[Editorial context]
+This is a dated policy-discovery record. References below to "live" or "verified"
+describe the April 2026 session, not a fresh query or complete certification of
+today's subscription. New projects need discovery for their actual target scope.
 :::
 
 ## Discovery Source

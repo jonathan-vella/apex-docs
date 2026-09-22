@@ -14,8 +14,8 @@
   --sl-hue-accent: 207;
   --sl-color-white: #f0f6fc;
   --sl-color-gray-1: #d0d7de;
-  --sl-color-gray-2: #8b949e;
-  --sl-color-gray-3: #6e7681;
+  --sl-color-gray-2: #a1abb7;
+  --sl-color-gray-3: #929ca8;
   --sl-color-gray-4: #484f58;
   --sl-color-gray-5: #30363d;
   --sl-color-gray-6: #21262d;
@@ -24,12 +24,12 @@
 
 :root[data-theme="light"] {
   --sl-color-accent-low: #dbeafe;
-  --sl-color-accent: #0078d4;
+  --sl-color-accent: #0064b0;
   --sl-color-accent-high: #004578;
   --sl-color-white: #1b1b1f;
   --sl-color-gray-1: #30363d;
   --sl-color-gray-2: #484f58;
-  --sl-color-gray-3: #6e7681;
+  --sl-color-gray-3: #56616d;
   --sl-color-gray-4: #8b949e;
   --sl-color-gray-5: #d0d7de;
   --sl-color-gray-6: #eaeef2;
@@ -61,8 +61,8 @@ body:has(.landing-hero) {
   --sl-color-accent-high: #6cb8f7;
   --sl-color-white: #f0f6fc;
   --sl-color-gray-1: #d0d7de;
-  --sl-color-gray-2: #8b949e;
-  --sl-color-gray-3: #6e7681;
+  --sl-color-gray-2: #a1abb7;
+  --sl-color-gray-3: #929ca8;
   --sl-color-gray-4: #484f58;
   --sl-color-gray-5: #30363d;
   --sl-color-gray-6: #21262d;
@@ -145,6 +145,11 @@ body:has(.landing-hero) header div {
 
 body:has(.landing-hero) starlight-theme-select {
   display: none;
+}
+
+:root[data-theme="dark"] .site-title img,
+body:has(.landing-hero) .site-title img {
+  filter: invert(1);
 }
 
 body:has(.landing-hero) .sl-container > h1:first-child,

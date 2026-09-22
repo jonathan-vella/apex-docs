@@ -1,0 +1,12 @@
+{
+  "reviewedOn": "2026-09-22",
+  "evidence": "source-review",
+  "apex": {
+    "repository": "jonathan-vella/apex",
+    "commit": "a656e66d83cfae8d525ce0d2012b124599b37252"
+  },
+  "accelerator": {
+    "repository": "jonathan-vella/apex-accelerator",
+    "commit": "a77442889129b26a2a89c0d5faa5f1d35a84965c"
+  }
+}

@@ -1,6 +1,6 @@
 ---
 title: "WAF Assessment"
-description: "Well-Architected Framework pillar assessment for the Malta catering architecture — Security, Reliability, Performance, Cost, and Operations"
+description: "April 2026 waf assessment record. Preserved historical output, not current workflow guidance."
 sidebar:
   order: 1
 ---

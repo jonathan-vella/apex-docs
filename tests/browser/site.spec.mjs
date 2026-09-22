@@ -1,4 +1,27 @@
 import { test, expect } from "@playwright/test";
+import fs from "node:fs";
+
+const review = JSON.parse(fs.readFileSync(new URL("../../docs-review.json", import.meta.url), "utf8"));
+
+test("homepage introduction remains inside its styled paragraph", async ({ page }) => {
+  await page.goto("/");
+  const tagline = page.locator("p.landing-hero__tagline");
+  await expect(tagline).toHaveText(
+    "Use GitHub Copilot agents to capture requirements, assess costs and policy, and generate Bicep or Terraform. Review the evidence and approve each handoff before deployment.",
+  );
+  await expect(tagline).toHaveCSS("color", "rgb(186, 201, 218)");
+});
+
+test("compatibility identifies the guidance source separately from the site build", async ({ page }) => {
+  await page.goto("/getting-started/quickstart/");
+  const footer = page.locator(".site-footer");
+  await expect(footer.getByRole("link", { name: `APEX ${review.apex.commit.slice(0, 12)}`, exact: true }))
+    .toHaveAttribute("href", `https://github.com/${review.apex.repository}/tree/${review.apex.commit}`);
+  await footer.getByRole("link", { name: "Compatibility and update guidance" }).click();
+  await expect(page).toHaveURL(/\/guides\/updating-apex\/#documentation-compatibility$/);
+  await expect(page.locator("main")).toContainText(review.apex.commit.slice(0, 12));
+  await expect(page.locator("main")).toContainText(review.accelerator.commit.slice(0, 12));
+});
 
 test("navigation, canonical URLs and responsive content", async ({ page }) => {
   const errors = [];
@@ -36,6 +59,9 @@ test("search returns a known documentation page", async ({ page }) => {
 
 test("diagrams and published downloads render", async ({ page, request }) => {
   await page.goto("/concepts/workflow-deep-dive/");
+  for (const details of await page.locator("main details:has(img)").all()) {
+    await details.locator("summary").click();
+  }
   const images = page.locator("main img");
   expect(await images.count()).toBeGreaterThan(0);
   for (const image of await images.all()) {
@@ -63,6 +89,32 @@ test("Explorer loads populated graph data", async ({ page, request }) => {
   await explorer.getByRole("tab", { name: "Agent Grid" }).click();
   await explorer.getByRole("searchbox", { name: "Search the architecture" }).fill("Orchestrator");
   await expect(explorer.locator("#card-grid .card").first()).toBeVisible();
-  await explorer.locator("#card-grid .card").first().click();
+  const card = explorer.getByRole("button", { name: "Inspect 01-Orchestrator", exact: true });
+  await card.focus();
+  await page.keyboard.press("Enter");
   await expect(explorer.locator("#drawer")).toHaveAttribute("aria-hidden", "false");
+  await expect(explorer.getByRole("button", { name: "Close", exact: true })).toBeFocused();
+  await page.keyboard.press("Shift+Tab");
+  await expect(explorer.locator("#drawer .source-link")).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(explorer.getByRole("button", { name: "Close", exact: true })).toBeFocused();
+  await page.keyboard.press("Escape");
+  await expect(explorer.locator("#drawer")).toBeHidden();
+  await expect(card).toBeFocused();
+  await page.keyboard.press("Space");
+  await expect(explorer.getByRole("dialog")).toBeVisible();
+});
+
+test("back-to-top respects reduced motion and returns keyboard focus to the heading", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/getting-started/quickstart/");
+  const button = page.getByRole("button", { name: "Back to top" });
+  await expect(button).toBeHidden();
+  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+  await expect(button).toBeVisible();
+  await button.focus();
+  await page.keyboard.press("Enter");
+  await expect(page.locator("h1")).toBeFocused();
+  await expect(button).toBeHidden();
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
 });

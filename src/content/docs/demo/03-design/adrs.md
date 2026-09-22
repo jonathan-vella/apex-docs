@@ -1,6 +1,6 @@
 ---
 title: "Architecture Decision Records"
-description: "Three ADRs documenting compute, persistence, and network posture decisions for the Malta catering online ordering app"
+description: "April 2026 architecture decision records record. Preserved historical output, not current workflow guidance."
 sidebar:
   order: 1
 ---

@@ -1,280 +1,209 @@
 ---
-title: "Workflow Prompts"
-description: "Step-by-step workflow prompt templates"
+title: "Workflow prompts"
+description: "Prompts for human-selected APEX steps, explicit review, and scoped recovery."
 ---
 
-The APEX workflow follows a multi-step pipeline (including Step 3.5 Governance).
-Use the **Orchestrator** to run all steps end-to-end, or invoke individual agents directly.
+Select the named main agent before sending a prompt. The examples do not invoke
+another agent, approve an artifact, or authorize Azure changes by themselves.
+Use the [workflow guide](/concepts/workflow/) for the current gates.
 
-## End-to-End (Orchestrator)
+## End-to-end (orchestrator)
 
-Select the **Orchestrator** agent in Copilot Chat, then describe your project:
-
-:::tip[Best Results]
-Include business context, team size, compliance needs, and expected scale
-in your initial prompt. The more context you provide, the better the output.
-:::
+Select `01-Orchestrator` to identify the project and next handoff:
 
 ```text
-I need Azure infrastructure for a patient portal web application.
-The company is a mid-size healthcare provider (500 staff, 50k patients).
-We need HIPAA compliance and expect 10k daily active users.
+Start an APEX project for a patient portal.
+We have 500 staff, 50,000 patients, and 10,000 daily active users.
+Gather the missing requirements and identify the next main-agent handoff.
+Do not deploy anything.
 ```
 
-The Orchestrator delegates to each agent in sequence with approval gates between steps.
+For an existing project:
 
 ```text
-Resume the workflow from where we left off. Check agent-output/patient-portal/
-for existing artifacts.
+Resume patient-portal. Inspect current recall state and artifacts.
+Report missing evidence and recommend the next handoff.
+Do not restore state, change decisions, or skip approvals.
 ```
 
-## Step 1: Requirements — 📜 Scribe
+<span id="step-1-requirements---scribe"></span>
 
-Select the **Requirements** agent. Start with business context, not technical specs.
+## Step 1: requirements
+
+Select `02-Requirements`. State constraints without inventing technical answers:
 
 ```text
-We're a fintech startup building a payment processing gateway.
-30 developers, Series B, launching in 3 months.
-Must be PCI-DSS compliant. Expect 1M transactions/month at launch.
+We are migrating a .NET ERP system from 12 VMware VMs and SQL Server 2019.
+We expect 300 concurrent users and require 99.9% availability.
+Capture our recovery, identity, data residency, budget, and operating requirements.
+Ask for missing facts before choosing services. We use Terraform.
 ```
 
+The step produces requirements and an initial SKU manifest. Select Challenger for
+the required review, then resolve findings and approve the requirements.
+
+<span id="step-2-architecture--️-oracle"></span>
+
+## Step 2: architecture
+
+Select `03-Architect` with approved requirements:
+
 ```text
-We're migrating an on-premises .NET ERP system to Azure.
-Currently running on 12 VMware VMs with SQL Server 2019.
-300 concurrent users, 99.9% uptime SLA required.
+Assess agent-output/patient-portal/01-requirements.md.
+Compare service choices against the approved availability and budget requirements.
+Use current pricing evidence. Identify unsupported assumptions and blockers.
 ```
 
-The agent guides you through 5 discovery phases (business, technical, compliance,
-operational, budget) using interactive questions, then generates
-`agent-output/{project}/01-requirements.md`.
+Architecture assessment and cost estimate have independent required reviews.
+Request deep review explicitly when wanted; it is not the default.
 
-## Step 2: Architecture — 🏛️ Oracle
+<span id="step-3-design---artisan-optional"></span>
 
-Select the **Architect** agent. It reads the requirements and produces a WAF
-assessment with cost estimates.
+## Step 3: design, optional
 
-```text
-Review the requirements in agent-output/payment-gateway/01-requirements.md
-and create a comprehensive architecture assessment.
-```
+Select `04-Design` for a diagram or decision record:
 
 ```text
-Compare SKU options for the App Service plan — we need to understand
-the cost difference between P1v3 and P2v3 for our expected load.
-```
-
-```text
-Deep dive into the Security pillar. Our CISO wants to know
-specifically how we handle data encryption at rest and in transit.
-```
-
-## Step 3: Design — 🎨 Artisan (Optional)
-
-Select the **Design** agent. This step is optional — skip to Step 4 if you
-do not need diagrams or ADRs.
-
-**Architecture diagram**:
-
-```text
-Generate a Python architecture diagram for the payment gateway.
-Include all Azure resources from the architecture assessment,
-network topology, and data flow paths.
-```
-
-**Architecture Decision Record**:
-
-```text
-Create an ADR documenting the decision to use Azure Container Apps
-instead of AKS. Include WAF trade-offs from the assessment.
-```
-
-**Cost estimate** (delegates to Architect):
-
-```text
-Generate a detailed cost estimate using Azure Resource Manager MCP tools.
-Include monthly and yearly totals for each resource.
-```
-
-## Step 4: Planning — 📐 Strategist
-
-Select the **IaC Planner** agent for Step 4. The same planner handles both
-IaC tracks: use the Bicep example if your requirements selected `iac_tool: bicep`,
-or the Terraform example if your requirements selected `iac_tool: terraform`.
-It validates governance constraints first, then creates a machine-readable
-implementation plan for the chosen track.
-
-=== "Bicep"
-
-    ```text
-    Create an implementation plan for the payment gateway architecture.
-    Check AVM module availability for every resource.
-    ```
-
-=== "Terraform"
-
-    ```text
-    Create a Terraform implementation plan for the payment gateway.
-    Use AVM-TF modules from the Terraform Registry where available.
-    ```
-
-```text
-Re-query Azure Resource Graph for updated policy assignments.
-Our platform team added new policies last week.
-```
-
-The agent runs governance discovery (Azure Policy via REST API), checks AVM module
-availability, then asks you to choose a deployment strategy (phased vs. single)
-before generating `04-implementation-plan.md`.
-
-## Step 5: Implementation — ⚒️ Forge
-
-Select the **Bicep CodeGen** or **Terraform CodeGen** agent. It reads the plan
-and generates production-ready templates.
-
-=== "Bicep"
-
-    ```text
-    Implement the Bicep templates according to the implementation plan
-    in agent-output/payment-gateway/04-implementation-plan.md.
-    Use AVM modules, generate deploy.ps1, and save to infra/bicep/payment-gateway/.
-    ```
-
-=== "Terraform"
-
-    ```text
-    Implement the Terraform configuration according to the implementation plan
-    in agent-output/payment-gateway/04-implementation-plan.md.
-    Use AVM-TF modules, generate bootstrap.sh and deploy.sh,
-    and save to infra/terraform/payment-gateway/.
-    ```
-
-```text
-Fix the validation errors from bicep build. Re-run lint after fixes.
-```
-
-The agent runs a preflight check, generates templates with AVM modules, applies
-security baseline and required tags, then validates with the appropriate tool
-(`bicep build` / `terraform validate`).
-
-## Step 6: Deployment — 🚀 Envoy
-
-Select the **Bicep Deploy** or **Terraform Deploy** agent. Both run preflight
-validation, preview changes, and deploy with approval gates.
-
-=== "Bicep"
-
-    ```text
-    Deploy the payment gateway Bicep templates. Run what-if first.
-    ```
-
-=== "Terraform"
-
-    ```text
-    Deploy the payment gateway Terraform configuration. Run terraform plan first.
-    ```
-
-```text
-Deploy the next phase from the implementation plan.
+Diagram the approved patient-portal architecture.
+Show resources, trust boundaries, client access, and data flows.
+Mark anything not established by the assessment as unresolved.
 ```
 
 ```text
-Verify the deployed resources using Azure Resource Graph.
-Check resource health status.
+Write an ADR for the approved hosting choice.
+Include alternatives, constraints, and the reasons recorded in the assessment.
 ```
 
-The agent always presents a change summary (what-if or plan output) and waits for
-your explicit approval before deploying. For phased deployments, it pauses between
-each phase.
+Whether you run Design or skip it, continue to Governance, not directly to Plan.
 
-## Step 7: Documentation — 📚 Chronicler
+## Step 3.5: governance
 
-After deployment, the **As-Built** agent generates comprehensive workload
-documentation:
+Select `04g-Governance`:
 
 ```text
-Generate comprehensive workload documentation for the deployed
-payment gateway infrastructure.
+Discover effective policy for patient-portal at the confirmed target scope.
+Include inherited assignments and report inaccessible scopes.
+Reconcile constraints with the approved architecture before planning.
+Do not change policy assignments.
 ```
 
-This produces documentation files in `agent-output/{project}/07-*.md`:
-design document, operations runbook, cost estimate, compliance matrix,
-backup/DR plan, and resource inventory.
+<span id="step-4-planning---strategist"></span>
 
-## If a Step Fails
+## Step 4: planning
 
-Use the failure signal to decide what to do next instead of restarting the
-workflow from scratch.
-
-- **Approval gate returns `must_fix`**: go back to the previous step, update the
-  artifact that was challenged, and re-run that step. The Orchestrator re-triggers
-  the gate after regenerating the output.
-- **Governance discovery returns an empty policy set**: proceed if
-  `04-governance-constraints.json` shows `discovery_status: "COMPLETE"`. An empty
-  array means no deny-effect constraints were found for that subscription.
-- **Validation or preview fails**: copy the exact `bicep build`, `terraform validate`,
-  `what-if`, or `terraform plan` error back into the parent agent prompt so it can
-  repair the generated code rather than guessing.
-- **Tooling or auth fails**: fix the environment first, then resume the same step.
-  Use [Quickstart](/getting-started/quickstart/),
-  [Troubleshooting](/guides/troubleshooting/), and
-  [Validation & Linting](/reference/validation-reference/) as the primary recovery guides.
-
-## Standalone Agents
-
-### Orchestrator — 🧠 Orchestrator
-
-Use the Orchestrator for end-to-end projects where you want the full multi-step
-workflow with approval gates.
+Select `05-IaC Planner` for either track:
 
 ```text
-Start a new project for a static website with CDN and custom domain.
+Plan the approved patient-portal architecture using the recorded Terraform track.
+Use current governance constraints, verify module versions and property coverage,
+and produce the required implementation contract and environment manifest.
+Escalate unresolved design conflicts instead of filling them with assumptions.
 ```
 
+The planner consumes governance evidence. Fresh policy discovery belongs to
+Governance. Complete the required plan review before CodeGen.
+
+<span id="step-5-implementation--️-forge"></span>
+
+## Step 5: implementation
+
+Select `06b-Bicep CodeGen` or `06t-Terraform CodeGen`:
+
 ```text
-Review all generated artifacts in agent-output/my-project/
-and provide a summary of current project state.
+Implement the approved patient-portal plan and contracts.
+Generate the selected track's code and required deployment manifest.
+Run the required checks and emit the current JSON handoff.
+Return plan defects to the planner. Do not deploy.
 ```
 
-### Diagnose — 🔍 Sentinel
+Deterministic validation remains required. Challenger review at this step is opt-in.
 
-Use Diagnose for troubleshooting deployed Azure resources. It works outside
-the multi-step workflow.
+<span id="step-6-deployment---envoy"></span>
+
+## Step 6: deployment
+
+Select `07b-Bicep Deploy` or `07t-Terraform Deploy` and distinguish request scope:
 
 ```text
-Check the health of all resources in resource group rg-payment-gateway-prod.
+Validate patient-portal only. Report passed, failed, and unperformed checks.
+Do not preview, bootstrap resources, regenerate code, or apply changes.
 ```
 
 ```text
-My App Service is returning 503 errors. The resource is
-app-payment-api-prod in resource group rg-payment-gateway-prod.
-Help me diagnose the issue.
+Preview patient-portal against its approved environment.
+Preserve the raw preview and policy evidence.
+Stop after reporting the preview. Do not request or perform apply.
 ```
 
 ```text
-Expand the diagnostic scope to include resources connected to
-my App Service (Key Vault, SQL Database, Storage).
+Prepare the next approved deployment phase for patient-portal.
+Present current policy and preview results, including destructive changes.
+Wait for explicit approval before applying that phase.
 ```
 
-### Challenger — ⚔️ Adversary
+A missing prerequisite does not expand a validation-only or preview-only request.
+Record provisioning and application-health outcomes separately.
 
-Use Challenger to stress-test plans and architectures before implementation.
-It finds untested assumptions, governance gaps, and WAF blind spots.
+<span id="step-7-documentation---chronicler"></span>
+
+## Step 7: documentation
+
+Select `08-As-Built`:
 
 ```text
-Challenge the implementation plan in
-agent-output/payment-gateway/04-implementation-plan.md.
-Look for governance gaps, security blind spots, and cost risks.
+Document the observed patient-portal deployment.
+Use the deployment evidence and verified inventory.
+Include failed checks, unresolved issues, and unverified operational procedures.
+Do not describe planned resources as deployed.
 ```
+
+This step produces the required `07-*` workload records. It does not publish or
+rewrite this documentation site.
+
+## If a step fails
+
+Return the exact error and evidence to the owning step. Code defects return to
+CodeGen; contract mismatches return to Plan; stale policy discovery returns to
+Governance. Re-run affected reviews after repairs.
+
+An empty result is usable only when discovery actually completed for the required
+scope. Authentication failure is not evidence that no policy applies.
+
+## Standalone agents
+
+<span id="orchestrator---orchestrator"></span>
+
+### Orchestrator
+
+Use `01-Orchestrator` to inspect evidence and recommend a main-agent handoff.
+It does not execute the entire main-agent sequence automatically.
+
+<span id="diagnose---sentinel"></span>
+
+### Diagnose
+
+Select `09-Diagnose`:
 
 ```text
-Review the architecture assessment for single points of failure
-and missing disaster recovery considerations.
+Investigate HTTP 503 from app-payment-api-prod in rg-payment-gateway-prod.
+Start with read-only checks. Separate observations from hypotheses.
+Do not restart services or change configuration without approval.
 ```
 
-## Next Steps
+<span id="challenger--️-adversary"></span>
 
-- [Best Practices](/reference/prompts/best-practices/) —
-  improve prompt quality before retrying a step
-- [Skill & Subagent Reference](/reference/prompts/skills-subagents/) —
-  interpret validator and preview output
-- [Troubleshooting](/guides/troubleshooting/) — recover from auth, setup, and deployment issues
+### Challenger
+
+Select `10-Challenger`:
+
+```text
+Review the patient-portal implementation plan and its contracts.
+Use the required review scope and identify findings with evidence.
+Do not edit the reviewed artifacts or approve deployment.
+```
+
+## Next steps
+
+- [Prompting practices](/reference/prompts/best-practices/)
+- [Skills and helpers](/reference/prompts/skills-subagents/)
+- [Troubleshooting](/guides/troubleshooting/)

@@ -1,6 +1,6 @@
 ---
 title: "Sizing & Pricing"
-description: "Resource SKU recommendations, pricing tier comparisons, and top architecture risks for the Malta catering app"
+description: "April 2026 sizing & pricing record. Preserved historical output, not current workflow guidance."
 sidebar:
   order: 2
 ---

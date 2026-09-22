@@ -1,6 +1,6 @@
 ---
 title: "Module Architecture"
-description: "Bicep module structure, AVM sources, naming conventions, and security configuration for the Malta catering infrastructure"
+description: "April 2026 module architecture record. Preserved historical output, not current workflow guidance."
 sidebar:
   order: 1
 ---

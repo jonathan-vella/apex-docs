@@ -1,20 +1,15 @@
 ---
 title: "As-Built Documentation Overview"
-description: "Complete handover documentation suite produced by the As-Built Agent after successful deployment of the Malta catering workload"
+description: "April 2026 as-built documentation overview record. Preserved historical output, not current workflow guidance."
 sidebar:
   order: 8
 ---
 
-:::tip[Editorial Context]
-This artifact was produced by the **As-Built Agent** (Step 7 of the APEX pipeline).
-The As-Built Agent runs after a successful deployment and generates the final
-handover documentation suite — design records, operational runbooks, resource
-inventories, compliance matrices, backup/DR plans, and post-deployment cost
-baselines. These documents are intended for operations teams, auditors, and
-future architects iterating on the workload. The agent collects live evidence
-from the deployed Azure resources and cross-references earlier pipeline
-artifacts (requirements, architecture, cost estimates, implementation plans)
-to produce a coherent documentation package.
+:::note[Editorial context]
+These records describe the observed resources and open issues after provisioning.
+Production and staging returned HTTP 503 during evidence collection.
+A generated runbook or compliance matrix is not proof that its procedures were
+executed or that the workload met all requirements.
 :::
 
 ## Document Package Contents

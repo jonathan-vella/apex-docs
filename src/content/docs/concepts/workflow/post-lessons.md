@@ -1,16 +1,16 @@
 ---
-title: "Post — Lessons Learned"
-description: "Capture cross-step lessons and convert them into agent or skill updates."
+title: "Post: Lessons learned"
+description: "Record workflow failures and propose reviewed improvements to agents, skills, or validators."
 sidebar:
   order: 9
-  label: "Post — Lessons"
+  label: "Post: Lessons"
 ---
 
 ## Purpose
 
-Capture the systemic lessons surfaced during a project run — challenger findings that recurred,
-governance gaps, plan-vs-apply deltas, context-window blowups — and convert the most valuable ones
-into agent or skill updates so the next project benefits.
+Record recurring review findings, governance gaps, differences between preview
+and apply, and context failures. Preserve the evidence and propose a specific
+correction. A lesson does not authorize an agent or skill change.
 
 ## Artifact
 
@@ -19,6 +19,9 @@ Output: agent-output/{project}/09-lessons-learned.{json,md}
 ```
 
 ## Lesson schema (subset)
+
+This is an illustrative excerpt, not a complete record or evidence of a real run.
+Use `tools/schemas/lesson-log.schema.json` for required fields.
 
 ```json
 {
@@ -35,11 +38,11 @@ Output: agent-output/{project}/09-lessons-learned.{json,md}
 
 ## Loop closure
 
-Lessons feed three downstream paths:
+Review lessons before changing the product:
 
-- **Agent body updates** — when a lesson reveals a missing rule or misaligned phase.
-- **Skill reference docs** — when a lesson is a pattern that should be reusable.
-- **Validators** — when a lesson reveals a class of error that lint can catch.
+- Change an agent when its instructions caused the failure.
+- Update a skill reference when the correction applies to other workloads.
+- Add validator coverage when a deterministic check can detect the error.
 
 See the [`11-Context
 Optimizer`](https://github.com/jonathan-vella/apex/blob/main/.github/agents/11-context-optimizer.agent.md)

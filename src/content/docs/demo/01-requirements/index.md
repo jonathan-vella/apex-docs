@@ -1,16 +1,14 @@
 ---
 title: "Requirements Overview"
-description: "Project overview, business context, state transition, and architecture pattern for the Malta catering online ordering app"
+description: "April 2026 requirements overview record. Preserved historical output, not current workflow guidance."
 sidebar:
   order: 1
 ---
 
-:::tip[Editorial Context]
-This artifact was produced by the **Requirements Agent** (Step 1 of the APEX pipeline).
-It captures the project scope, business drivers, architecture pattern recommendation,
-and state transition — all gathered from a single conversational prompt with the
-catering outlet owner. The Requirements Agent writes this document; the Architect
-Agent consumes it in the next step.
+:::note[Editorial context]
+The historical Requirements output records the workload scope, business context,
+and initial architecture assumptions. The generated record below is preserved;
+it is not a template for current approval or discovery requirements.
 :::
 
 ## Project Overview

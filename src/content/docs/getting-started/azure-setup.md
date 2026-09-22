@@ -1,13 +1,21 @@
 ---
-title: "Azure Setup"
-description: "Automated Azure + GitHub environment configuration for APEX"
+title: "Azure setup"
+description: "Review the Azure identity, permissions, and GitHub settings changed by the APEX setup wizard."
 ---
 
-One command configures everything you need to run APEX workflows against
-your Azure environment — Entra ID app registration, OIDC federated
-credentials, RBAC roles, GitHub secrets, variables, and environments.
+The product's `npm run setup` configures an automation identity and GitHub
+repository settings. It is not required to read documentation or draft requirements.
+It is also not a read-only environment check.
 
-## Quick Start
+:::caution[Review access and repository changes first]
+The wizard can create an Entra application, service principal, federated
+credentials, role assignments, GitHub secrets, variables, and environments.
+It also attempts to enable Pages and repository auto-merge. Review
+`tools/scripts/setup-azure.sh` in your checkout and obtain authorization for those
+changes before running it. Do not run it from apex-docs to configure this site.
+:::
+
+## Quick start
 
 From inside the dev container:
 
@@ -15,14 +23,14 @@ From inside the dev container:
 npm run setup
 ```
 
-The wizard prompts for your Azure subscription, management group, and app
-name, then creates everything automatically. Safe to re-run — it skips
-completed steps.
+The wizard prompts for Azure and repository configuration, then performs its
+setup phases. It tracks completion in local state. Re-running it is not proof
+that remote resources still match that state.
 
 :::tip[Already have an Entra app?]
-The wizard detects existing resources by name and reuses them. If you
-previously created the app registration manually, the wizard picks it up
-and only fills in missing pieces.
+The wizard looks up existing applications by display name. Verify the intended
+application ID and ownership first. A matching display name is not a unique
+identity or permission to reuse the application.
 :::
 
 ## Prerequisites
@@ -35,11 +43,12 @@ and only fills in missing pieces.
 | Permission to create Entra app registrations | Ask your Microsoft Entra ID admin  |
 | Permission to assign RBAC roles              | Owner or User Access Administrator |
 
-## What Gets Created
+## What gets created
 
-The wizard creates these resources across Azure and GitHub:
+The wizard creates or reuses these resources and settings. Some repository-setting
+failures are warnings, so inspect the results rather than assuming every row succeeded.
 
-### Azure Resources
+### Azure resources
 
 | Resource                                   | Details                                            |
 | ------------------------------------------ | -------------------------------------------------- |
@@ -52,7 +61,7 @@ The wizard creates these resources across Azure and GitHub:
 | RBAC: Reader                               | At Management Group scope (governance reads)       |
 | RBAC: Contributor                          | At Subscription scope (deployments)                |
 
-### GitHub Resources
+### GitHub resources
 
 | Resource                                 | Details                          |
 | ---------------------------------------- | -------------------------------- |
@@ -71,7 +80,7 @@ The wizard creates these resources across Azure and GitHub:
 ## Architecture
 
 GitHub Actions workflows authenticate to Azure using **OpenID Connect
-(OIDC)** — no client secrets to rotate.
+(OIDC)** rather than a long-lived client secret.
 
 ```mermaid
 sequenceDiagram
@@ -89,11 +98,11 @@ sequenceDiagram
     ARM->>GH: Resource data
 ```
 
-**Why OIDC?** No secrets to store or rotate. The federated credential
-binds a specific GitHub repo + branch/environment to the Azure service
-principal. Tokens are short-lived and scoped.
+The federated credential binds a repository branch or environment identity to
+the service principal without a long-lived client secret. Azure role assignments
+still determine what that principal can access.
 
-## Headless Mode
+## Headless mode
 
 For CI automation or scripted provisioning, pass `--non-interactive` and
 set environment variables:
@@ -109,15 +118,16 @@ export DEPLOY_ENVIRONMENTS="dev,staging,prod"
 npm run setup -- --non-interactive
 ```
 
-All variables are required in headless mode. The wizard exits with an
-error if any are missing.
+Some values have defaults or come from the current Azure context. Set them
+explicitly for a reviewed headless run. The script's `--help` output documents
+defaults. Missing required values or invalid IDs stop setup.
 
-## Manual Setup
+## Manual setup
 
 If you cannot run the wizard (for example, a different admin must create
 the Entra app), follow these steps manually.
 
-### 1. Create App Registration
+### 1. Create app registration
 
 ```bash
 # Create the app
@@ -127,7 +137,7 @@ az ad app create --display-name "apex-github-oidc-my-project"
 az ad sp create --id <APP_ID>
 ```
 
-### 2. Add Federated Credentials
+### 2. Add federated credentials
 
 ```bash
 APP_ID="<your-app-id>"
@@ -152,7 +162,7 @@ for ENV in dev staging prod; do
 done
 ```
 
-### 3. Assign RBAC Roles
+### 3. Assign RBAC roles
 
 ```bash
 SP_OBJECT_ID=$(az ad sp show --id "$APP_ID" --query id -o tsv)
@@ -172,7 +182,7 @@ az role assignment create \
   --scope "/subscriptions/<SUBSCRIPTION_ID>"
 ```
 
-### 4. Configure GitHub Repository
+### 4. Configure GitHub repository
 
 ```bash
 # Secrets
@@ -197,10 +207,11 @@ done
 
 Run `az login --use-device-code` inside the dev container.
 
-### "Cannot list Management Groups"
+### "Cannot list management groups"
 
-Your account needs the **Management Group Reader** role at the tenant
-root level, or at least at the target MG. Ask your Azure admin.
+Ask your Azure administrator for the read permissions required at the target
+management-group scope. Do not request tenant-root access when a narrower
+assignment is sufficient.
 
 ### "Could not create environment"
 
@@ -217,8 +228,9 @@ the federated credential.
 
 ### Re-running the wizard
 
-The wizard is idempotent. State files in `.azure/.setup-state/` track
-completed phases. To start fresh:
+State files in `.azure/.setup-state/` track completed phases. Inspect remote
+results before retrying. The following resets local setup tracking, not Azure
+resources or GitHub settings:
 
 ```bash
 npm run setup -- --reset
@@ -227,27 +239,11 @@ npm run setup
 
 ## Cleanup
 
-To completely remove all resources created by the wizard:
+Inventory exact application and service-principal IDs, role-assignment IDs,
+federated credentials, and repository changes. Distinguish resources created by
+this run from reused resources with other consumers.
 
-```bash
-APP_ID=$(az ad app list --display-name "apex-github-oidc-my-project" \
-  --query '[0].appId' -o tsv)
-SP_OBJECT_ID=$(az ad sp show --id "$APP_ID" --query id -o tsv)
-
-# Remove RBAC assignments
-az role assignment delete --assignee "$SP_OBJECT_ID" --role "Reader" \
-  --scope "/providers/Microsoft.Management/managementGroups/<MG_ID>"
-az role assignment delete --assignee "$SP_OBJECT_ID" --role "Contributor" \
-  --scope "/subscriptions/<SUBSCRIPTION_ID>"
-
-# Delete the app registration (also deletes SP and federated credentials)
-az ad app delete --id "$APP_ID"
-
-# Remove GitHub secrets and variables
-gh secret delete AZURE_CLIENT_ID
-gh secret delete AZURE_TENANT_ID
-gh secret delete AZURE_SUBSCRIPTION_ID
-gh variable delete GOVERNANCE_BASELINE_ENABLED
-gh variable delete GOVERNANCE_MG_ID
-gh variable delete GOVERNANCE_MAX_SUBSCRIPTIONS
-```
+Obtain approval for the specific removals. Do not select an application for
+deletion by display name or delete a shared principal. Cleanup also needs an
+explicit decision about environments, Pages, and auto-merge settings. Removing
+three secrets and variables does not undo the full setup.

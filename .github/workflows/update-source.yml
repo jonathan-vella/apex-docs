@@ -27,6 +27,13 @@ jobs:
       - run: npm run test:setup
       - run: npm run source:update
       - run: npm run source:prepare
+      - name: Report documentation impact since the last guidance review
+        run: |
+          REVIEWED=$(node -p 'JSON.parse(require("fs").readFileSync("docs-review.json")).apex.commit')
+          [[ "$REVIEWED" =~ ^[a-f0-9]{40}$ ]] || { echo "::error::Invalid guidance review commit"; exit 1; }
+          git -C .apex-source fetch --depth=1 https://github.com/jonathan-vella/apex.git "$REVIEWED"
+          npm run source:impact -- --output "$RUNNER_TEMP/apex-source-impact.md"
+          cat "$RUNNER_TEMP/apex-source-impact.md" >> "$GITHUB_STEP_SUMMARY"
       - name: Fetch migration provenance for parity tests
         run: |
           BASELINE=$(node -p 'JSON.parse(require("fs").readFileSync("migration-source.json")).commit')
@@ -39,7 +46,7 @@ jobs:
           branch: automation/apex-source
           commit-message: "docs: Update pinned APEX metadata"
           title: "docs: Update pinned APEX metadata"
-          body: "Automated source-pin and Explorer update. Build, parity and browser checks passed. Human review required."
+          body-path: ${{ runner.temp }}/apex-source-impact.md
           add-paths: |
             apex-source.json
             public/architecture-explorer-graph.json

@@ -1,0 +1,105 @@
+---
+title: "Update an existing APEX project"
+description: "Compare your project with the documented source, review upstream changes, and preserve local customizations before resuming agent work."
+---
+
+import review from "../../../../docs-review.json";
+import source from "../../../../apex-source.json";
+
+An existing project can differ from both APEX main and the current Accelerator
+template. Check your repository before applying new instructions. Updating
+customizations does not authorize a deployment or make earlier approval valid
+for changed inputs.
+
+## Documentation compatibility
+
+<p>This guidance was source-reviewed on {review.reviewedOn} against <a href={`https://github.com/${review.apex.repository}/tree/${review.apex.commit}`}>APEX <code>{review.apex.commit.slice(0, 12)}</code></a> and <a href={`https://github.com/${review.accelerator.repository}/tree/${review.accelerator.commit}`}>Accelerator <code>{review.accelerator.commit.slice(0, 12)}</code></a>.</p>
+
+<p>The generated <a href="/reference/architecture-explorer/">Architecture Explorer</a> uses <a href={`https://github.com/${source.repository}/tree/${source.commit}`}><code>{source.commit.slice(0, 12)}</code></a>. {source.commit === review.apex.commit ? "It matches the recorded guidance baseline." : "It differs from the guidance baseline. Its metadata update does not establish that the prose has been reviewed against that revision."}</p>
+
+A source review checks instructions against repository contracts. It does not
+mean that every command, client configuration or Azure operation was executed.
+An execution-tested claim needs its own recorded environment, inputs and result.
+The site's build date and page modification dates are not execution evidence.
+
+The dated [case study](/demo/) and preserved downloads are historical material,
+not compatibility promises. The footer links here and identifies the guidance
+baseline separately from the documentation build.
+
+## Identify what your project contains
+
+Run these read-only commands in your template-derived repository:
+
+```bash
+git status --short
+git rev-parse HEAD
+git log -5 --oneline -- .github/agents .github/skills .devcontainer .vscode
+```
+
+The first command shows local changes; the second identifies your project commit.
+That commit is not necessarily an APEX release or upstream revision. Use the
+merged sync PR and its source comparison to identify which upstream changes
+your repository received. If that history is unavailable, compare the relevant
+files directly rather than assuming your project matches current main.
+
+Before updating, preserve your work through your normal reviewed Git process.
+Do not include secrets, local credentials or raw diagnostic logs in a commit.
+Resolve local changes before applying an upstream update.
+
+## Review the sync mechanism in your repository
+
+<p>The reviewed template's <a href={`https://github.com/${review.accelerator.repository}/blob/${review.accelerator.commit}/.github/workflows/weekly-upstream-sync.yml`}>Upstream Sync workflow</a> proposes scheduled updates through a PR. Manual runs default to a dry run. It does not automatically merge them.</p>
+
+Read the workflow in your own repository first. It may have changed since you
+created the project, and a template-derived repository is not continuously
+identical to its template.
+
+At the reviewed baseline, the sync mirrors upstream files except for declared
+exclusions, exceptions and seed rules:
+
+| Content | What to review |
+|---|---|
+| Agents, skills, instructions, prompts, hooks and container/editor configuration | Upstream can replace these files. Preserve intentional local changes explicitly. |
+| `agent-output/`, generated `infra/bicep/` and `infra/terraform/` | These are excluded, but shared `infra/*/AGENTS.md` files are explicit sync exceptions. |
+| Root `AGENTS.md` and shared repository configuration | Do not assume these are protected just because generated workload files are excluded. |
+| `.github/workflows/` | These are handled separately. Review workflow changes and permissions before intentionally using `npm run sync:workflows`. |
+| Private data and locally seeded indexes | Read the actual exclusion and seed lists. Do not copy private data into an upstream contribution. |
+
+Do not replace this review with a bulk copy of APEX main or a destructive Git
+reset. A dry run helps inspect the proposed update; it is not proof that the
+result preserves every local customization.
+
+## Assess the impact before merging
+
+Read the diff for changes to:
+
+- Main-agent names, permitted helpers, review defaults and handoff artifacts.
+- State schemas and recovery commands.
+- Security defaults, governance evidence, SKU decisions and validation freshness.
+- Container dependencies, lifecycle scripts, MCP configuration and authentication.
+- Workflow permissions and repository initialization behavior.
+
+Compare these with the [workflow overview](/concepts/workflow/) and your project's
+current requirements. If a documented agent, command or artifact is missing,
+establish the version difference first. Do not invent a substitute or skip a gate.
+
+The docs repository's source-update PR includes a path-based impact report. It
+suggests pages to review; it cannot decide whether the behavioral change is safe
+for your workload or whether the prose is correct.
+
+## Resume with the APEX agents
+
+After accepting an update, follow the changed setup instructions in your own
+repository. Rebuild the development container when its configuration or tooling
+requires it, and check the setup output. Do not rerun initialization or cloud
+setup merely because a dependency changed.
+
+Select `01-Orchestrator` with the existing project, the accepted update and the
+last completed step. Ask it to identify the correct owner and missing evidence
+before continuing. Use [session debugging](/guides/session-debugging/) if the
+recorded state cannot be read. Do not edit state to force progress.
+
+APEX's Deploy agent owns deployment. Changed code, scope, policy evidence or
+preview results may require fresh validation and approval. An accepted sync PR
+is not authorization to apply infrastructure changes. See
+[Step 6: Deploy](/concepts/workflow/step-6/) for the agent's responsibilities.

@@ -12,7 +12,7 @@ review agent behavior, tool calls, skill loading, token use, or context bloat.
 The prompt creates the archive locally. It never uploads the bundle for you; you
 review and upload the archive manually.
 
-## How Debug Logs Are Enabled
+## How debug logs are enabled
 
 The dev container enables Copilot Chat debug-file logging through
 `.devcontainer/devcontainer.json`:
@@ -27,9 +27,13 @@ After you start a chat, VS Code creates a debug-log directory under:
 ~/.vscode-server/data/User/workspaceStorage/<wsId>/GitHub.copilot-chat/debug-logs/<sessionId>/
 ```
 
-The active session directory is also exposed as `$VSCODE_TARGET_SESSION_LOG`.
+In the Local VS Code procedure, the active session directory is exposed as `$VSCODE_TARGET_SESSION_LOG`.
 The export prompt uses that value to locate the workspace debug-log root, then
 asks which session should be bundled.
+
+For Agent Host, use the separate manual `apex-host-debug-log-export` entry and
+confirmed Host paths. Do not substitute Local environment variables. See
+[repository prompts](/reference/prompts/repository-prompts/).
 
 :::tip[Capturing a full APEX run]
 Use `/clear` between workflow steps to start each step with a fresh chat
@@ -41,7 +45,7 @@ Outside the dev container, enable
 `github.copilot.chat.agentDebugLog.fileLogging.enabled` in VS Code settings and
 restart VS Code.
 
-## What The Bundle Contains
+## What the bundle contains
 
 Each session directory can include these debug artifacts:
 
@@ -58,7 +62,7 @@ The most useful file for APEX agent review is `main.jsonl`. It shows when
 `.github/agents/*.agent.md` files were loaded, which skills were read, which
 tools were called, and what `apex-recall` returned.
 
-## How Custom-Agent Lines Are Filtered
+## How custom-agent lines are filtered
 
 The prompt derives a filter from repository state instead of relying on a static
 list. The filter includes:
@@ -72,7 +76,7 @@ For each captured `main.jsonl`, the prompt writes a corresponding
 `*.custom-agents.jsonl` containing only matching lines. The filtered file is the
 fastest place to inspect custom-agent activity.
 
-## Running The Prompt
+## Running the prompt
 
 In Copilot Chat, type:
 
@@ -92,9 +96,9 @@ The prompt will:
 
 The `.apex-logs/` directory is ignored by git on first run.
 
-## Moving The Archive To OneDrive
+## Moving the archive to OneDrive
 
-### VS Code Explorer
+### VS Code explorer
 
 1. In the VS Code Explorer, expand `.apex-logs/`.
 2. Right-click the generated `.tar.gz` file and select **Download...**.
@@ -102,19 +106,20 @@ The `.apex-logs/` directory is ignored by git on first run.
 4. Open the OneDrive for Business share link in your browser.
 5. Drag the archive into the browser window.
 
-### Docker Copy
+### Docker copy
 
 From a local terminal outside the dev container:
 
 ```bash
 docker ps --format '{{.Names}}'
-ARCHIVE=/workspaces/.apex-logs/<bundle>.tar.gz
+ARCHIVE="/workspaces/<repository>/.apex-logs/<bundle>.tar.gz"
 docker cp <container-name>:"$ARCHIVE" ~/Downloads/
 ```
 
-Then upload the file from `~/Downloads/`.
+Replace the path with the archive's actual absolute container path. Inspect
+the copied file before uploading it to an explicitly authorized destination.
 
-## Before Uploading
+## Before uploading
 
 :::caution[Review sensitive content]
 The bundle preserves the raw `main.jsonl` for auditability. Review the archive
@@ -125,9 +130,9 @@ secret patterns, but raw session files are not modified.
 
 ## Related
 
-- [Dev Container Hygiene](../devcontainer-hygiene/) — reduce context bloat
+- [Dev Container Hygiene](../devcontainer-hygiene/). reduce context bloat
   before running agents
-- [Session Debugging](../session-debugging/) — diagnose workflow state and
+- [Session Debugging](../session-debugging/). diagnose workflow state and
   resume issues
-- [Repository Slash Prompts](../prompt-guide/repository-prompts/) — understand
+- [Repository Slash Prompts](/reference/prompts/repository-prompts/). understand
   the built-in slash prompts

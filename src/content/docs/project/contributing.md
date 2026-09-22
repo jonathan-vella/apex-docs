@@ -1,178 +1,124 @@
 ---
 title: "Contributing"
-description: "How to contribute to APEX"
+description: "Choose the right APEX repository, make a scoped change, and run its checks before review."
 ---
 
-APEX is an open-source project that welcomes contributions from the community.
-Whether you improve an agent prompt, add an infrastructure pattern, fix a bug,
-or improve the docs, your work helps the entire Azure platform engineering
-community.
-
-:::note[Using APEX vs. contributing to it]
-To **use** APEX for your own projects, start from the
-[Accelerator template][accelerator].
-The guide below is for contributing changes **back to this upstream repo**.
-:::
+To use APEX for a workload, start from
+[apex-accelerator](https://github.com/jonathan-vella/apex-accelerator).
+To contribute, first identify which repository owns the change.
 
 ## Where to contribute
 
-| Area                        | What to change                        | Branch prefix             |
-| --------------------------- | ------------------------------------- | ------------------------- |
-| Agent prompts and handoffs  | `.github/agents/*.agent.md`           | `agents/`                 |
-| Skills and domain knowledge | `.github/skills/*/SKILL.md`           | `skills/`                 |
-| Bicep or Terraform patterns | `infra/bicep/` or `infra/terraform/`  | `infra/`                  |
-| Validation scripts          | `tools/scripts/*.mjs`, `package.json` | `tools/scripts/`          |
-| Published documentation     | `site/src/content/docs/`              | `docs/`                   |
-| Cross-cutting improvements  | Any files                             | `feat/`, `fix/`, `chore/` |
+| Repository | Scope |
+|---|---|
+| [apex](https://github.com/jonathan-vella/apex) | Product agents, skills, instructions, IaC procedures, and validators |
+| [apex-accelerator](https://github.com/jonathan-vella/apex-accelerator) | Template contents and the new-project experience |
+| [apex-docs](https://github.com/jonathan-vella/apex-docs) | Published pages under `src/content/docs/`, site components, navigation, and site checks |
+
+The product no longer owns this site's source under `site/`. A product behavior
+change may need a corresponding docs change, but the repositories have separate
+commands and review requirements.
 
 ## Before you start
 
-1. **Search open issues** — someone may already be working on the same thing.
-2. **Open an issue first** for non-trivial changes so the idea can be discussed
-   before you invest time.
+Search existing issues and discuss changes that affect workflow behavior, public
+URLs, or the documentation structure. State the reader problem and the evidence
+that supports the proposed change.
 
 ## Step-by-step contribution flow
 
 ### 1. Fork and clone
 
+Clone your fork of the repository that owns the change. For site work:
+
 ```bash
-git clone https://github.com/YOUR-USERNAME/apex.git
-cd apex
-git remote add upstream \
-  https://github.com/jonathan-vella/apex.git
+git clone https://github.com/YOUR-OWNER/apex-docs.git
+cd apex-docs
 ```
+
+Use the repository's development container and README. Do not copy setup commands
+from the product repository into a site-only checkout.
 
 ### 2. Create a branch
 
-Pick the prefix that matches your change domain:
-
-```bash
-# Cross-cutting feature
-git checkout -b feat/add-redis-caching-pattern
-
-# Domain-scoped documentation fix
-git checkout -b docs/fix-quickstart-links
-
-# Bug fix
-git checkout -b fix/session-state-schema
-```
-
-:::tip[Branch scope enforcement]
-Domain-scoped prefixes (`docs/`, `agents/`, `skills/`, `infra/`,
-`tools/scripts/`, `instructions/`) restrict which files you can touch. If your
-change spans multiple domains, use a cross-cutting prefix like `feat/`
-or `fix/` instead.
-:::
+Use a branch scoped to the change. If your development client already created a
+worktree and feature branch, use that branch rather than creating another one.
+Follow any branch rules configured by the target repository.
 
 ### 3. Make your changes
 
-Install dependencies and run the dev container (or install locally):
+For documentation, follow the [writing guide](/project/style-guide/). Verify claims
+against the source revision, apply Unslop explicitly, and inspect the rendered page.
 
-```bash
-npm install          # Node.js validators and linting
-pip install -r requirements.txt  # Python tooling (optional)
-```
+Preserve routes and anchors. Keep historical facts distinct from current behavior.
+Do not overwrite imported binary assets; use a new filename for a replacement.
+Never commit credentials or real secrets in examples.
 
-Follow these guidelines while working:
-
-- **Bicep** — Azure Verified Modules first, CAF naming, `uniqueString()`
-  suffix pattern
-- **Terraform** — AVM-TF modules, provider pinned to `~> 4.0`, variables
-  in `variables.tf` with descriptions
-- **Markdown** — 120-character line limit, fenced code blocks with language
-  tags, no bare URLs
-- **Agents and skills** — YAML frontmatter required, follow existing
-  patterns in `.github/agents/` and `.github/skills/`
+For product code, use its `AGENTS.md` and applicable instructions. Keep changes
+to agents, skills, registries, and validators consistent.
 
 ### 4. Validate locally
 
-Run the checks that CI will run on your PR:
+For apex-docs, run from its root in the Linux toolchain:
 
 ```bash
-# Full validation suite
-npm run validate:all
-
-# Individual checks
-npm run lint:md                    # Markdown linting
-bicep build infra/bicep/*/main.bicep   # Bicep (if applicable)
-terraform fmt -check -recursive infra/terraform/  # Terraform (if applicable)
+npm ci
+npm run source:prepare
+npm run build
+npm run check:links
+npm run check:docs
+npm test
+npm run test:browser
 ```
+
+Run `npm run check:external-links` when external destinations change. Report
+network restrictions separately from confirmed broken links.
+
+Product validation commands belong in the APEX repository. A site build does not
+validate generated infrastructure, and a product validator does not check site
+navigation or rendered Markdown.
 
 ### 5. Commit with a conventional message
 
-This repo enforces [Conventional Commits][conventional-commits].
-The commit-msg hook validates your message automatically.
-
-```bash
-git commit -m "feat(bicep): add diagnostic settings module"
-```
-
-Common types: `feat`, `fix`, `docs`, `refactor`, `chore`, `ci`, `test`.
-Add `!` after the type for breaking changes (e.g., `feat!: new output format`).
+Use a message that explains the change, such as
+`docs: correct optional GitHub authentication setup`. Follow the target repository's
+commit conventions. Do not claim that every repository has the same commit hook
+or release-version behavior.
 
 ### 6. Push and open a pull request
 
-```bash
-git push origin feat/add-redis-caching-pattern
-```
+Push the intended feature branch and request review in the owning repository.
+Describe the change, its source evidence, and checks performed. Call out untested
+cloud behavior and any approved compatibility exceptions.
 
-Then open a PR against `main` on GitHub. The following checks run
-automatically:
-
-| Check                      | What it validates                      |
-| -------------------------- | -------------------------------------- |
-| `ci`                       | Markdown lint + all Node.js validators |
-| `Branch Naming Convention` | Prefix matches approved list           |
-| `Branch Scope Check`       | Files stay within the branch domain    |
-| Copilot Code Review        | Advisory AI review on the diff         |
-
-All required checks must pass before merge. A code-owner review from
-a maintainer is also required.
+Required checks and reviewer rules come from the live repository configuration.
+Do not bypass them to make a documentation change appear complete.
 
 ## PR checklist
 
-Before requesting review, confirm:
-
-- [ ] Changes follow the coding and naming conventions above
-- [ ] `npm run validate:all` passes locally
-- [ ] Bicep/Terraform templates validate if you touched `infra/`
-- [ ] No hardcoded secrets, subscription IDs, or tenant IDs
-- [ ] Documentation updated if you changed user-facing behavior
+- [ ] The correct repository owns the change.
+- [ ] Substantive claims match cited source or clearly dated evidence.
+- [ ] Source-pin changes include an impact review; `docs-review.json` advances only after the guidance review.
+- [ ] Unslop was applied to the changed reader-facing prose.
+- [ ] Routes, anchors, and historical records remain intact.
+- [ ] Relevant checks passed, or limitations are reported explicitly.
+- [ ] No credentials or unapproved cloud operations are included.
 
 ## Commit message reference
 
-| Type       | When to use                                | Version bump |
-| ---------- | ------------------------------------------ | ------------ |
-| `feat`     | New feature or capability                  | Minor        |
-| `fix`      | Bug fix                                    | Patch        |
-| `docs`     | Documentation only                         | None         |
-| `refactor` | Code restructuring without behavior change | None         |
-| `chore`    | Maintenance, dependency updates            | None         |
-| `ci`       | CI/CD workflow changes                     | None         |
-| `test`     | Adding or updating tests                   | None         |
-| `perf`     | Performance improvement                    | None         |
-| `build`    | Build system changes                       | None         |
-| `revert`   | Reverting a previous commit                | None         |
+Use `docs` for prose, `fix` for a defect, `feat` for new behavior, and `test` for
+test-only changes. Use `chore`, `ci`, or `build` for the corresponding maintenance
+work. Follow the repository's actual release policy rather than inferring a version
+bump from this guide.
 
 ## Getting help
 
-- **Questions** — [GitHub Discussions][discussions]
-- **Bugs and feature requests** — [GitHub Issues][issues]
-- **Working on `feat/skills-sensei`** — see the
-  [Sensei Branch guide](../sensei-branch/) for the audit-tooling submodule
-  and the sensei-free PR workflow
-- **Full development workflow** — [Workflow guide](../../concepts/workflow/)
+File product questions in [APEX issues](https://github.com/jonathan-vella/apex/issues)
+and site problems in [apex-docs issues](https://github.com/jonathan-vella/apex-docs/issues).
+The [Sensei branch guide](/project/sensei-branch/) covers branch-specific product
+contributor tooling, not the normal docs setup.
 
 ## Code of conduct
 
-Be respectful and inclusive. Welcome newcomers. Focus on constructive
-feedback. No harassment or discrimination.
-
-By contributing, you agree that your contributions will be licensed under
-the [MIT License][license].
-
-[accelerator]: https://github.com/jonathan-vella/apex-accelerator
-[conventional-commits]: https://www.conventionalcommits.org/
-[discussions]: https://github.com/jonathan-vella/apex/discussions
-[issues]: https://github.com/jonathan-vella/apex/issues
-[license]: https://github.com/jonathan-vella/apex/blob/main/LICENSE
+Keep discussion respectful and specific. Review the target repository's license
+and contribution policies, and preserve third-party notices when importing material.

@@ -1,17 +1,14 @@
 ---
 title: "Design Artifacts Overview"
-description: "Architecture Decision Records, cost estimates, and design diagrams produced by the Design Agent for the Malta catering online ordering app"
+description: "April 2026 design artifacts overview record. Preserved historical output, not current workflow guidance."
 sidebar:
   order: 3
 ---
 
-:::tip[Editorial Context]
-This artifact was produced by the **Design Agent** (Step 3 of the APEX pipeline).
-The Design Agent takes the approved architecture from Step 2 and produces detailed
-design artifacts: architecture diagrams, Architecture Decision Records (ADRs) with
-WAF pillar analysis, and cost visualization charts. These artifacts provide the
-rationale and visual context that feeds into the Governance check (Step 3.5) and
-the IaC Planner (Step 4).
+:::note[Editorial context]
+These diagrams and decision records describe the April 2026 design. Its S1
+estimate differs from the later P0v3 as-built baseline. Keep those stages separate
+when comparing costs and deployment results.
 :::
 
 ## Architecture Diagram

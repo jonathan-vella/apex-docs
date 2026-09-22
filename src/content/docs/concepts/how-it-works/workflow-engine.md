@@ -1,289 +1,99 @@
 ---
-title: "Workflow Engine and Quality Systems"
-description: "Workflow DAG, quality gates, and review cycles"
+title: "Workflow engine and validation"
+description: "Understand step dependencies, human approvals, state recovery, and the limits of automated checks."
 ---
 
-## Workflow Engine
+## Workflow engine
 
-<img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=1200&auto=format&fit=crop"
-  height="250" style="object-fit: cover; border-radius: 8px;"
-  alt="Technology workflow visualization representing the workflow engine"><br/>
+### The dag model
 
-### The DAG Model
+The [workflow graph](https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/skills/apex-workflow-engine/templates/workflow-graph.json)
+defines the main steps, dependencies, output contracts, review defaults, and
+return paths. It describes valid progression, not an autonomous scheduler.
 
-The workflow is encoded as a machine-readable directed acyclic graph in
-`workflow-graph.json`:
+Use [Run the workflow](/concepts/workflow/) for the reader-facing sequence.
+Product changes to the graph, agent definitions, or skills require their own
+review and validation. Editing project state is not a way to customize the graph.
 
-```mermaid
-flowchart TD
+### Gates and approval points
 
+The human approves requirements, architecture and cost, governance constraints,
+and the implementation plan. Code validation precedes deployment, and explicit
+apply authorization is still required. After deployment, inspect the actual
+resources and health checks before accepting the as-built record.
 
+Review defaults differ by step. In particular, Architecture has a separate
+cost-estimate review, Governance has reconciliation, and Deploy has no Challenger
+review. See the [review matrix](/concepts/workflow/#adversarial-review-matrix).
 
-    S1["step-1: Requirements"]
-    G1{{"gate-1: Approval"}}:::gate
-    S2["step-2: Architecture"]
-    G2{{"gate-2: Approval"}}:::gate
-    S3["step-3: Design (opt)"]
-    S35["step-3.5: Governance"]
-    G25{{"gate-2.5: Approval"}}:::gate
-    S4["step-4: IaC Plan"]
-    G3{{"gate-3: Approval"}}:::gate
-    S5B["step-5b: Bicep Code"]
-    S5T["step-5t: TF Code"]
-    G4{{"gate-4: Validation"}}:::gate
-    S6B["step-6b: Bicep Deploy"]
-    S6T["step-6t: TF Deploy"]
-    G5{{"gate-5: Approval"}}:::gate
-    S7["step-7: As-Built"]:::endNode
+If a gate fails, return to the owning step and resolve its evidence. A retained
+artifact can still be stale after an upstream decision changes.
 
-    S1 --> G1 --> S2 --> G2
-    G2 --> S3
-    S3 --> S35
-    S35 --> G25
-    G25 --> S4
-    S4 --> G3
-    G3 --> S5B & S5T
-    S5B & S5T --> G4
-    G4 --> S6B & S6T
-    S6B & S6T --> G5
-    G5 --> S7
-```
+### IaC routing
 
-Each node has a type (`agent-step`, `gate`, `subagent-fan-out`, `validation`), and each
-edge has a condition (`on_complete`, `on_skip`, `on_fail`). Step 4 (IaC Plan) is
-unified across IaC tools; the workflow forks at Step 5 (Code) and Step 6
-(Deploy), with conditional routing governed by the `decisions.iac_tool` field.
+Requirements records the chosen Bicep or Terraform track. Step 4 uses the shared
+`05-IaC Planner`. Steps 5 and 6 select the matching CodeGen and Deploy agents.
+Do not invent separate Step 4 agents or activate both tracks implicitly.
 
-:::note[Read-only workflow graph]
-The workflow DAG is auto-loaded by the Orchestrator. Users do not edit
-`workflow-graph.json` directly. To customise the workflow, modify agent
-definitions or skills instead.
-:::
+### Session state and resume
 
-### Gates and Approval Points
+Use `apex-recall show <project> --json` to inspect state. It reads primary state
+without restoring backups. Participating writers use locks and revision checks.
+Primary replacement and index updates are separate operations, so a write can
+commit while leaving the index stale.
 
-Five mandatory gates require explicit human confirmation before the workflow advances:
+The [public state contract](https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/tools/apex-recall/docs/show-schema.md)
+defines conflicts, idempotent retries, and authorized recovery. These mechanisms
+do not lock arbitrary editors or guarantee a multi-file transaction.
 
-```mermaid
-flowchart LR
-  classDef step fill:#1e3a5f,stroke:#0078d4,color:#dbeafe,rx:6,ry:6
-  classDef gate fill:#fef3c7,stroke:#d97706,color:#7c2d12,rx:6,ry:6
-  classDef auto fill:#dcfce7,stroke:#15803d,color:#14532d,rx:6,ry:6
+### Session break protocol
 
-  S1[Step 1<br/>Requirements]:::step --> G1{{Gate 1<br/>Requirements OK?}}:::gate
-  G1 --> S2[Step 2<br/>Architecture]:::step --> G2{{Gate 2<br/>Arch + cost OK?}}:::gate
-  G2 --> S4[Step 4<br/>IaC Plan]:::step --> G3{{Gate 3<br/>Plan OK?}}:::gate
-  G3 --> S5[Step 5<br/>IaC Code]:::step --> G4(((Gate 4<br/>Automated)))
-  G4 --> S6[Step 6<br/>Deploy]:::step --> G5{{Gate 5<br/>Resources OK?}}:::gate
-  G5 --> S7[Step 7<br/>As-Built]:::step
-  class G4 auto
-```
+Before starting a new chat, retain the handoff, current decisions, relevant
+artifacts, and unresolved findings. Select the appropriate main agent in the
+new session and inspect current evidence. Do not assume the old conversation
+contains everything needed to resume safely.
 
-| Gate | After  | Blocks Until                                      |
-| ---- | ------ | ------------------------------------------------- |
-| 1    | Step 1 | User approves requirements                        |
-| 2    | Step 2 | User approves architecture and cost estimate      |
-| 3    | Step 4 | User approves implementation plan                 |
-| 4    | Step 5 | Automated validation passes (lint, build, review) |
-| 5    | Step 6 | User approves deployment and verifies resources   |
+For damaged state, follow [session recovery](/guides/session-debugging/).
 
-:::tip[Rejecting a gate]
-If a gate produces `must_fix` findings or you want to change direction,
-edit the upstream artefact under `agent-output/{project}/` and re-run the
-step, or restart from the previous step. Prior artefacts remain on disk
-and are reused on the next pass — you never lose context by rejecting a
-gate.
-:::
+## Quality and safety systems
 
-### IaC Routing
+### Validation scripts
 
-The `iac_tool` field in `01-requirements.md` determines which track is activated.
-Steps 4b, 5b, 6b form the Bicep track; steps 4t, 5t, 6t form the Terraform track.
-Only one track is active for a given project.
+Product validators check artifact structure, agent and skill definitions,
+governance contracts, IaC, and source metadata. The
+[validation reference](/reference/validation-reference/) identifies the relevant
+commands. Use the product's `package.json` for its current command inventory.
 
-### Session State and Resume
+The apex-docs build, link checks, and browser tests validate this website instead.
+A passing website build is not an infrastructure validation result.
 
-The `00-session-state.json` file (schema v3.0) provides atomic state tracking:
+### Git hooks (pre-commit and pre-push)
 
-```json
-{
-  "schema_version": "3.0",
-  "project": "my-project",
-  "current_step": 2,
-  "steps": {
-    "2": {
-      "status": "in_progress",
-      "sub_step": "phase_2_waf",
-      "started": "2026-03-04T10:05:00Z",
-      "artifacts": ["agent-output/my-project/02-architecture-assessment.md"]
-    }
-  }
-}
-```
+The product uses lefthook to run checks on staged changes and before a push.
+Read the configured hooks for their actual scope. Hooks are not proof that all
+changes were scanned, especially when tools are missing or a commit bypasses hooks.
 
-VS Code Copilot executes agents serially — only one agent runs at a time.
-The v3.0 schema removed the lock/claim protocol (previously in v2.0) since
-concurrent agent execution does not occur. Atomic writes (`.tmp` → rename
-→ `.bak`) prevent file corruption.
+### Circuit breaker
 
-### Session Break Protocol
+Repeated failures should stop work and preserve diagnostic evidence. Follow the
+owning agent's retry and escalation rules. Do not use a generic retry count or
+waiting period as permission to repeat a failed cloud mutation.
 
-At Gates 2 and 3, the Orchestrator recommends starting a fresh VS Code Copilot Chat
-session. Long-running sessions (3+ hours) experience forced context summarisations
-that lose critical decision context. The Session Break Protocol:
+Unavailable or empty review output does not satisfy a required review. Use the
+declared recovery path and human handoff rather than inventing an inline approval.
 
-1. Orchestrator writes current state to `00-session-state.json`
-2. Orchestrator writes `00-handoff.md` with human-readable summary
-3. Orchestrator prints a "SESSION BREAK RECOMMENDED" message
-4. User starts a new chat, invokes Orchestrator again
-5. Orchestrator reads `00-session-state.json`, finds the next pending step, and resumes
+### Context compression
 
-This was driven by real-world observation: the malta-catering end-to-end test
-experienced 5 forced context summarisations in a single 3h39m session.
+The `apex-context-management` skill describes selective loading and summarization.
+Read the necessary artifact sections and keep decision evidence available.
+Do not describe estimated context percentages as measured runtime guarantees.
 
-## Quality and Safety Systems
+A short summary cannot replace the exact input coverage required by a validator
+or reviewer. Skills and runtime artifact summaries serve different purposes.
 
-### Validation Scripts
+### Copilot hooks
 
-Every convention is backed by a machine-enforceable check. The validation suite
-runs through `validate:_node` (cache-sharing Node runner with bounded child
-commands) and `validate:_external` (parallel external tool validators):
-
-| Category            | Validators                                                                                                                                    |
-| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| Markdown            | `lint:md`, `lint:links:docs`                                                                                                                  |
-| Artefact format     | `validate:artifacts`, `lint:artifact-templates`, `lint:h2-sync`                                                                               |
-| Agent quality       | `validate:agents`                                                                                                                             |
-| Skill quality       | `validate:skills`, `validate:skill-checks`, `lint:skill-references`, `lint:orphaned-content`                                                  |
-| Instruction quality | `validate:instruction-checks`                                                                                                                 |
-| Governance          | `lint:governance-refs`, `lint:mcp-config`                                                                                                     |
-| Infrastructure      | `lint:terraform-fmt`, `validate:terraform`, `validate:iac-security-baseline`                                                                  |
-| Session state       | `validate:session-state` (also covers deprecated lock/claim field detection)                                                                  |
-| Registry/config     | `validate:workflow-graph`, `validate:agent-registry`                                                                                          |
-| Code quality        | `lint:json`, `lint:python`, `lint:yaml`                                                                                                       |
-| VS Code config      | `validate:vscode`                                                                                                                             |
-| Explorer graph      | `validate:explorer-graph`                                                                                                                     |
-| Meta                | `lint:version-sync`, `lint:deprecated-refs`, `lint:docs-freshness`, `lint:glob-audit`, `validate:no-hardcoded-counts`, `validate:terminology` |
-
-See [`reference/validation-reference`](../../../reference/validation-reference/)
-for the full authoritative list — it is generated from `package.json`.
-
-All validators run via `npm run validate:all`.
-
-### Git Hooks (Pre-Commit and Pre-Push)
-
-**Pre-commit** (sequential, via lefthook): Validates staged files only — markdown lint,
-link checks, H2 sync, artefact templates, agent frontmatter, instruction frontmatter,
-Python lint, Terraform format and validate.
-
-**Pre-push** (parallel, via lefthook): Diff-based domain routing. The `diff-based-push-check.sh`
-script categorises changed files and runs only matching validators:
-
-- `*.bicep` → Bicep build + lint
-- `*.tf` → Terraform fmt + validate
-- `*.agent.md` → Agent frontmatter + body size
-- `*.instructions.md` → Instruction frontmatter
-- `SKILL.md` → Skills format + skill size
-- `*.json` → JSON syntax
-- `*.py` → Ruff lint
-
-### Circuit Breaker
-
-:::danger[Automatic Safety Net]
-The circuit breaker halts runaway agent loops before they cause damage.
-If you see a `blocked` finding, investigate before retrying.
-:::
-
-The circuit breaker pattern protects against runaway agent loops during deployment:
-
-| Anomaly Pattern     | Detection Threshold | Action                         |
-| ------------------- | ------------------- | ------------------------------ |
-| Error repetition    | 3 consecutive       | Halt, write `blocked` finding  |
-| Empty response loop | 3 consecutive       | Halt, escalate to human        |
-| Timeout cascade     | 3 consecutive       | Halt, check auth               |
-| What-if oscillation | 2 cycles            | Halt, flag resource conflict   |
-| Auth failure loop   | 2 consecutive       | Halt, prompt re-authentication |
-
-:::note[Example — what “timeout cascade” looks like]
-The Deploy agent calls `azd provision` and the Azure Resource Provider
-returns 429 (rate-limit). The agent retries twice more without making
-progress. The circuit breaker writes a `blocked` finding and stops the
-step — it does **not** keep retrying. Recovery: wait 5 minutes, then
-re-run the step. The agent reads `00-handoff.md` and resumes from the
-last successful sub-step.
-:::
-
-### Context Compression
-
-The [`apex-context-management`](https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-context-management/SKILL.md)
-skill defines three runtime compression tiers for artifact loading (it replaces
-the legacy `context-shredding` and `context-optimizer` skills; for post-hoc
-analysis of past sessions, see the [`11-Context Optimizer`](../agents/) agent):
-
-| Tier         | Trigger    | Strategy                                   |
-| ------------ | ---------- | ------------------------------------------ |
-| `full`       | < 60% used | Load entire artefact                       |
-| `summarized` | 60–80%     | Key H2 sections only (tables preserved)    |
-| `minimal`    | > 80%      | Decision summaries only (< 500 characters) |
-
-:::caution[Partially implemented — know the limits]
-**What works today:**
-
-- **Hardcoded compaction checkpoints** — agents like the Architect (Phase 2.5)
-  and IaC Planner (Phase 3.6) have fixed points in their bodies where they
-  write a summary and stop loading additional skills. These are positional,
-  not dynamic.
-- **`compact_for_parent` carry-forward** — the challenger subagent's JSON output
-  contract limits inter-pass data to a ~200-character string, preventing context
-  bloat across multi-pass reviews.
-
-**What does not work today:**
-
-- **Dynamic tier selection** — the 60%/80% thresholds rely on the LLM estimating
-  its own context consumption. VS Code Copilot provides no API for agents to
-  query actual token usage. The LLM has no reliable way to know whether it is at
-  55% or 75% of its context window, so tier triggers are effectively best-effort.
-- **Automatic artifact compression** — the per-artifact compression templates
-  (`compression-templates.md`) describe which H2 sections to keep per tier, but
-  no code enforces this. Compression depends on the LLM reading the template,
-  deciding its tier, and selectively extracting sections. In practice, LLMs tend
-  to read entire files.
-
-The hardcoded compaction checkpoints in agent bodies are the most reliable
-mechanism. The dynamic artifact-tier system is a design intent that nudges
-LLM behaviour but is not deterministic. Skills themselves are single-tier
-(one `SKILL.md` per skill); the tier system applies only to artifacts in
-`agent-output/`.
-:::
-
-When the `challenger-review-subagent` loads predecessor artefacts for review, it is
-instructed to apply the same 3-tier compression: at the `summarized` tier, preserving
-only resource list, SKUs, WAF scores, compliance matrix, and budget sections; at
-`minimal`, using only the `decisions` field from `00-session-state.json` plus the
-resource list. Whether the LLM follows these instructions consistently varies —
-the `compact_for_parent` carry-forward between passes is the part that reliably works.
-
-### Copilot Hooks
-
-Copilot hooks in `.github/hooks/` intercept agent actions at runtime. See the
-[Hooks guide](../../../guides/hooks/) for the authoritative list; the current
-set covers:
-
-| Hook                  | Trigger                                    | Purpose                                                             |
-| --------------------- | ------------------------------------------ | ------------------------------------------------------------------- |
-| `tool-guardian`       | `PreToolUse`                               | Blocks dangerous commands (destructive ops, force pushes, DB drops) |
-| `subagent-validation` | `SubagentStop`                             | Validates subagent invocation and outputs                           |
-
-Hooks are defined in `hooks.json` files with type (`command`), path to shell script,
-and timeout. They run automatically — agents do not invoke them explicitly.
-
----
-
-:::tip[Further Reading]
-
-- [System Architecture](../architecture/) — the multi-step workflow, Orchestrator pattern, dual IaC tracks
-- [Core Concepts](../four-pillars/) — agents, skills, instructions, and configuration registries
-- [Agent Architecture](../agents/) — handoffs, the Challenger pattern, context shredding
-- [MCP Integration](../mcp-integration/) — MCP servers and how agents invoke tools
-
-  :::
+Agent hooks run at configured lifecycle events. The product's `tool-guardian`
+and `subagent-validation` hooks cover specific checks; they are not a general
+permission system. See [agent hooks](/guides/hooks/) for their configuration and
+limitations.

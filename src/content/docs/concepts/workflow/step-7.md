@@ -1,28 +1,28 @@
 ---
-title: "Step 7 — As-Built Documentation"
+title: "Step 7: As-built documentation"
 description: "Assemble the post-deployment documentation suite from the previous artifacts and the deployed resource state."
 sidebar:
   order: 8
-  label: "Step 7 — As-Built"
+  label: "Step 7: As-built"
 ---
 
 ## Purpose
 
-Produce the canonical post-deployment documentation suite — design document, operations runbook,
-cost estimate, compliance matrix, backup/DR plan, resource inventory, and a master index. This is
-the artifact future operators reach for first.
+Document the observed deployment for the people who will operate it. Include
+the design, runbook, cost estimate, compliance evidence, recovery procedures,
+resource inventory, and an index. Keep unresolved issues visible.
 
 ## Agent
 
 [`08-As-Built`](https://github.com/jonathan-vella/apex/blob/main/.github/agents/08-as-built.agent.md)
-— uses the
+uses the
 [`apex-azure-artifacts`](https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-artifacts/SKILL.md)
 skill and reads every prior artifact in `agent-output/{project}/`.
 
 ## Invocation
 
 ```text
-Invoke: Ctrl+Shift+A → 08-As-Built
+Select: 08-As-Built in Copilot Chat
 Output: agent-output/{project}/07-*.md
 ```
 
@@ -40,11 +40,15 @@ Output: agent-output/{project}/07-*.md
 
 ## Drift detection
 
-The agent runs a bidirectional drift check against `sku-manifest.json` — any deployed SKU that does
-not appear in the manifest (or vice versa) is surfaced in the documentation index.
+Compare the deployed resources with `sku-manifest.json` in both directions.
+Record unexpected and missing SKUs in the documentation index.
+
+Distinguish provisioning success from application health. State which checks ran,
+which failed, and which were not performed. An estimate is not an invoice, and a
+compliance matrix is not an independent certification.
 
 ## Hand-off
 
-The Orchestrator concludes the per-project workflow. Continue with [`Post — Lessons
-Learned`](/concepts/workflow/post-lessons/) if the project ran into systemic
-issues worth capturing.
+Review the documentation against the deployment evidence. Continue with
+[lessons learned](/concepts/workflow/post-lessons/) when the run exposed a problem
+worth addressing in the agents, skills, or validators.

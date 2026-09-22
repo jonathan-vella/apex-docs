@@ -1,6 +1,6 @@
 ---
 title: "Generated Artifacts"
-description: "Resources created, AVM module versions, and dependency diagram from the Bicep CodeGen Agent for the Malta catering infrastructure"
+description: "April 2026 generated artifacts record. Preserved historical output, not current workflow guidance."
 sidebar:
   order: 1
 ---

@@ -1,8 +1,14 @@
 ---
 title: "Changelog"
-description: "All notable changes to APEX"
+description: "Find product and documentation changes in their separate repository histories."
 ---
 
-The authoritative changelog is maintained in the repository root.
+APEX product changes and documentation changes have separate histories:
 
-**[View CHANGELOG.md on GitHub →](https://github.com/jonathan-vella/apex/blob/main/CHANGELOG.md)**
+- [APEX product commits](https://github.com/jonathan-vella/apex/commits/main/)
+- [apex-docs commits](https://github.com/jonathan-vella/apex-docs/commits/main/)
+- [Accelerator template commits](https://github.com/jonathan-vella/apex-accelerator/commits/main/)
+
+The site's generated reference data uses the revision recorded in
+[`apex-source.json`](https://github.com/jonathan-vella/apex-docs/blob/main/apex-source.json).
+It does not automatically describe the newest product commit.

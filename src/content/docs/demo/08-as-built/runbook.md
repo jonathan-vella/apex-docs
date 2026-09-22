@@ -1,6 +1,6 @@
 ---
 title: "Operations Runbook"
-description: "Day-2 operational procedures, incident response, and backup/disaster recovery plan for the Malta catering workload"
+description: "April 2026 operations runbook record. Preserved historical output, not current workflow guidance."
 sidebar:
   order: 2
 ---

@@ -1,286 +1,143 @@
 ---
 title: "FAQ"
-description: "Frequently asked questions"
----
-
-Frequently asked questions about APEX.
-
-**Jump to:** [General](#general) · [IaC Tracks](#iac-tracks) · [Usage](#usage) · [Customization & Multi-Project](#customization--multi-project) · [Troubleshooting](#troubleshooting) <!-- markdownlint-disable-line MD013 -->
-
+description: "Answers about APEX setup, workflow ownership, IaC tracks, customization, and recovery."
 ---
 
 ## General
 
-:::note[How do I get started?]
-Create your own repository from the
-[Accelerator template](https://github.com/jonathan-vella/apex-accelerator)
-— click **"Use this template"** on GitHub, clone your new repo, and open it in the dev
-container. See the [Quickstart](../../getting-started/quickstart/) for the step-by-step guide.
-:::
+### How do i start?
 
-    This upstream repository (`apex`) is the source project. The Accelerator
-    template is the recommended starting point for new users.
+Create a repository from
+[apex-accelerator](https://github.com/jonathan-vella/apex-accelerator)
+and follow the [quickstart](/getting-started/quickstart/).
+APEX owns the product. This apex-docs repository owns the published site.
 
-:::note[Is this project production-ready?]
-APEX is currently at **v0.10.0** (pre-1.0). It is suitable for
-development, testing, and proof-of-concept deployments. The generated IaC templates
-follow Azure Verified Modules standards and include security baselines, but you
-should always review generated code before deploying to production environments.
-:::
+### Is generated code ready for production?
 
-    See the [Changelog](../project/changelog/) for release history and maturity indicators.
+Not by generation alone. Review requirements, architecture, policy, the implementation
+plan, generated code, and the actual deployment preview. Complete the required checks
+for your environment. Record application health separately from resource provisioning.
+The [historical case study](/demo/) shows why that distinction matters.
 
-:::note[What AI models does this require?]
-The project is built for **GitHub Copilot** in VS Code. Agents specify their
-preferred model in their frontmatter — most use the latest Claude Opus or
-GPT Codex models. The Orchestrator and review-heavy agents perform best with
-the latest Claude Opus model.
-:::
+### Which Copilot plan and model do i need?
 
-    Model versions evolve — check agent frontmatter for current selections.
+Use a Copilot plan and organization configuration that provide the required custom
+agent and model access. Model declarations are in `.github/agents/*.agent.md`.
+They do not grant access to a model. Check your actual entitlement and
+[GitHub's plan comparison](https://github.com/features/copilot/plans).
+This site does not require Business or Enterprise by assertion.
 
-    APEX requires either a **Copilot Business** or **Copilot Enterprise** license
-    (other SKUs do not include the required functionality).
-    See [GitHub Copilot plans](https://github.com/features/copilot/plans) for details.
+### Do i need Azure access?
 
-:::note[Do I need an Azure subscription?]
-**No** — for learning. You can run the full workflow through Steps 1–5
-(requirements, architecture, design, planning, code generation) without
-an Azure subscription. The generated templates are valid and ready to
-deploy.
+You can explore prompts and draft requirements without a subscription. Public retail
+pricing does not require scoped cost-management access. Effective policy discovery,
+target-specific validation, deployment, and live diagnostics require appropriate
+Azure access. Offline drafts are not fully verified deployment inputs.
 
-**Yes** — for deployment. Step 6 (Deploy) requires an active Azure
-subscription with permissions to create resources. Step 2 (Architecture)
-uses the Azure Resource Manager MCP retail pricing tool, which is public and does
-not require a subscription. Scoped cost-management tools require Azure sign-in.
-:::
+## IaC tracks
 
----
+### Should i choose Bicep or Terraform?
 
-## IaC Tracks
+Bicep is Azure's resource-definition language and uses ARM-managed deployment state.
+Terraform uses providers and a state backend. Choose according to your team's
+operating model and governance requirements.
 
-:::note[Bicep or Terraform — which should I choose?]
-Both tracks produce production-quality output. Choose based on your team's expertise
-and organizational standards:
-:::
+Requirements records `iac_tool` as `Bicep` or `Terraform`. Both tracks use
+`05-IaC Planner`. CodeGen and Deploy have track-specific main agents, which the
+owner selects. See the [workflow](/concepts/workflow/).
 
-    | Factor             | Bicep                                    | Terraform                                  |
-    | ------------------ | ---------------------------------------- | ------------------------------------------ |
-    | **Azure-only**     | Native DSL, first-class Azure support    | Multi-cloud, Azure via AzureRM provider    |
-    | **State**          | No state file (ARM-managed)              | State file (Azure Storage backend)         |
-    | **Learning curve** | Lower if you know ARM/Azure              | Lower if you know HCL/multi-cloud          |
-    | **AVM modules**    | `br/public:avm/res/`                     | `registry.terraform.io/Azure/avm-res-*/`   |
-    | **CI/CD**          | `az deployment group create`             | `terraform plan` + `terraform apply`       |
+### Can i change tracks later?
 
-    The Requirements agent (Step 1) captures your `iac_tool` preference, and the
-    Orchestrator routes all subsequent steps to the correct track automatically.
-
-    See [How It Works](../concepts/how-it-works/) for a deeper comparison.
-
-:::note[Can I switch IaC tracks mid-workflow?]
-Not directly. The `iac_tool` field in `01-requirements.md` determines the
-track for Steps 4–6. To switch, update the `iac_tool` field in
-requirements and re-run from Step 4 (Planning). Steps 1–3 are shared and
-do not need to be repeated.
-
-**What carries over without re-running:**
-
-- Step 3 ADRs (track-agnostic).
-- Step 3.5 governance constraints still apply — they describe Azure
-  Policy, not IaC tool.
-- The Step 2 cost estimate is track-neutral for most SKUs.
-
-**What to re-validate when switching:**
-
-- AVM module availability — some `avm-res-*` Terraform modules differ in
-  inputs/coverage from their `br/public:avm/res/*` Bicep counterparts.
-  The Step 4 planner will flag any module that does not have a parity
-  twin in the target track.
-- Provider-specific behaviour (Terraform state vs ARM-managed Bicep).
-
-:::
-
----
+Treat it as a requirements change. Record the decision through the owning agent,
+review affected architecture and module choices, then regenerate the plan, contracts,
+code, and handoff as needed. Do not change one field and assume every prior approval
+remains valid. Existing Terraform state or deployed resources need an explicit
+migration plan.
 
 ## Usage
 
-:::note[Can I use this offline?]
-No. APEX requires:
-:::
+### Does APEX work offline?
 
-    - **GitHub Copilot** — cloud-hosted AI service
-    - **MCP servers** — Azure Resource Manager MCP, Azure MCP, and GitHub MCP
-      provide real-time data to agents
+Copilot requires network access. Tool calls also depend on their service endpoints.
+You can read local files offline, but missing pricing, policy, or validation evidence
+must remain missing. Do not substitute remembered prices or call unavailable checks
+successful.
 
-    The dev container itself runs locally, but agent conversations and MCP tool calls
-    require internet connectivity.
+### What is the difference between an agent and a skill?
 
-:::note[How do I customize agents or add new ones?]
-Agents are defined in `.github/agents/*.agent.md` as YAML frontmatter + markdown body.
-To create a new agent:
-:::
+A main agent owns a workflow step and its handoffs. A skill contains reusable
+instructions and references. Invocation flags control how a skill may be selected.
+Neither a skill nor source metadata grants additional tools or permissions.
 
-    1. Copy an existing agent file as a template
-    2. Update the frontmatter (name, description, model, tools, skills)
-    3. Write the agent body with instructions
-    4. Reload VS Code — the agent appears in the `Ctrl+Shift+A` picker
+See [agents](/concepts/how-it-works/agents/) and
+[skills and instructions](/concepts/how-it-works/skills-and-instructions/).
 
-    See [Contributing](../project/contributing/) for contribution guidelines and the
-    [Agent and Skill Workflow](../concepts/workflow/) for how agents fit into the system.
+### How do i resume?
 
-:::note[What's the difference between agents and skills?]
-| Aspect | Agents | Skills |
-| --------------- | ---------------------------------------- | ------------------------ |
-| **Invocation** | Manual (`Ctrl+Shift+A`) or via Orchestrator | Automatic or explicit |
-| **Interaction** | Conversational with handoffs | Task-focused |
-| **State** | Session context | Stateless |
-| **Output** | Multiple artifacts | Specific outputs |
-| **When to use** | Core workflow steps | Specialized capabilities |
-:::
+Select `01-Orchestrator`, name the project, and ask it to inspect current state
+and artifacts. It recommends the next handoff; you select the main agent.
+Use [session state debugging](/guides/session-debugging/) for corruption,
+conflicts, stale indexes, or authorized recovery.
 
-    Agents are the actors in the multi-step workflow. Skills are reusable knowledge modules
-    that agents load on demand. See the [Workflow](../concepts/workflow/) page for details.
+### Is there a hands-on exercise?
 
-:::note[How do I resume a failed or interrupted workflow?]
-The Orchestrator supports session resume via the `apex-recall` CLI. To resume:
-:::
+The [MicroHack](https://microhack.apexops.pro/) is a separate learning resource.
+Check its environment requirements and revision before following deployment steps.
+The April 2026 case study on this site is a historical record, not a current
+copy-and-run tutorial.
 
-    1. Open Copilot Chat and select **Orchestrator**
-    2. Say: *"Resume the workflow from where we left off. Check agent-output/{project}/ for existing artifacts."*
-    3. The Orchestrator runs `apex-recall show <project> --json` and uses existing artifacts to determine
-       which steps are complete, then continues from the next pending step.
+## Customization & multi-project
 
-    See the [Quickstart](../../getting-started/quickstart/) for the full getting-started flow.
+### How do i customize an accelerator repository?
 
-:::note[Is there a guided hands-on exercise?]
-Yes — the [MicroHack](https://microhack.apexops.pro/) is a
-hands-on, guided challenge where you build Azure infrastructure end-to-end using AI agents,
-from requirements to deployment. It includes structured exercises, guided prompts, and
-reference solutions for each of the 7 main workflow steps plus Step 3.5 Governance.
-:::
+A repository created from the template belongs to you. Inspect its current sync
+workflow before editing files you want to retain.
 
----
+At the reviewed template revision, scheduled upstream sync proposes a pull request.
+Manual runs default to dry-run. The sync mirrors upstream content except for
+declared exclusions, shared-file exceptions, and seed rules. It does not merge
+local edits into upstream-owned files automatically.
 
-## Customization & Multi-Project
+Both generated Bicep and Terraform project directories are excluded, but their
+shared `AGENTS.md` files are explicit sync exceptions. Workflow files remain
+separate and use `npm run sync:workflows`. Root `AGENTS.md`, agents, skills,
+and instructions are not generally protected customization locations.
 
-:::note[How do I customize upstream-owned files like the `apex-azure-defaults` skill?]
-When you create a repository from the Accelerator template, every file immediately
-becomes yours — there is no fork relationship, so there are no automatic upstream
-changes unless you opt in via the sync workflow.
-:::
+Read the actual
+[sync configuration](https://github.com/jonathan-vella/apex-accelerator/blob/a77442889129b26a2a89c0d5faa5f1d35a84965c/.github/workflows/weekly-upstream-sync.yml)
+and review each proposed diff. Do not rely on an old four-path exclusion list.
 
-    **Strategy A — Edit directly (simplest)**
+### Can one repository contain multiple projects?
 
-    Edit any file in place. If you never want upstream updates, disable the sync
-    workflow in **Repo Settings → Actions → Workflows → Disable "Upstream Sync"**.
-    If you later re-enable sync, the workflow runs `git checkout upstream/main -- .`
-    and then restores a fixed set of excluded paths. This is a **full overwrite, not a
-    merge** — any edits outside the excluded paths will be lost and you will need to
-    re-apply them.
-
-    **Strategy B — Override layer (recommended for teams)**
-
-    Keep sync enabled and layer your customizations in **sync-safe locations**.
-    The sync workflow (`weekly-upstream-sync.yml`) preserves four paths by default:
-
-    | Excluded from sync (safe to edit)  | Overwritten by sync (not safe without changes) |
-    | ----------------------------------- | ----------------------------------------------- |
-    | `agent-output/`                     | Root `AGENTS.md`                                |
-    | `infra/bicep/`                      | `infra/terraform/`                              |
-    | `.github/workflows/`                | `.github/instructions/`                         |
-    | `README.md`                         | All skills in `.github/skills/`                 |
-
-    Strategy B override options:
-
-    - **Extend the exclusion list** — `.github/workflows/` is yours and is never
-      overwritten. Open `weekly-upstream-sync.yml` and add paths (e.g. `AGENTS.md`,
-      `infra/terraform`) to `EXCLUDE_PATHS` and the matching `for path in ...` restore
-      loop. Once protected, use root `AGENTS.md` for project-wide overrides.
-    - **`infra/bicep/AGENTS.md`** — Already excluded from sync. VS Code loads subfolder
-      `AGENTS.md` files automatically for that directory tree, making it a reliable
-      place for Bicep-specific or project-wide instructions without touching the root.
-    - **VS Code user-profile instructions** — Create `.instructions.md` files in your
-      VS Code profile's `prompts/` folder. These live entirely outside the repo and
-      apply across all workspaces on your machine.
-
-    | Strategy | Approach | Best for |
-    | -------- | -------- | -------- |
-    | **A — Direct edit** | Edit in place; optionally disable sync | Solo developers; teams opting out of upstream updates |
-    | **B — Override layer** | Keep sync; extend `EXCLUDE_PATHS` or use sync-safe paths | Teams that want continuous upstream improvements |
-
-:::note[One repo with many projects, or one repo per project?]
-The Accelerator is designed for **one repo containing multiple projects**. Each
-project gets its own subdirectories under `agent-output/{project}/`,
-`infra/bicep/{project}/`, and `infra/terraform/{project}/`. Agents, skills,
-instructions, and the dev container are all shared across projects in the same repo.
-:::
-
-    **One repo per project** is equally valid when teams need separate governance,
-    permissions, or isolation. Each repo is created independently from the Accelerator
-    template with its own full copy of agents and skills.
-
-    Because the dev container definition lives inside the repo, separate repos give
-    each project an independent dev container configuration — useful when projects
-    need different tool versions or container images.
-
-    **Cross-team sharing across multiple repos:**
-
-    - **Extend the sync exclusion list** in each repo to protect `AGENTS.md`, then
-      maintain a standard overrides section you copy into each new instance at setup time.
-    - **VS Code user-profile instructions** — Personal preferences placed in your VS Code
-      profile `prompts/` folder apply across all repos on your machine without any
-      per-repo configuration.
-    - **Team wiki or internal repo** — Keep a canonical overrides snippet (naming
-      conventions, approved regions, required tags) and paste it into new instances
-      as part of your project setup checklist.
-
----
+Yes. Project artifacts live under `agent-output/{project}/`, and generated IaC
+lives under the matching track's project directory. These projects share agents,
+skills, and container configuration. Separate repositories provide separate
+permissions, lifecycle, and tooling configuration when your team needs them.
 
 ## Troubleshooting
 
-:::note[The Orchestrator doesn't delegate to other agents — what's wrong?]
-The most common cause is the subagent orchestration setting not being enabled.
-Add this to your **VS Code User Settings** (not workspace settings):
-:::
+### Why does orchestrator not delegate to the next main agent?
 
-    ```json
-    {
-      "chat.customAgentInSubagent.enabled": true
-    }
-    ```
+That is intentional. The current main-agent workflow requires human selection,
+including selection of `10-Challenger`. Do not add wildcard delegation permissions
+to restore obsolete behavior.
 
-    See [Troubleshooting](../../guides/troubleshooting/#2-orchestratorsubagent-invocation-not-working-vs-code-1109)
-    for detailed steps.
+### What if an agent produces incorrect output?
 
-:::note[Where do I report bugs or request features?]
+Provide the exact error, affected artifact, and expected behavior to the owning
+step. A deployment agent must return code defects to CodeGen. Preserve required
+reviews after changes. Starting a new chat does not make stale approvals current.
 
-- **Bugs**: [GitHub Issues](https://github.com/jonathan-vella/apex/issues)
-- **Questions**: [GitHub Discussions](https://github.com/jonathan-vella/apex/discussions)
-- **Feature requests**: Open a GitHub issue with the `enhancement` label
+### What if MCP is unavailable?
 
-:::
+Identify the failed server and required evidence. Work that does not depend on it
+may continue, but affected checks remain blocked or unperformed. Cost estimates
+must not substitute invented prices. Azure CLI authentication for governance is
+separate from pricing-tool availability.
 
-:::note[What happens if an agent produces bad output?]
-Use specific follow-up prompts to correct the issue. For example:
-_"The VNet address space conflicts with our on-premises range. Change to 172.16.0.0/16."_
-If the error persists, start a fresh chat session — context accumulation can degrade
-output quality. The [Troubleshooting](../../guides/troubleshooting/) guide covers common failure
-modes and recovery steps.
-:::
+### Where do i report problems?
 
-:::note[What if MCP servers are unreachable?]
-The workflow degrades gracefully. Steps 1-5 can proceed without MCP — agents skip
-real-time pricing lookups and use documented defaults. Only Step 2 cost estimation
-and Step 7 as-built cost updates depend directly on the Pricing MCP server.
-Governance discovery (Step 3.5) uses Azure REST API, not MCP.
-:::
-
-:::caution[Step 6 (Deploy) requires Azure credentials]
-If you attempt deployment without an active Azure subscription and `az login`,
-the deploy agent will fail with an authentication error.
-See [Troubleshooting](../../guides/troubleshooting/) for recovery steps.
-:::
-
----
-
-**See also:** [Troubleshooting](../../guides/troubleshooting/) · [Prompt Guide](../../guides/prompt-guide/) · [Glossary](../glossary/)
+Use [APEX issues](https://github.com/jonathan-vella/apex/issues) for product defects
+and [apex-docs issues](https://github.com/jonathan-vella/apex-docs/issues) for site
+problems. Include the revision, failing command or agent, and redacted evidence.
+See [troubleshooting](/guides/troubleshooting/) for diagnosis.

@@ -1,6 +1,6 @@
 ---
 title: "Design Document & Inventory"
-description: "As-built architecture design and complete deployed resource inventory for the Malta catering workload"
+description: "April 2026 design document & inventory record. Preserved historical output, not current workflow guidance."
 sidebar:
   order: 1
 ---

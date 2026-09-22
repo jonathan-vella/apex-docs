@@ -1,18 +1,19 @@
 ---
 title: "Concepts"
-description: "How APEX works — agents, skills, instructions, the workflow engine, and MCP integration."
+description: "How APEX agents, skills, instructions, state, and external tools work together."
 sidebar:
   order: 0
 ---
 
 import { CardGrid, LinkCard } from "@astrojs/starlight/components";
 
-APEX is a multi-agent system that turns Azure platform-engineering requirements into deploy-ready IaC. These conceptual pages explain what the moving parts are and how they fit together.
+These pages explain who owns each APEX step, which records it consumes, and what
+evidence is required before the next handoff.
 
 <CardGrid>
   <LinkCard
-    title="How It Works — Overview"
-    description="Start here for the system overview and the agentic loop."
+    title="How APEX works"
+    description="Start here for workflow ownership and evidence boundaries."
     href="/concepts/how-it-works/"
   />
   <LinkCard
@@ -22,7 +23,7 @@ APEX is a multi-agent system that turns Azure platform-engineering requirements 
   />
   <LinkCard
     title="Core Concepts"
-    description="The four pillars: agents, skills, instructions, prompts."
+    description="Agents, skills, instructions, and configuration registries."
     href="/concepts/how-it-works/four-pillars/"
   />
   <LinkCard

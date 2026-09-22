@@ -1,6 +1,6 @@
 ---
 title: "Deployment Phases"
-description: "Change summary, validation issues, deployment commands, and post-deployment tasks for the Malta catering infrastructure deployment"
+description: "April 2026 deployment phases record. Preserved historical output, not current workflow guidance."
 sidebar:
   order: 1
 ---

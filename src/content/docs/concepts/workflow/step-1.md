@@ -1,9 +1,9 @@
 ---
-title: "Step 1 — Requirements"
+title: "Step 1: Requirements"
 description: "Gather Azure platform-engineering requirements with the 02-Requirements agent."
 sidebar:
   order: 1
-  label: "Step 1 — Requirements"
+  label: "Step 1: Requirements"
 ---
 
 ## Purpose
@@ -19,35 +19,32 @@ artifact that downstream steps mutate.
 ## Invocation
 
 ```text
-Invoke: Ctrl+Shift+A → 02-Requirements
+Select: 02-Requirements in Copilot Chat
 Output: agent-output/{project}/01-requirements.md
         agent-output/{project}/sku-manifest.{json,md} (rev 1)
 ```
 
 ## What gets captured
 
-- **Functional requirements** — what the system does
-- **Non-functional requirements** — performance, availability, security, scale targets
-- **Compliance requirements** — regulatory, organizational, residency
-- **Budget constraints** — monthly cap, cost guardrails
-- **User-pinned SKUs** (optional) — anything the user has already decided
+- What the workload must do.
+- Performance, availability, security, and scale targets.
+- Regulatory, organizational, and residency constraints.
+- Monthly budget and cost limits.
+- Any SKUs the owner has already selected.
 
 ## Review
 
-1 × `comprehensive` adversarial pass by `challenger-review-subagent` is mandatory. Findings land in
-`challenge-findings-01-requirements.json` and must be triaged before Step 2.
+One `comprehensive` review by `10-Challenger` is mandatory. Select the main
+reviewer through its handoff, not a subagent call. Resolve required findings and
+approve the requirements before Step 2.
 
 ## Hand-off
 
-The Orchestrator routes context to [`Step 2 —
-Architecture`](/concepts/workflow/step-2/) once the user approves the
-requirements artifact.
+After approving the requirements, select the handoff to
+[Step 2: Architecture](/concepts/workflow/step-2/).
 
 ## See also
 
-- [Workflow overview](/concepts/workflow/) — the linear narrative across all
-  steps.
-- [Workflow deep dive](/concepts/workflow-deep-dive/) — cross-cutting
-  decisions and gates.
-- [Agent architecture](/concepts/how-it-works/agents/) — how agents, skills,
-  and subagents compose.
+- [Workflow overview](/concepts/workflow/)
+- [Workflow deep dive](/concepts/workflow-deep-dive/)
+- [Agent architecture](/concepts/how-it-works/agents/)

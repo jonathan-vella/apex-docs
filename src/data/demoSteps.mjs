@@ -13,12 +13,12 @@ const stepDefinitions = [
     summary:
       "A Maltese catering outlet needs an online ordering app on Azure. Start with the business context, architecture snapshot, and full step map.",
     focus:
-      "Orient yourself around the end-to-end flow, the scenario, and the proof points that make the walkthrough credible.",
-    sections: ["Scenario", "Workflow map", "Proof points"],
+      "Read the historical scenario, recorded outputs, and deployment limitations before comparing it with the current workflow.",
+    sections: ["Scenario", "Recorded steps", "Limitations"],
   },
   {
     id: "requirements",
-    label: "Step 1 — Requirements",
+    label: "Step 1: Requirements",
     slug: "demo/01-requirements",
     stepLabel: "Step 1",
     chipLabel: "1",
@@ -26,9 +26,9 @@ const stepDefinitions = [
     agent: "Requirements Agent",
     artifact: "Business and technical requirements",
     summary:
-      "The opening artifact captures what the catering outlet needs: an online ordering app for pastizzi, Cisk, and Kinnie with GDPR compliance and a EUR 100-500 monthly budget.",
+      "The requirements record describes online ordering for pastizzi, Cisk, and Kinnie, GDPR requirements, and a EUR 100-500 monthly budget.",
     focus:
-      "Read this step to understand the workload goals, compliance scope, and budget constraints before architecture narrows the solution space.",
+      "Read the workload goals, compliance scope, and budget constraints used in the design.",
     sections: ["Business context", "Functional requirements", "Compliance & security", "Budget & scaling"],
     items: [
       { label: "Overview", slug: "demo/01-requirements" },
@@ -48,7 +48,7 @@ const stepDefinitions = [
   },
   {
     id: "architecture",
-    label: "Step 2 — Solution Architecture",
+    label: "Step 2: Solution architecture",
     slug: "demo/02-architecture",
     items: [
       { label: "Overview", slug: "demo/02-architecture" },
@@ -71,7 +71,7 @@ const stepDefinitions = [
   },
   {
     id: "design",
-    label: "Step 3 — Design Artifacts",
+    label: "Step 3: Design artifacts",
     slug: "demo/03-design",
     items: [
       { label: "Overview", slug: "demo/03-design" },
@@ -84,14 +84,14 @@ const stepDefinitions = [
     agent: "Design Agent",
     artifact: "ADRs, diagrams, and cost visuals",
     summary:
-      "Three ADRs (App Service S1, Table Storage, public network posture), architecture diagram, and cost breakdown with distribution and projection charts.",
+      "Recorded ADRs cover App Service S1, Table Storage, and the revised private-endpoint design. The design estimate is distinct from the later as-built baseline.",
     focus:
-      "Look here for the diagrams, architecture decisions, and cost visuals that make the plan auditable before coding starts.",
+      "Compare the recorded decisions, diagrams, and design-stage cost assumptions.",
     sections: ["Architecture diagram", "Architecture decisions", "Cost estimates"],
   },
   {
     id: "governance",
-    label: "Step 3.5 — Governance",
+    label: "Step 3.5: Governance",
     slug: "demo/04-governance",
     items: [
       { label: "Overview", slug: "demo/04-governance" },
@@ -107,14 +107,14 @@ const stepDefinitions = [
     agent: "Governance Agent",
     artifact: "Azure Policy constraints",
     summary:
-      "Live REST API discovery found 21 policy assignments including a 9-tag deny blocker on resource groups. Storage and Key Vault hardening are audit-only.",
+      "The April 2026 discovery recorded 21 policy assignments and a 9-tag resource-group blocker. Its audit-only findings describe that scope at that time.",
     focus:
-      "This is the policy checkpoint that prevents the plan from drifting away from Azure Policy, tagging, and security constraints.",
+      "Compare the recorded policy scope, required tags, and unresolved constraints.",
     sections: ["Policy effects", "Required tags", "Deployment blockers"],
   },
   {
     id: "plan",
-    label: "Step 4 — Infra-as-Code Plan",
+    label: "Step 4: IaC plan",
     slug: "demo/05-plan",
     items: [
       { label: "Overview", slug: "demo/05-plan" },
@@ -128,12 +128,12 @@ const stepDefinitions = [
     artifact: "Implementation plan and dependency flow",
     summary:
       "12 resources across 10 AVM Bicep modules deployed in 5 phases. Governance-adapted tag contract expands from 4 to 9 required tags.",
-    focus: "Understand how the codebase is organized and how deployment is staged for safe delivery.",
+    focus: "Read the recorded module structure and phase dependencies.",
     sections: ["Module structure", "Implementation tasks", "Dependency flow"],
   },
   {
     id: "code",
-    label: "Step 5 — Infra-as-Code Gen",
+    label: "Step 5: IaC code",
     slug: "demo/06-code",
     items: [
       { label: "Overview", slug: "demo/06-code" },
@@ -146,13 +146,13 @@ const stepDefinitions = [
     agent: "Bicep CodeGen Agent",
     artifact: "Bicep templates and validation results",
     summary:
-      "AVM-first Bicep output with 10 modules. Bicep build, lint, and security baseline all pass. Preflight check confirms AVM versions.",
-    focus: "Review how planning decisions become concrete Bicep code and how the validation loop tightens quality.",
+      "The CodeGen record lists 10 modules and reports build, lint, and source security checks. These are historical results, not a fresh validation.",
+    focus: "Compare generated files with the plan and reported check results.",
     sections: ["File structure", "Validation results", "AVM modules"],
   },
   {
     id: "deploy",
-    label: "Step 6 — Deployment",
+    label: "Step 6: Deployment",
     slug: "demo/07-deploy",
     items: [
       { label: "Overview", slug: "demo/07-deploy" },
@@ -165,13 +165,13 @@ const stepDefinitions = [
     agent: "Deploy Agent",
     artifact: "Deployment execution summary",
     summary:
-      "Deployed via azd provision in 5 minutes. S1 was unavailable in swedencentral — auto-switched to P0v3. All 12 resources provisioned successfully.",
-    focus: "Inspect the preflight checks, deployment phases, and final resource outputs from the live rollout.",
+      "The April 2026 run provisioned 12 resources with azd and replaced unavailable S1 capacity with P0v3. Application checks returned HTTP 503. Current APEX requires approval for such changes.",
+    focus: "Compare provisioning results, application-health failures, and the recorded SKU change.",
     sections: ["Preflight checks", "Deployment phases", "Outputs"],
   },
   {
     id: "as-built",
-    label: "Step 7 — As-Built Docs",
+    label: "Step 7: As-built records",
     slug: "demo/08-as-built",
     items: [
       { label: "Overview", slug: "demo/08-as-built" },
@@ -187,7 +187,7 @@ const stepDefinitions = [
     summary:
       "Post-deployment documentation: design document, resource inventory, operations runbook, backup/DR plan, compliance matrix, and cost estimate.",
     focus:
-      "This is the handover step for operators and stakeholders who need to understand what was delivered and how to run it safely.",
+      "Read the observed inventory, cost assumptions, failed health checks, and open operational work.",
     sections: ["Design", "Resources", "Operations", "Compliance", "Cost"],
   },
   {
@@ -210,8 +210,8 @@ const stepDefinitions = [
     agent: "Challenger Agent",
     artifact: "Cross-step findings",
     summary:
-      "Four independent adversarial reviews found 1 critical (ACR SKU mismatch), 2 high, 10 medium, and 13 low findings across all workflow steps.",
-    focus: "See where the system pushed back, what it caught, and how adversarial review improves the final output.",
+      "Four review records report 1 critical ACR SKU mismatch, 2 high, 10 medium, and 13 low findings.",
+    focus: "Inspect findings, severities, and recorded resolutions without assuming every issue was closed.",
     sections: ["Requirements", "Architecture", "Governance", "Implementation"],
   },
 ];
@@ -223,7 +223,7 @@ export const demoSteps = stepDefinitions.map((step) => ({
 
 export const demoStats = [
   { label: "Workflow steps", value: "7 + governance" },
-  { label: "Challenge passes", value: "4 reviews" },
+  { label: "Recorded reviews", value: "4" },
   { label: "IaC track", value: "Bicep + AVM" },
   { label: "Primary region", value: "Sweden Central" },
 ];

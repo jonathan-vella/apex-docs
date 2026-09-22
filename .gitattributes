@@ -1,0 +1,2 @@
+# Preserve imported SVG bytes on Windows as required by the migration checks.
+*.svg -text

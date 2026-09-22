@@ -1,12 +1,12 @@
 ---
-title: "SKU Manifest"
+title: "SKU manifest"
 description: "Single source of truth for creative Azure SKU decisions across environments and regions"
 ---
 
-## What is the SKU Manifest?
+## What is the SKU manifest?
 
 `agent-output/{project}/sku-manifest.{json,md}` is the per-project,
-mutable source of truth for **creative SKU decisions** — App Service
+record of selected Azure SKUs, including App Service
 plans, VMs / VMSS, SQL, Cosmos, AKS node pools, Redis, APIM, App
 Gateway, and Storage replication tiers.
 
@@ -16,19 +16,19 @@ programmatically. They never re-derive SKUs from artifact prose.
 
 ## Why a manifest?
 
-Three problems the manifest solves:
+The manifest records choices separately from narrative artifacts:
 
-1. **Single source of truth** — pre-manifest, SKU choices lived in
+1. SKU choices previously lived in
    prose across `02-architecture-assessment.md`,
    `04-implementation-plan.md`, and IaC code. Drift between them was
    common.
-2. **Multi-environment / multi-region first-class** — environments
+2. Environments
    (dev/test/prod) and regions (primary + failover) get explicit shape
    without duplicating the whole assessment per env.
-3. **Cost-pricing writeback** — `cost-estimate-subagent` patches
+3. `cost-estimate-subagent` patches
    `cost_estimate_monthly_usd` per service via the same atomic-write
-   discipline as governance constraints. Architects never type prices
-   from parametric knowledge.
+   discipline as governance constraints. This is not a transaction across all
+   project artifacts. Architects must not substitute remembered prices.
 
 ## Scope: what belongs
 
@@ -53,10 +53,10 @@ non-manifest entries.
 
 | Step | Agent             | Action                                                              |
 | ---- | ----------------- | ------------------------------------------------------------------- |
-| 1    | `02-Requirements` | Rev 1 — **user pins only**. Empty `services[]` is the common case   |
-| 2    | `03-Architect`    | Rev 2 — full authoring from priced `candidate_sets[]`               |
+| 1    | `02-Requirements` | Rev 1 records user pins. `services[]` may be empty. |
+| 2    | `03-Architect`    | Rev 2 authors choices from priced `candidate_sets[]`. |
 | 3.5  | `04g-Governance`  | Emits findings against the manifest (read-only)                     |
-| 4    | `05-IaC Planner`  | Rev 3 — reconciles findings; runs `requires[]` cross-check          |
+| 4    | `05-IaC Planner`  | Rev 3 reconciles findings and checks `requires[]`. |
 | 5    | `06b`/`06t`       | Reads JSON; resolves IaC via `iac_logical_names.{bicep\|terraform}` |
 | 6    | `07b`/`07t`       | Pre-flight quota/region. Substitutions via block-with-escalation    |
 | 7    | `08-As-Built`     | Bidirectional drift: manifest ↔ Azure ↔ IaC; writes `actual_sku`    |
@@ -69,14 +69,14 @@ session state:
 
 Every entry has a `source`:
 
-- **`user-pin`** — a hard constraint the user volunteered at Step 1.
+- `user-pin` is a hard constraint the user volunteered at Step 1.
   Never auto-changed downstream. If a planner or deploy step needs to
   alter a pinned SKU, the workflow escalates to the Architect via the
   step-N → step-2 return edge.
-- **`architect-derived`** — chosen by `03-Architect` at Step 2 from
+- `architect-derived` identifies a choice by `03-Architect` at Step 2 from
   priced `candidate_sets[]`. Reconciled by the Planner at Step 4 for
   governance compliance; `source` stays `architect-derived`.
-- **`deploy-substitute`** — substituted at Step 6 when quota or
+- `deploy-substitute` records a substitution at Step 6 when quota or
   regional capacity forces a change. Always paired with an
   `decisions.sku_overrides[]` entry recording the escalation
   resolution.
@@ -99,7 +99,7 @@ The Architect's workflow at Step 2 is:
 4. Write rev 2 to the manifest.
 5. Call cost-estimate in Mode B for deterministic price writeback.
 
-## Block-with-escalation (Step 6)
+## Block-with-escalation (step 6)
 
 When pre-flight quota or regional SKU availability fails:
 
@@ -107,10 +107,9 @@ When pre-flight quota or regional SKU availability fails:
    the `apex-azure-quotas` skill) to the human through the orchestrator.
 2. The human chooses one of four `sku_conflict_resolution` enum values:
    `revert_to_plan` / `accept_substitute` / `change_region` / `abort`.
-3. After N=3 round-trips with no acceptable substitute, `abort`
-   surfaces as an explicit option — no silent deadlock.
+3. The workflow must expose an explicit abort option when the conflict remains unresolved.
 4. On resolution, the deploy agent appends to `decisions.sku_overrides[]`
-   (an array — never dynamic keys) and writes a new manifest revision
+   as an array entry, not a dynamic key, and writes a new manifest revision
    with `source: "deploy-substitute"`.
 
 ## Validators
@@ -122,9 +121,9 @@ When pre-flight quota or regional SKU availability fails:
 | `derive:sku-allowlist`      | Projects `04-governance-constraints.json` into the manifest's `sku_allowlist_snapshot`                  |
 
 Both validators **hard-fail** on errors. The coverage validator runs
-diff-aware in pre-push to keep CI fast. Legacy projects opt out by
-dropping a `.sku-manifest.skip` sentinel into their
-`agent-output/{project}/` directory.
+diff-aware in pre-push to keep CI fast. The legacy `.sku-manifest.skip` sentinel is a compatibility mechanism, not a
+routine way to bypass a failed manifest check. Any exception needs explicit scope
+and review.
 
 ## Governance allowlist projection
 
@@ -133,7 +132,7 @@ after Step 3.5 (governance) discovery. The script translates Deny-effect policie
 `azurePropertyPath` ending in `.sku.name` / `.skuName` / `.sku_name` /
 `.vmSize` into the manifest's `sku_allowlist_snapshot`. The downstream
 validator cross-checks `services[].size` against the projection. The
-derive script is idempotent — re-running on unchanged input is a no-op.
+derive script makes no change when re-run on unchanged input.
 
 ## Pricing freshness
 

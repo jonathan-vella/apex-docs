@@ -1,28 +1,22 @@
 ---
-title: "MCP Server Integration"
+title: "MCP server integration"
 description: "MCP servers for Azure operations, pricing, and repository context"
 ---
 
 The Model Context Protocol (MCP) lets APEX agents discover and invoke external
-tools through a consistent interface. Workspace servers are declared in
-`.vscode/mcp.json`; the Azure MCP extension contributes additional tools from
-VS Code.
+tools through a common interface. The workspace declares its servers in
+`.vscode/mcp.json`. Azure MCP runs as a workspace stdio process, not an additional
+Azure MCP extension pack.
 
 ## Architecture
 
-```mermaid
-flowchart LR
-  A["APEX agent"] --> ARM["Azure Resource Manager MCP"]
-  A --> AZ["Azure MCP extension"]
-  A --> GH["GitHub MCP"]
-  ARM --> RP["Retail Prices and Cost Management"]
-  ARM --> RM["Azure Resource Manager"]
-  AZ --> L["Microsoft Learn and Azure services"]
-  GH --> G["GitHub API"]
-```
+The selected agent calls tools permitted by its definition. Hosted ARM MCP provides
+pricing and cost queries. Workspace Azure MCP provides Azure service tools.
+GitHub MCP provides repository context. Each integration has its own authentication
+and authorization requirements.
 
-Agents receive only the MCP tools declared in their frontmatter. Registering a
-server does not grant every agent permission to every tool.
+Registering a server does not authorize every agent to use every tool.
+Inspect the current configuration and the selected agent's declarations together.
 
 ## Azure Resource Manager MCP
 
@@ -34,7 +28,7 @@ for Azure retail pricing and cost management.
 | --- | --- |
 | Transport | HTTP |
 | Endpoint | `https://mcp.management.azure.com` |
-| Toolset | `CostManagement` |
+| Toolsets | `CostManagement, Pricing` |
 | Authentication | Signed-in VS Code Azure identity |
 | APEX scope | Read-only pricing and cost tools |
 
@@ -47,15 +41,15 @@ The workspace configuration is:
       "type": "http",
       "url": "https://mcp.management.azure.com",
       "headers": {
-        "x-mcp-toolset": "CostManagement"
+        "x-mcp-toolset": "CostManagement, Pricing"
       }
     }
   }
 }
 ```
 
-The server is currently a preview supported by GitHub Copilot Chat in VS Code
-and GitHub Copilot CLI. Open [the installation link](https://aka.ms/JoinARMMCP)
+Follow the hosted server's current client-support documentation. Open
+[the installation link](https://aka.ms/JoinARMMCP)
 when VS Code requires interactive registration, then sign in with the Azure
 identity whose permissions should apply.
 
@@ -78,8 +72,8 @@ meter and calculates totals from `retailPrice`, `unitOfMeasure`, quantity, and
 explicit usage. It deduplicates identical queries and fails closed when a meter
 or usage assumption is ambiguous.
 
-Although the hosted server also exposes deployment, resource mutation, budget
-creation, and other ARM tools, the cost subagent cannot call them.
+Deployment, resource mutation, and budget creation are outside the cost subagent's
+permitted scope. Do not treat server registration as approval for those operations.
 
 ### Migration limitations
 
@@ -95,17 +89,17 @@ See Microsoft's
 [Cost Management and Pricing tools](https://github.com/Azure/Azure-Resource-Manager-MCP/blob/main/docs/CostManagementAndPricingTools.md)
 for current tool schemas and supported scopes.
 
-## Azure MCP Server
+## Azure MCP server
 
-Azure MCP runs as a workspace stdio server through `npx @azure/mcp@latest
-server start` in `.vscode/mcp.json`. This avoids installing an Azure extension
+At the site's source pin, Azure MCP runs as a workspace stdio server through
+`npx -y @azure/mcp@2.0.5 server start` in `.vscode/mcp.json`. This avoids installing an Azure extension
 pack and its unrelated transitive extensions.
 
 Agents use it for governance discovery, Azure service inspection, Microsoft
 Learn searches, and Azure Terraform guidance. It uses Azure CLI or managed
-identity credentials as supported by the extension.
+identity credentials as supported by the server.
 
-## Other Servers
+## Other servers
 
 | Server | Transport | Purpose |
 | --- | --- | --- |
@@ -126,7 +120,8 @@ npm run lint:mcp-config
 In VS Code, run **MCP: List Servers**, select
 `azure-resource-manager-mcp`, and restart it after configuration changes. In
 Chat's tool picker, verify that `get_retail_prices` appears. Optional Cost
-Management tools appear because the workspace sends the `CostManagement` header.
+Management and pricing toolsets are requested by the configuration header.
+Actual tool availability still depends on the server and client session.
 
 ## Authentication
 
@@ -134,8 +129,8 @@ Management tools appear because the workspace sends the `CostManagement` header.
 | --- | --- |
 | Azure Resource Manager MCP | Signed-in VS Code Azure identity for scoped tools; retail prices are public |
 | Azure MCP server | Azure CLI or managed identity |
-| GitHub MCP | GitHub Copilot token |
-| Terraform | None |
+| GitHub MCP | Client-managed GitHub authentication |
+| Public Terraform Registry lookups | No Azure credentials required |
 
 Authentication and authorization failures must be surfaced to the user. Agents
 must not fall back to remembered prices or expose tokens, tenant details, or
@@ -146,7 +141,7 @@ other credentials.
 | Symptom | Action |
 | --- | --- |
 | ARM MCP tools are missing | Install through `https://aka.ms/JoinARMMCP`, then restart the server |
-| Cost tools are missing | Confirm `x-mcp-toolset` is `CostManagement` |
+| Cost tools are missing | Compare `x-mcp-toolset` with the pinned `CostManagement, Pricing` configuration |
 | Azure scope is denied | Sign in with an identity that has the required read permissions |
 | Retail query returns many rows | Add ARM SKU, region, meter, price-type, or currency filters |
 | Configuration is rejected | Run `npm run lint:mcp-config` and compare `.vscode/mcp.json` |
