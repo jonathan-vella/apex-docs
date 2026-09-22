@@ -1,0 +1,44 @@
+# Build and automatically verify the documentation without publishing it.
+name: Docs CI
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: docs-ci-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: npm
+      - run: npm ci
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+      - run: sudo apt-get update && sudo apt-get install -y graphviz
+      - run: npm run test:setup
+      - run: npm run source:prepare
+      - run: npm run build
+      - run: npm run check:links
+      - run: npm test
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:browser
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: docs-test-evidence
+          path: |
+            playwright-report/
+            test-results/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: docs-preview
+          path: dist/
