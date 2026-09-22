@@ -16,7 +16,8 @@ test("docs container targets amd64 with isolated Python and browser prerequisite
   const dockerfile = read(".devcontainer/Dockerfile");
   assert.match(dockerfile, /FROM node:24-bookworm-slim AS node/);
   assert.match(dockerfile, /FROM python:3\.14-slim-bookworm/);
-  assert.match(dockerfile, /python3 -m venv \/opt\/venv/);
+  assert.match(dockerfile, /python3 -m venv \/home\/vscode\/\.venv/);
+  assert.equal(config.customizations.vscode.settings["python.defaultInterpreterPath"], "/home/vscode/.venv/bin/python");
   assert.match(dockerfile, /git graphviz/);
   assert.match(dockerfile, /playwright install-deps chromium/);
   assert.match(dockerfile, /packages\["node_modules\/@playwright\/test"\]\.version/);

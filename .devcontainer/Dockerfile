@@ -11,8 +11,8 @@ RUN ln -s ../lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
     && useradd --create-home --shell /bin/bash vscode \
     && printf 'vscode ALL=(root) NOPASSWD:ALL\n' > /etc/sudoers.d/vscode \
     && chmod 0440 /etc/sudoers.d/vscode \
-    && python3 -m venv /opt/venv \
-    && chown -R vscode:vscode /opt/venv \
+    && python3 -m venv /home/vscode/.venv \
+    && chown -R vscode:vscode /home/vscode \
     && rm -rf /var/lib/apt/lists/*
 
 COPY package-lock.json /tmp/docs-package-lock.json
@@ -22,6 +22,6 @@ RUN PLAYWRIGHT_VERSION=$(node -p 'require("/tmp/docs-package-lock.json").package
     && rm -f /tmp/docs-package-lock.json \
     && rm -rf /var/lib/apt/lists/*
 
-ENV PATH="/opt/venv/bin:${PATH}" \
+ENV PATH="/home/vscode/.venv/bin:${PATH}" \
     PIP_DISABLE_PIP_VERSION_CHECK=1
 USER vscode
