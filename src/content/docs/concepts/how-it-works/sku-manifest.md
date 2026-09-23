@@ -104,7 +104,8 @@ The Architect's workflow at Step 2 is:
 When pre-flight quota or regional SKU availability fails:
 
 1. Deploy agent surfaces the conflict and available substitutes (via
-   the `apex-azure-quotas` skill) to the human through the orchestrator.
+   the `apex-azure-quotas` SKU availability check, which reports `AVAILABLE`,
+   `RESTRICTED`, `NOT_OFFERED` or `UNKNOWN`) to the human through the orchestrator.
 2. The human chooses one of four `sku_conflict_resolution` enum values:
    `revert_to_plan` / `accept_substitute` / `change_region` / `abort`.
 3. The workflow must expose an explicit abort option when the conflict remains unresolved.
