@@ -62,10 +62,74 @@ diagnostic settings, AVM-TF module composition, and known AVM pitfalls.
 ### apex-azure-diagnostics
 
 KQL templates, metric thresholds, health checks, and remediation playbooks
-for diagnosing Azure resource issues.
+for diagnosing Azure resource issues, including AKS, VM connectivity, App Service
+and messaging troubleshooting guides. Its helper scripts only read state, except the
+AKS Inspektor Gadget trace, which runs only with explicit approval. AKS design questions
+belong to `apex-azure-kubernetes`.
 
 ```text
 @workspace What KQL queries are available in apex-azure-diagnostics?
+```
+
+### apex-azure-kubernetes
+
+Day-0 AKS design advice: Automatic or Standard, networking, identity, observability,
+node pools, autoscaling and Spot. It inspects existing clusters read-only and hands
+cluster changes to the IaC agents. 03-Architect and 05-IaC Planner read it when AKS
+is in scope.
+
+```text
+Use apex-azure-kubernetes to compare AKS Automatic and Standard for a production API.
+```
+
+### apex-azure-reliability
+
+Read-only reliability assessment for App Service and Azure Functions: zone redundancy,
+zone-redundant storage, health probes and multi-region failover. It returns findings
+that 08-As-Built and 09-Diagnose write into their existing artifacts. It never applies
+fixes or deploys.
+
+```text
+Use apex-azure-reliability to assess zone redundancy and failover for rg-myapp-prod.
+```
+
+### apex-azure-upgrade
+
+Assesses in-Azure upgrades of existing workloads: Functions Consumption to Flex
+Consumption, and Azure Cache for Redis to Azure Managed Redis. It produces a readiness
+assessment and an IaC target mapping; new resources ship through the normal workflow.
+
+```text
+Use apex-azure-upgrade to check whether func-orders-prod is ready for Flex Consumption.
+```
+
+### apex-azure-quotas
+
+Checks quota headroom and regional SKU availability. The SKU availability check reports
+`AVAILABLE`, `RESTRICTED`, `NOT_OFFERED` or `UNKNOWN`; the deploy agents run it before
+deployment and escalate conflicts.
+
+```text
+Use apex-azure-quotas to check whether Standard_D4s_v5 is available in swedencentral.
+```
+
+### apex-azure-cost-optimization
+
+Finds savings from actual cost and utilization data. It queries and forecasts costs
+through the Azure Resource Manager MCP tools, prices alternatives through retail prices,
+and writes reports to `agent-output/{project}/`.
+
+```text
+Use apex-azure-cost-optimization to show last month's cost by service for rg-myapp-prod.
+```
+
+### apex-azure-cloud-migrate
+
+Assesses AWS, GCP or other workloads for Azure and converts code. Deployment hands off
+to `apex-azure-prepare` and the IaC workflow instead of running CLI deployment guides.
+
+```text
+Use apex-azure-cloud-migrate to assess my AWS Lambda functions for Azure Functions.
 ```
 
 ### apex-azure-adr

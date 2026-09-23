@@ -19,6 +19,11 @@ uses
 [`cost-estimate-subagent`](https://github.com/jonathan-vella/apex/blob/main/.github/agents/_subagents/cost-estimate-subagent.agent.md)
 for pricing work permitted by the agent definition.
 
+Pillar evidence starts from the Well-Architected service guide for each in-scope service,
+found through the Azure MCP server and cited as the Microsoft Learn page. The agent also
+reads `apex-azure-kubernetes` when AKS is a candidate, and `apex-azure-upgrade` when the
+workload keeps an existing Functions Consumption app or Azure Cache for Redis instance.
+
 ## Invocation
 
 ```text
@@ -55,6 +60,7 @@ After resolving findings and approving the architecture, select
 ## See also
 
 - [Azure WAF pillars](https://learn.microsoft.com/azure/well-architected/)
+- [Well-Architected service guides](https://learn.microsoft.com/azure/well-architected/service-guides/)
 - [Cost estimate
   subagent](https://github.com/jonathan-vella/apex/blob/main/.github/agents/_subagents/cost-estimate-subagent.agent.md)
   for the pricing workflow.
