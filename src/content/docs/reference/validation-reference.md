@@ -238,6 +238,7 @@ All workflows are in `.github/workflows/`.
 | Branch Enforcement        | `branch-enforcement.yml`        | PR to `main`                 | Branch naming convention and scope validation                                                      |
 | Consumer Template Checks | `consumer-template-checks.yml` | Configured template checks | Validate consumer-template behavior |
 | Dev Container Base Validation | `validate-devcontainer-base.yml` | Relevant PR changes or manual dispatch | Compare candidate container bases on native architectures |
+| Upstream Skill Drift | `upstream-skill-drift.yml` | Weekly (Monday 06:00 UTC) or manual dispatch | Compare the reviewed `microsoft/azure-skills` tag with the latest release (`npm run report:upstream-skills`) and keep one labelled issue up to date; never edits skills |
 
 The apex-docs repository owns the site's build and publishing workflows.
 Product validation does not publish documentation.

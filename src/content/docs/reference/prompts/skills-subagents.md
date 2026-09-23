@@ -117,7 +117,8 @@ Use apex-azure-quotas to check whether Standard_D4s_v5 is available in swedencen
 
 Finds savings from actual cost and utilization data. It queries and forecasts costs
 through the Azure Resource Manager MCP tools, prices alternatives through retail prices,
-and writes reports to `agent-output/{project}/`.
+and writes reports to `agent-output/{project}/`. It falls back to the REST APIs only when an
+MCP tool is unavailable, and storage findings start from Azure Advisor recommendations.
 
 ```text
 Use apex-azure-cost-optimization to show last month's cost by service for rg-myapp-prod.
