@@ -1,6 +1,6 @@
 {
   "$schema": "../../tools/schemas/explorer-graph.schema.json",
-  "generatedAt": "2026-09-22T13:37:42.162Z",
+  "generatedAt": "2026-09-24T15:01:07.089Z",
   "categories": [
     {
       "id": "agent",
@@ -24,7 +24,7 @@
       "label": "Skill",
       "color": "#10b981",
       "shape": "ellipse",
-      "count": 36
+      "count": 39
     },
     {
       "id": "instruction",
@@ -40,7 +40,7 @@
       "label": "Prompt",
       "color": "#ec4899",
       "shape": "tag",
-      "count": 27
+      "count": 26
     },
     {
       "id": "validator",
@@ -48,7 +48,7 @@
       "label": "Validator",
       "color": "#8b5cf6",
       "shape": "hexagon",
-      "count": 63
+      "count": 62
     },
     {
       "id": "workflow",
@@ -56,7 +56,7 @@
       "label": "CI Workflow",
       "color": "#06b6d4",
       "shape": "cut-rectangle",
-      "count": 5
+      "count": 6
     },
     {
       "id": "mcp",
@@ -67,8 +67,8 @@
       "count": 3
     }
   ],
-  "nodeCount": 182,
-  "edgeCount": 702,
+  "nodeCount": 184,
+  "edgeCount": 729,
   "nodes": [
     {
       "id": "agent:01-orchestrator",
@@ -77,7 +77,7 @@
       "description": "Master orchestrator for the multi-step Azure platform engineering workflow. Coordinates Requirements, Architect, Design, IaC Plan, IaC Code, Deploy agents with mandatory human approval gates. Routes Bicep or Terraform tracks via decisions.iac_tool.",
       "path": ".github/agents/01-orchestrator.agent.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/agents/01-orchestrator.agent.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/agents/01-orchestrator.agent.md"
       },
       "meta": {
         "model": "MAI-Code-1.1-Flash",
@@ -116,10 +116,10 @@
       "description": "Researches and captures Azure platform engineering project requirements",
       "path": ".github/agents/02-requirements.agent.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/agents/02-requirements.agent.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/agents/02-requirements.agent.md"
       },
       "meta": {
-        "model": "GPT-5.6 Sol (copilot)",
+        "model": "GPT-6-Sol",
         "invocable": true,
         "disableModelInvocation": true,
         "argumentHint": "Describe the Azure workload or project you want to gather requirements for",
@@ -146,10 +146,10 @@
       "description": "Expert Architect providing guidance using Azure Well-Architected Framework principles and Microsoft best practices. Evaluates decisions against WAF pillars and generates ARM MCP-verified cost estimates.",
       "path": ".github/agents/03-architect.agent.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/agents/03-architect.agent.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/agents/03-architect.agent.md"
       },
       "meta": {
-        "model": "GPT-5.6 Sol (copilot)",
+        "model": "GPT-6-Sol",
         "invocable": true,
         "disableModelInvocation": true,
         "argumentHint": null,
@@ -168,7 +168,9 @@
         "skills": [
           "apex-azure-defaults",
           "apex-azure-artifacts",
-          "apex-context-management"
+          "apex-context-management",
+          "apex-azure-kubernetes",
+          "apex-azure-upgrade"
         ]
       }
     },
@@ -179,7 +181,7 @@
       "description": "Step 3 — Design Artifacts. Generates code-based Python architecture diagrams and Architecture Decision Records for approved Azure designs. Optional step before governance and IaC planning.",
       "path": ".github/agents/04-design.agent.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/agents/04-design.agent.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/agents/04-design.agent.md"
       },
       "meta": {
         "model": "GPT-5.6 Terra (copilot)",
@@ -211,10 +213,10 @@
       "description": "Azure governance discovery agent. Queries Azure Policy assignments via REST API (incl. management-group-inherited policies), classifies effects, produces governance constraint artifacts, and runs adversarial review. Step 3.5: after Architecture, before IaC Planning.",
       "path": ".github/agents/04g-governance.agent.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/agents/04g-governance.agent.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/agents/04g-governance.agent.md"
       },
       "meta": {
-        "model": "GPT-5.6 Luna (copilot)",
+        "model": "GPT-6-Luna",
         "invocable": true,
         "disableModelInvocation": true,
         "argumentHint": "Discover governance constraints for a project",
@@ -242,10 +244,10 @@
       "description": "Expert Azure IaC planner that creates comprehensive machine-readable implementation plans. Consults Microsoft documentation, evaluates Azure Verified Modules (Bicep or Terraform), designs full infrastructure solutions with architecture diagrams. Routes by decisions.iac_tool.",
       "path": ".github/agents/05-iac-planner.agent.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/agents/05-iac-planner.agent.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/agents/05-iac-planner.agent.md"
       },
       "meta": {
-        "model": "GPT-5.6 Sol (copilot)",
+        "model": "GPT-6-Sol",
         "invocable": true,
         "disableModelInvocation": true,
         "argumentHint": null,
@@ -267,6 +269,7 @@
           "apex-python-diagrams",
           "apex-azure-bicep-patterns",
           "apex-terraform-patterns",
+          "apex-azure-kubernetes",
           "apex-context-management"
         ]
       }
@@ -278,10 +281,10 @@
       "description": "Expert Azure Bicep IaC specialist that creates near-production-ready Bicep templates following Azure Verified Modules (AVM) standards. Validates, tests, and ensures code quality.",
       "path": ".github/agents/06b-bicep-codegen.agent.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/agents/06b-bicep-codegen.agent.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/agents/06b-bicep-codegen.agent.md"
       },
       "meta": {
-        "model": "GPT-5.6 Terra (copilot)",
+        "model": "GPT-6-Luna",
         "invocable": true,
         "disableModelInvocation": true,
         "argumentHint": null,
@@ -311,10 +314,10 @@
       "description": "Expert Azure Terraform IaC specialist that creates near-production-ready Terraform configurations following Azure Verified Modules (AVM-TF) standards. Validates, tests, and ensures code quality.",
       "path": ".github/agents/06t-terraform-codegen.agent.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/agents/06t-terraform-codegen.agent.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/agents/06t-terraform-codegen.agent.md"
       },
       "meta": {
-        "model": "GPT-5.6 Terra (copilot)",
+        "model": "GPT-6-Luna",
         "invocable": true,
         "disableModelInvocation": true,
         "argumentHint": null,
@@ -344,10 +347,10 @@
       "description": "Executes Azure deployments using generated Bicep templates. Uses azd provision (default; deploy.ps1 retained only for legacy projects without azure.yaml). Performs what-if analysis and manages deployment lifecycle. Step 6 of the agentic workflow.",
       "path": ".github/agents/07b-bicep-deploy.agent.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/agents/07b-bicep-deploy.agent.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/agents/07b-bicep-deploy.agent.md"
       },
       "meta": {
-        "model": "GPT-5.6 Luna (copilot)",
+        "model": "GPT-6-Luna",
         "invocable": true,
         "disableModelInvocation": true,
         "argumentHint": "Deploy the Bicep templates for a specific project",
@@ -378,10 +381,10 @@
       "description": "Executes Azure deployments using generated Terraform configurations. Runs bootstrap and deploy scripts, performs terraform plan preview, manages phase-aware deployment lifecycle. Step 6 of the agentic workflow.",
       "path": ".github/agents/07t-terraform-deploy.agent.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/agents/07t-terraform-deploy.agent.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/agents/07t-terraform-deploy.agent.md"
       },
       "meta": {
-        "model": "GPT-5.6 Luna (copilot)",
+        "model": "GPT-6-Luna",
         "invocable": true,
         "disableModelInvocation": true,
         "argumentHint": "Deploy the Terraform configuration for a specific project",
@@ -412,7 +415,7 @@
       "description": "Generates Step 7 as-built documentation suite after successful deployment. Reads all prior artifacts (Steps 1-6) and deployed resource state to produce: design document, operations runbook, cost estimate, compliance matrix, backup/DR plan, resource inventory, and documentation index.",
       "path": ".github/agents/08-as-built.agent.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/agents/08-as-built.agent.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/agents/08-as-built.agent.md"
       },
       "meta": {
         "model": "GPT-5.6 Terra (copilot)",
@@ -431,7 +434,8 @@
           "apex-azure-defaults",
           "apex-azure-artifacts",
           "apex-python-diagrams",
-          "apex-context-management"
+          "apex-context-management",
+          "apex-azure-reliability"
         ]
       }
     },
@@ -439,10 +443,10 @@
       "id": "agent:09-diagnose",
       "category": "agent",
       "label": "09-Diagnose",
-      "description": "Interactive diagnostic agent that guides users through Azure resource health assessment, issue identification, and remediation planning. Approval-first execution, single-resource scope, reports to agent-output/{project}/.",
+      "description": "Interactive diagnostic agent that guides users through Azure resource health assessment, issue identification, and remediation planning. Scope-first execution with approval for every change, single-resource scope, reports to agent-output/{project}/.",
       "path": ".github/agents/09-diagnose.agent.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/agents/09-diagnose.agent.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/agents/09-diagnose.agent.md"
       },
       "meta": {
         "model": "GPT-5.6 Terra (copilot)",
@@ -459,7 +463,8 @@
         ],
         "skills": [
           "apex-azure-defaults",
-          "apex-azure-diagnostics"
+          "apex-azure-diagnostics",
+          "apex-azure-reliability"
         ]
       }
     },
@@ -470,10 +475,10 @@
       "description": "Standalone adversarial review wrapper. Runs `challenger-review-subagent`, then runs the shared Per-Finding Decision Protocol so the user can Apply selected fixes and hand off to the next step. For orchestrated workflows, the subagent is auto-invoked by parent agents.",
       "path": ".github/agents/10-challenger.agent.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/agents/10-challenger.agent.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/agents/10-challenger.agent.md"
       },
       "meta": {
-        "model": "GPT-5.6 Terra (copilot)",
+        "model": "GPT-6-Luna",
         "invocable": true,
         "disableModelInvocation": true,
         "argumentHint": "Provide the path to the artifact to challenge (e.g. agent-output/my-project/04-implementation-plan.md)",
@@ -494,10 +499,10 @@
       "description": "Analyzes Copilot Chat debug logs to audit context-window utilization across agents. Identifies bloated prompts, redundant file reads, missing hand-off points, and wasted tokens. Produces actionable optimization reports. Recommendations only — never edits agents.",
       "path": ".github/agents/11-context-optimizer.agent.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/agents/11-context-optimizer.agent.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/agents/11-context-optimizer.agent.md"
       },
       "meta": {
-        "model": "GPT-5.6 Sol (copilot)",
+        "model": "Claude Opus 5.5",
         "invocable": true,
         "disableModelInvocation": true,
         "argumentHint": null,
@@ -519,10 +524,10 @@
       "description": "Bicep validation subagent. Runs lint (bicep lint + build) first, then code review (AVM standards, naming, security baseline, governance). Returns PASS/FAIL + APPROVED/NEEDS_REVISION/FAILED verdict.",
       "path": ".github/agents/_subagents/bicep-validate-subagent.agent.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/agents/_subagents/bicep-validate-subagent.agent.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/agents/_subagents/bicep-validate-subagent.agent.md"
       },
       "meta": {
-        "model": "GPT-5.6 Luna (copilot)",
+        "model": "GPT-6-Luna",
         "invocable": false,
         "disableModelInvocation": false,
         "argumentHint": null,
@@ -540,10 +545,10 @@
       "description": "Bicep deployment preview subagent. Runs az deployment group what-if to preview changes. Analyzes policy violations, resource changes, cost impact. Returns structured summary.",
       "path": ".github/agents/_subagents/bicep-whatif-subagent.agent.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/agents/_subagents/bicep-whatif-subagent.agent.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/agents/_subagents/bicep-whatif-subagent.agent.md"
       },
       "meta": {
-        "model": "GPT-5.6 Luna (copilot)",
+        "model": "GPT-6-Luna",
         "invocable": false,
         "disableModelInvocation": false,
         "argumentHint": null,
@@ -558,10 +563,10 @@
       "description": "Unified adversarial review subagent that challenges Azure infrastructure artifacts. Finds untested assumptions, governance gaps, WAF blind spots, and architectural weaknesses. Returns structured JSON findings. Supports single-pass and multi-pass rotating-lens reviews; batches lenses per invocation.",
       "path": ".github/agents/_subagents/challenger-review-subagent.agent.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/agents/_subagents/challenger-review-subagent.agent.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/agents/_subagents/challenger-review-subagent.agent.md"
       },
       "meta": {
-        "model": "GPT-5.6 Terra (copilot)",
+        "model": "GPT-6-Luna",
         "invocable": false,
         "disableModelInvocation": false,
         "argumentHint": null,
@@ -579,10 +584,10 @@
       "description": "Azure cost estimation subagent. Uses Azure Resource Manager MCP retail pricing and cost data, then returns a structured cost breakdown through a file-based contract.",
       "path": ".github/agents/_subagents/cost-estimate-subagent.agent.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/agents/_subagents/cost-estimate-subagent.agent.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/agents/_subagents/cost-estimate-subagent.agent.md"
       },
       "meta": {
-        "model": "GPT-5.6 Luna (copilot)",
+        "model": "GPT-6-Luna",
         "invocable": false,
         "disableModelInvocation": false,
         "argumentHint": null,
@@ -597,10 +602,10 @@
       "description": "Live Azure Policy precheck subagent (L3). Cross-checks live policy state vs governance constraints, runs what-if/plan validation, returns deterministic deploy_gate (PROCEED|BLOCK) + status (CLEAN|INFORMATIONAL|BLOCKED|FAILED) for Deploy agents (07b/07t).",
       "path": ".github/agents/_subagents/policy-precheck-subagent.agent.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/agents/_subagents/policy-precheck-subagent.agent.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/agents/_subagents/policy-precheck-subagent.agent.md"
       },
       "meta": {
-        "model": "GPT-5.6 Luna (copilot)",
+        "model": "GPT-6-Luna",
         "invocable": false,
         "disableModelInvocation": false,
         "argumentHint": null,
@@ -615,10 +620,10 @@
       "description": "Terraform deployment preview subagent. Runs terraform plan to preview changes before deployment. Classifies resources into create/update/destroy/replace, highlights destructive ops, returns structured change summary.",
       "path": ".github/agents/_subagents/terraform-plan-subagent.agent.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/agents/_subagents/terraform-plan-subagent.agent.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/agents/_subagents/terraform-plan-subagent.agent.md"
       },
       "meta": {
-        "model": "GPT-5.6 Luna (copilot)",
+        "model": "GPT-6-Luna",
         "invocable": false,
         "disableModelInvocation": false,
         "argumentHint": null,
@@ -633,10 +638,10 @@
       "description": "Terraform validation subagent. Runs lint (fmt -check, validate) first, then code review (AVM-TF standards, naming, security baseline, RBAC, governance). Returns PASS/FAIL + APPROVED/NEEDS_REVISION/FAILED verdict.",
       "path": ".github/agents/_subagents/terraform-validate-subagent.agent.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/agents/_subagents/terraform-validate-subagent.agent.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/agents/_subagents/terraform-validate-subagent.agent.md"
       },
       "meta": {
-        "model": "GPT-5.6 Luna (copilot)",
+        "model": "GPT-6-Luna",
         "invocable": false,
         "disableModelInvocation": false,
         "argumentHint": null,
@@ -654,7 +659,7 @@
       "description": "**WORKFLOW SKILL** — Creates, restructures, and audits GitHub Copilot `.agent.md` and `.prompt.md` files with correct frontmatter, handoffs, model policy, context budgets, and validation. WHEN: \"create agent\", \"author custom agent\", \"edit agent definition\", \"agent architecture\", \"reduce agent tokens\", \"agent prompt audit\". DO NOT USE FOR: routine edits covered by auto-loaded instructions.",
       "path": ".github/skills/apex-agent-authoring/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/skills/apex-agent-authoring/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/skills/apex-agent-authoring/SKILL.md"
       },
       "meta": {
         "invocable": true,
@@ -670,7 +675,7 @@
       "description": "**ANALYSIS SKILL** — Creates Azure Architecture Decision Records (ADRs) with WAF pillar mapping, alternatives, and consequences. WHEN: \"create ADR\", \"document decision\", \"architecture decision record\", \"record why we chose\", \"WAF pillar justification\", \"trade-off analysis\". DO NOT USE FOR: IaC code (06b/06t agents), diagrams (apex-python-diagrams), cost estimates (cost-estimate-subagent).",
       "path": ".github/skills/apex-azure-adr/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/skills/apex-azure-adr/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/skills/apex-azure-adr/SKILL.md"
       },
       "meta": {
         "invocable": true,
@@ -686,7 +691,7 @@
       "description": "**UTILITY SKILL** — Artifact template structures, H2 compliance rules, and documentation styling for agent outputs (Steps 1-7). WHEN: \"generate artifact\", \"check H2 structure\", \"artifact template\", \"step 7 as-built\". USE FOR: generating any agent artifact, checking H2 structure compliance. DO NOT USE FOR: Azure resource configuration (use apex-azure-defaults), Bicep/Terraform patterns (use apex-azure-bicep-patterns or apex-terraform-patterns).",
       "path": ".github/skills/apex-azure-artifacts/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/skills/apex-azure-artifacts/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/skills/apex-azure-artifacts/SKILL.md"
       },
       "meta": {
         "invocable": false,
@@ -702,7 +707,7 @@
       "description": "**UTILITY SKILL** — Reusable Azure Bicep patterns: hub-spoke, private endpoints, diagnostics, AVM composition. WHEN: \"hub-spoke Bicep\", \"private endpoint module\", \"diagnostic settings\", \"AVM Bicep composition\". USE FOR: Bicep template design, hub-spoke networking, private endpoint patterns, AVM modules. DO NOT USE FOR: Terraform code (use apex-terraform-patterns), architecture decisions (use apex-azure-adr), troubleshooting, diagrams (use apex-python-diagrams).",
       "path": ".github/skills/apex-azure-bicep-patterns/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/skills/apex-azure-bicep-patterns/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/skills/apex-azure-bicep-patterns/SKILL.md"
       },
       "meta": {
         "invocable": false,
@@ -715,10 +720,10 @@
       "id": "skill:apex-azure-cloud-migrate",
       "category": "skill",
       "label": "apex-azure-cloud-migrate",
-      "description": "**WORKFLOW SKILL** — Assess and migrate cross-cloud workloads to Azure. Generates assessment reports and converts code from AWS, GCP, or other providers to Azure services. WHEN: \"migrate Lambda to Azure Functions\", \"migrate AWS to Azure\", \"convert AWS serverless to Azure\", \"migration readiness report\", \"cross-cloud migration\". DO NOT USE FOR: greenfield Azure deployment (apex-azure-prepare), Azure-only refactor (apex-azure-prepare).",
+      "description": "**WORKFLOW SKILL** — Assess and migrate cross-cloud workloads to Azure: assessments and code conversion from AWS, GCP, Heroku, Kubernetes or Spring. WHEN: \"migrate Lambda to Azure Functions\", \"migrate AWS to Azure\", \"migrate Heroku to App Service\", \"migrate GKE to Container Apps\", \"migration readiness report\". DO NOT USE FOR: greenfield deployment or Azure-only refactor (apex-azure-prepare).",
       "path": ".github/skills/apex-azure-cloud-migrate/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/skills/apex-azure-cloud-migrate/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/skills/apex-azure-cloud-migrate/SKILL.md"
       },
       "meta": {
         "invocable": true,
@@ -734,7 +739,7 @@
       "description": "**ANALYSIS SKILL** — Azure compliance and security auditing: best practices, Key Vault expiration monitoring, resource validation. WHEN: \"compliance scan\", \"security audit\", \"Key Vault expiration check\", \"expired certificates\", \"orphaned resources\". DO NOT USE FOR: cost analysis (apex-azure-cost-optimization), governance discovery (apex-azure-governance-discovery).",
       "path": ".github/skills/apex-azure-compliance/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/skills/apex-azure-compliance/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/skills/apex-azure-compliance/SKILL.md"
       },
       "meta": {
         "invocable": true,
@@ -750,7 +755,7 @@
       "description": "**ANALYSIS SKILL** — Recommend Azure VM sizes and VMSS for workload, performance, and budget. Uses public docs and the Azure Retail Prices API. WHEN: \"recommend VM size\", \"choose Azure VM\", \"GPU VM\", \"compare VM sizes\", \"VMSS vs VM\", \"autoscale VMs\". DO NOT USE FOR: provisioning VMs (apex-azure-prepare), VM pricing for budgets (ARM MCP).",
       "path": ".github/skills/apex-azure-compute/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/skills/apex-azure-compute/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/skills/apex-azure-compute/SKILL.md"
       },
       "meta": {
         "invocable": true,
@@ -763,10 +768,10 @@
       "id": "skill:apex-azure-cost-optimization",
       "category": "skill",
       "label": "apex-azure-cost-optimization",
-      "description": "**ANALYSIS SKILL** — Identify cost savings across Azure subscriptions via cost + utilization analysis. WHEN: \"optimize Azure costs\", \"reduce Azure spending\", \"find cost savings\", \"rightsize VMs\", \"find orphaned resources\", \"optimize Redis costs\". DO NOT USE FOR: deploying (apex-azure-deploy), general diagnostics (apex-azure-diagnostics), security issues (apex-azure-compliance).",
+      "description": "**ANALYSIS SKILL** — Query, forecast and optimize Azure costs via cost + utilization analysis. WHEN: \"optimize Azure costs\", \"find cost savings\", \"what did we spend\", \"cost forecast\", \"rightsize VMs\", \"find orphaned resources\", \"optimize Redis costs\". DO NOT USE FOR: deploying (apex-azure-deploy), general diagnostics (apex-azure-diagnostics), security issues (apex-azure-compliance).",
       "path": ".github/skills/apex-azure-cost-optimization/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/skills/apex-azure-cost-optimization/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/skills/apex-azure-cost-optimization/SKILL.md"
       },
       "meta": {
         "invocable": true,
@@ -782,7 +787,7 @@
       "description": "**UTILITY SKILL** — Applies canonical Azure defaults through an IaC workflow covering governance precedence, CAF naming, AVM-first composition, unique suffixes, cost monitoring, VNet planning, and lifecycle checks. WHEN: \"Azure naming convention\", \"CAF naming\", \"resource tags\", \"AVM module\", \"security baseline\", \"region default\". DO NOT USE FOR: artifact templates or pricing lookups.",
       "path": ".github/skills/apex-azure-defaults/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/skills/apex-azure-defaults/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/skills/apex-azure-defaults/SKILL.md"
       },
       "meta": {
         "invocable": false,
@@ -798,7 +803,7 @@
       "description": "**WORKFLOW SKILL** — Execute Azure deployments (azd up, azd deploy, terraform apply) for already-prepared apps with built-in error recovery. WHEN: 'run azd up', 'run azd deploy', 'push to production', 'go live', 'bicep deploy', 'terraform apply', 'publish to Azure'. DO NOT USE FOR: creating new apps (apex-azure-prepare), pre-deploy checks (apex-azure-validate).",
       "path": ".github/skills/apex-azure-deploy/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/skills/apex-azure-deploy/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/skills/apex-azure-deploy/SKILL.md"
       },
       "meta": {
         "invocable": true,
@@ -811,10 +816,10 @@
       "id": "skill:apex-azure-diagnostics",
       "category": "skill",
       "label": "apex-azure-diagnostics",
-      "description": "**WORKFLOW SKILL** — Debug and troubleshoot Azure production issues: Container Apps + Function Apps diagnostics, KQL log analysis, health checks. WHEN: 'debug production issues', 'troubleshoot container apps', 'troubleshoot function apps', 'image pull failures', 'cold start issues', 'health probe failures'. DO NOT USE FOR: pre-deployment validation (apex-azure-validate), cost analysis (apex-azure-cost-optimization).",
+      "description": "**WORKFLOW SKILL** — Debug Azure production issues: Container Apps, Functions, App Service, AKS, VMs and messaging, with KQL log analysis. WHEN: 'troubleshoot container apps', 'troubleshoot AKS', 'pod crashloop', 'VM RDP or SSH failure', 'app service high CPU', 'service bus errors'. DO NOT USE FOR: pre-deploy validation (apex-azure-validate), cost (apex-azure-cost-optimization), AKS design (apex-azure-kubernetes).",
       "path": ".github/skills/apex-azure-diagnostics/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/skills/apex-azure-diagnostics/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/skills/apex-azure-diagnostics/SKILL.md"
       },
       "meta": {
         "invocable": true,
@@ -830,12 +835,28 @@
       "description": "**ANALYSIS SKILL** — Azure Policy discovery: effective assignments (incl. MG-inherited), definitions/exemptions, effect classification, emits governance-constraints JSON. WHEN: 'Azure policy discovery', 'effective policy assignments', 'governance constraints', '04g-Governance Phase 1', 'refresh governance JSON'. DO NOT USE FOR: artifact writing, architecture mapping.",
       "path": ".github/skills/apex-azure-governance-discovery/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/skills/apex-azure-governance-discovery/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/skills/apex-azure-governance-discovery/SKILL.md"
       },
       "meta": {
         "invocable": true,
         "disableModelInvocation": false,
         "argumentHint": "project, subscription scope and discovery or refresh",
+        "context": null
+      }
+    },
+    {
+      "id": "skill:apex-azure-kubernetes",
+      "category": "skill",
+      "label": "apex-azure-kubernetes",
+      "description": "**ANALYSIS SKILL** — Day-0 AKS design advice: Automatic vs Standard, networking, identity, observability, upgrades, node pools, autoscaling and Spot. WHEN: \"design AKS\", \"AKS Automatic or Standard\", \"AKS networking\", \"AKS node pools\", \"rightsize AKS pods\", \"AKS spot nodes\". DO NOT USE FOR: AKS troubleshooting (apex-azure-diagnostics), provisioning or IaC (05-IaC Planner, 06b/06t).",
+      "path": ".github/skills/apex-azure-kubernetes/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/skills/apex-azure-kubernetes/SKILL.md"
+      },
+      "meta": {
+        "invocable": true,
+        "disableModelInvocation": false,
+        "argumentHint": "workload requirements, environment type, region and constraints",
         "context": null
       }
     },
@@ -846,7 +867,7 @@
       "description": "**ANALYSIS SKILL** — Query and analyze data in Azure Data Explorer (Kusto/ADX) using KQL. WHEN: \"KQL queries\", \"Kusto database queries\", \"Azure Data Explorer\", \"ADX clusters\", \"time series data\", \"IoT telemetry\", \"anomaly detection\". DO NOT USE FOR: App Insights / Log Analytics troubleshooting (apex-azure-diagnostics), cost analysis (apex-azure-cost-optimization).",
       "path": ".github/skills/apex-azure-kusto/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/skills/apex-azure-kusto/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/skills/apex-azure-kusto/SKILL.md"
       },
       "meta": {
         "invocable": true,
@@ -862,7 +883,7 @@
       "description": "**WORKFLOW SKILL** — Prepare Azure apps for deployment (Bicep/Terraform, azure.yaml, Dockerfiles). WHEN: \"create app\", \"build web app\", \"create API\", \"deploy to Azure\", \"generate Bicep\", \"generate Terraform\", \"function app\", \"add authentication\", \"managed identity\". DO NOT USE FOR: cross-cloud migration (apex-azure-cloud-migrate), executing deploys (apex-azure-deploy), preflight (apex-azure-validate).",
       "path": ".github/skills/apex-azure-prepare/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/skills/apex-azure-prepare/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/skills/apex-azure-prepare/SKILL.md"
       },
       "meta": {
         "invocable": true,
@@ -875,10 +896,10 @@
       "id": "skill:apex-azure-quotas",
       "category": "skill",
       "label": "apex-azure-quotas",
-      "description": "**UTILITY SKILL** — Check Azure quota limits, usage and headroom for deployment planning; quota is not regional capacity. WHEN: \"check quotas\", \"service limits\", \"request quota increase\", \"quota exceeded\", \"validate capacity\", \"regional availability\", \"vCPU limit\". DO NOT USE FOR: deployment execution (apex-azure-deploy), cost analysis (apex-azure-cost-optimization).",
+      "description": "**UTILITY SKILL** — Check Azure quota headroom and SKU availability (region, zones, restrictions) for deployment planning; neither proves allocation capacity. WHEN: \"check quotas\", \"service limits\", \"request quota increase\", \"quota exceeded\", \"SKU availability\", \"SKU restrictions\", \"vCPU limit\". DO NOT USE FOR: deployment execution (apex-azure-deploy), cost analysis (apex-azure-cost-optimization).",
       "path": ".github/skills/apex-azure-quotas/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/skills/apex-azure-quotas/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/skills/apex-azure-quotas/SKILL.md"
       },
       "meta": {
         "invocable": true,
@@ -894,12 +915,28 @@
       "description": "**ANALYSIS SKILL** — Find the right Azure RBAC role for an identity with least-privilege access; generate CLI, Bicep, and Terraform code to assign it. WHEN: \"what role should I assign\", \"least privilege role\", \"RBAC role for\", \"role for managed identity\", \"custom role definition\", \"assign role to identity\". DO NOT USE FOR: deploying (apex-azure-deploy), security audits (apex-azure-compliance).",
       "path": ".github/skills/apex-azure-rbac/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/skills/apex-azure-rbac/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/skills/apex-azure-rbac/SKILL.md"
       },
       "meta": {
         "invocable": true,
         "disableModelInvocation": false,
         "argumentHint": "identity, resource scope and required access",
+        "context": null
+      }
+    },
+    {
+      "id": "skill:apex-azure-reliability",
+      "category": "skill",
+      "label": "apex-azure-reliability",
+      "description": "**ANALYSIS SKILL** — Read-only reliability assessment for App Service and Azure Functions: zone redundancy, ZRS storage, health probes and multi-region failover. WHEN: \"assess reliability\", \"zone redundant\", \"multi-region failover\", \"single points of failure\", \"disaster recovery readiness\". DO NOT USE FOR: fixes or deploys (06b/06t), troubleshooting (apex-azure-diagnostics).",
+      "path": ".github/skills/apex-azure-reliability/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/skills/apex-azure-reliability/SKILL.md"
+      },
+      "meta": {
+        "invocable": true,
+        "disableModelInvocation": false,
+        "argumentHint": "resource group, subscription or app name to assess",
         "context": null
       }
     },
@@ -910,7 +947,7 @@
       "description": "**ANALYSIS SKILL** — List, find, and visualize Azure resources via Resource Graph or Mermaid. WHEN: 'list resources', 'list VMs', 'find orphaned resources', 'resource inventory', 'cross-subscription query', 'visualize Azure resources', 'diagram my resources'. DO NOT USE FOR: deploys (apex-azure-deploy), cost (apex-azure-cost-optimization), security (apex-azure-compliance), troubleshooting (apex-azure-diagnostics).",
       "path": ".github/skills/apex-azure-resources/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/skills/apex-azure-resources/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/skills/apex-azure-resources/SKILL.md"
       },
       "meta": {
         "invocable": true,
@@ -923,15 +960,31 @@
       "id": "skill:apex-azure-storage",
       "category": "skill",
       "label": "apex-azure-storage",
-      "description": "**UTILITY SKILL** — Azure Storage Services: Blob, File Shares, Queue, Table, and Data Lake. Object storage, SMB shares, async messaging, NoSQL key-value, big-data analytics. Access tiers + lifecycle management. WHEN: \"blob storage\", \"file shares\", \"queue storage\", \"table storage\", \"data lake\", \"access tiers\", \"lifecycle management\". DO NOT USE FOR: SQL databases, Cosmos DB (use apex-azure-prepare), Event Hubs / Service Bus messaging.",
+      "description": "**UTILITY SKILL** — Azure Storage: Blob, File Shares, Queue, Table and Data Lake, including access tiers and lifecycle management. WHEN: \"blob storage\", \"file shares\", \"queue storage\", \"table storage\", \"data lake\", \"which storage tier\", \"hot vs cool vs archive\", \"lifecycle management\". DO NOT USE FOR: SQL databases, Cosmos DB (use apex-azure-prepare), Event Hubs / Service Bus messaging.",
       "path": ".github/skills/apex-azure-storage/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/skills/apex-azure-storage/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/skills/apex-azure-storage/SKILL.md"
       },
       "meta": {
         "invocable": true,
         "disableModelInvocation": false,
         "argumentHint": "storage service, resource scope and task",
+        "context": null
+      }
+    },
+    {
+      "id": "skill:apex-azure-upgrade",
+      "category": "skill",
+      "label": "apex-azure-upgrade",
+      "description": "**ANALYSIS SKILL** — Assess in-Azure upgrades of existing workloads: Functions Consumption to Flex Consumption, and Azure Cache for Redis to Azure Managed Redis. WHEN: \"upgrade Consumption to Flex\", \"Flex Consumption readiness\", \"Linux Consumption retirement\", \"migrate Redis to AMR\", \"Redis retirement\". DO NOT USE FOR: cross-cloud migration (apex-azure-cloud-migrate), deploying (07b/07t).",
+      "path": ".github/skills/apex-azure-upgrade/SKILL.md",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/skills/apex-azure-upgrade/SKILL.md"
+      },
+      "meta": {
+        "invocable": true,
+        "disableModelInvocation": false,
+        "argumentHint": "existing app or cache, current plan or SKU, and target",
         "context": null
       }
     },
@@ -942,7 +995,7 @@
       "description": "**WORKFLOW SKILL** — Pre-deployment validation for Azure: config, infrastructure (Bicep/Terraform), permissions, prerequisites. WHEN: 'validate my app', 'check deployment readiness', 'run preflight checks', 'validate azure.yaml', 'validate Bicep', 'test before deploying', 'validate Azure Functions'. DO NOT USE FOR: post-deploy troubleshooting (apex-azure-diagnostics), executing deploys (apex-azure-deploy).",
       "path": ".github/skills/apex-azure-validate/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/skills/apex-azure-validate/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/skills/apex-azure-validate/SKILL.md"
       },
       "meta": {
         "invocable": true,
@@ -958,7 +1011,7 @@
       "description": "**UTILITY SKILL** — Two-mode context-window management. RUNTIME: artifact compression (full/summarized/minimal) used by orchestrator and codegen agents. AUDIT: post-mortem analysis of Copilot debug logs (token profiling, redundancy + hand-off gap detection) used by 11-Context Optimizer. WHEN: \"context optimization\", \"token budget\", \"runtime compression\", \"log parsing\". DO NOT USE FOR: infra, IaC code, deployments.",
       "path": ".github/skills/apex-context-management/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/skills/apex-context-management/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/skills/apex-context-management/SKILL.md"
       },
       "meta": {
         "invocable": true,
@@ -974,7 +1027,7 @@
       "description": "**WORKFLOW SKILL** — Guides Microsoft Entra ID app registration, OAuth 2.0 authentication, and MSAL integration. WHEN: \"create app registration\", \"register Azure AD app\", \"configure OAuth\", \"add API permissions\", \"generate service principal\", \"MSAL example\", \"Entra ID setup\". DO NOT USE FOR: Azure RBAC (apex-azure-rbac), Key Vault audits (apex-azure-compliance), resource security scanning (apex-azure-compliance).",
       "path": ".github/skills/apex-entra-app-registration/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/skills/apex-entra-app-registration/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/skills/apex-entra-app-registration/SKILL.md"
       },
       "meta": {
         "invocable": true,
@@ -990,7 +1043,7 @@
       "description": "**WORKFLOW SKILL** — Full GitHub contribution lifecycle: branches, conventional commits, issues, PRs, Actions, releases. gh CLI-first with MCP fallback. WHEN: \"commit\", \"push\", \"open PR\", \"create branch\", \"create issue\", \"cut release\", \"GitHub operation\". DO NOT USE FOR: Azure infrastructure, Bicep/Terraform code, architecture decisions. INVOKES: gh CLI (primary), GitHub MCP (fallback).",
       "path": ".github/skills/apex-github-operations/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/skills/apex-github-operations/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/skills/apex-github-operations/SKILL.md"
       },
       "meta": {
         "invocable": true,
@@ -1006,7 +1059,7 @@
       "description": "**ANALYSIS SKILL** — The agent-first operating principles governing how agents work in this repository. WHEN: \"golden principles\", \"agent behavior rules\", \"operating philosophy\", \"principle lookup\", \"governance invariants\". USE FOR: agent behavior rules, operating philosophy, principle lookup, governance invariants. DO NOT USE FOR: Azure infrastructure, code generation, troubleshooting, diagram creation.",
       "path": ".github/skills/apex-golden-principles/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/skills/apex-golden-principles/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/skills/apex-golden-principles/SKILL.md"
       },
       "meta": {
         "invocable": false,
@@ -1022,7 +1075,7 @@
       "description": "Bundle selected custom-agent debug logs locally for manual upload in Agent Host. Use /apex-host-debug-log-export after selecting the built-in agent owner and MAI-Code-1.1-Flash.",
       "path": ".github/skills/apex-host-debug-log-export/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/skills/apex-host-debug-log-export/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/skills/apex-host-debug-log-export/SKILL.md"
       },
       "meta": {
         "invocable": true,
@@ -1038,7 +1091,7 @@
       "description": "Stage scoped changes, commit, push, and offer a PR in Agent Host. Use /apex-host-git-commit only after selecting the built-in agent owner and MAI-Code-1.1-Flash.",
       "path": ".github/skills/apex-host-git-commit/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/skills/apex-host-git-commit/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/skills/apex-host-git-commit/SKILL.md"
       },
       "meta": {
         "invocable": true,
@@ -1054,7 +1107,7 @@
       "description": "Start or resume an APEX workflow or named step in Agent Host after manual owner selection. Use /apex-host-workflow-start with an explicit operation; resume can discover the project. Not a model-routing substitute.",
       "path": ".github/skills/apex-host-workflow-start/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/skills/apex-host-workflow-start/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/skills/apex-host-workflow-start/SKILL.md"
       },
       "meta": {
         "invocable": true,
@@ -1070,7 +1123,7 @@
       "description": "**UTILITY SKILL** — Shared Bicep/Terraform workflow contracts: planning, codegen cadence, handoffs, deployment strategies and bounded recovery. WHEN: \"shared IaC workflow\", \"phased deployment\", \"circuit breaker\", \"deploy strategy\", \"deploy issue\", \"shared IaC pattern\". DO NOT USE FOR: language-specific modules (apex-azure-bicep-patterns / apex-terraform-patterns) or standalone preflight (apex-azure-validate).",
       "path": ".github/skills/apex-iac-common/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/skills/apex-iac-common/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/skills/apex-iac-common/SKILL.md"
       },
       "meta": {
         "invocable": false,
@@ -1086,7 +1139,7 @@
       "description": "**UTILITY SKILL** — Mermaid diagrams for inline markdown: flowcharts, sequence, Gantt, class, state, ER. WHEN: \"mermaid flowchart\", \"sequence diagram\", \"Gantt chart\", \"state diagram\", \"ER diagram\", \"inline markdown diagram\". DO NOT USE FOR: rendered architecture diagrams or WAF/cost charts (apex-python-diagrams).",
       "path": ".github/skills/apex-mermaid/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/skills/apex-mermaid/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/skills/apex-mermaid/SKILL.md"
       },
       "meta": {
         "invocable": true,
@@ -1102,7 +1155,7 @@
       "description": "**ANALYSIS SKILL** — Query official Microsoft documentation to understand concepts, find tutorials, and learn how services work. WHEN: \"Microsoft Learn\", \"Azure docs\", \"quickstart guide\", \"limits and quotas\", \"WAF reference\", \"architecture pattern docs\". DO NOT USE FOR: Azure pricing; route pricing through the cost-estimate subagent.",
       "path": ".github/skills/apex-microsoft-docs/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/skills/apex-microsoft-docs/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/skills/apex-microsoft-docs/SKILL.md"
       },
       "meta": {
         "invocable": true,
@@ -1118,7 +1171,7 @@
       "description": "**UTILITY SKILL** — Python diagram generation for Azure architectures, WAF/cost/compliance charts, ERDs, swimlanes, timelines, and wireframes. WHEN: 'architecture diagram', 'WAF bar chart', 'cost chart', 'ERD', 'swimlane', 'timeline', 'wireframe'. DO NOT USE FOR: inline Mermaid diagrams (apex-mermaid).",
       "path": ".github/skills/apex-python-diagrams/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/skills/apex-python-diagrams/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/skills/apex-python-diagrams/SKILL.md"
       },
       "meta": {
         "invocable": true,
@@ -1134,7 +1187,7 @@
       "description": "**UTILITY SKILL** — Reusable Azure Terraform patterns: hub-spoke, private endpoints, diagnostics, AVM-TF modules. WHEN: \"hub-spoke Terraform\", \"private endpoint module\", \"AVM-TF composition\", \"diagnostic settings\", \"plan interpretation\". DO NOT USE FOR: Bicep code (apex-azure-bicep-patterns), ADRs (apex-azure-adr), diagrams (apex-python-diagrams).",
       "path": ".github/skills/apex-terraform-patterns/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/skills/apex-terraform-patterns/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/skills/apex-terraform-patterns/SKILL.md"
       },
       "meta": {
         "invocable": false,
@@ -1150,7 +1203,7 @@
       "description": "**WORKFLOW SKILL** — Manual-only discovery and import of existing Azure resources into Terraform management. WHEN: explicitly invoked as /apex-terraform-search-import for resource discovery or import planning. DO NOT USE FOR: automatic Terraform routing, Bicep code, new resource creation, architecture decisions. State changes require separate approval.",
       "path": ".github/skills/apex-terraform-search-import/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/skills/apex-terraform-search-import/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/skills/apex-terraform-search-import/SKILL.md"
       },
       "meta": {
         "invocable": true,
@@ -1166,7 +1219,7 @@
       "description": "**WORKFLOW SKILL** — Write and run Terraform tests (.tftest.hcl). WHEN: \"create terraform test\", \"write tftest\", \".tftest.hcl\", \"mock provider\", \"test module\", \"test assertion\". USE FOR: test files, run blocks, assertions, mock providers, plan-mode unit tests, apply-mode integration tests, test troubleshooting. DO NOT USE FOR: Bicep code, architecture decisions, deployment (use apex-azure-deploy).",
       "path": ".github/skills/apex-terraform-test/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/skills/apex-terraform-test/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/skills/apex-terraform-test/SKILL.md"
       },
       "meta": {
         "invocable": true,
@@ -1182,7 +1235,7 @@
       "description": "**UTILITY SKILL** — Manually polish authorized prose for clarity and concrete language while preserving technical facts and APEX contracts. WHEN: explicitly invoked as /apex-unslop for prose review or cleanup. DO NOT USE FOR: code changes, technical validation, or automatic workflow finalization.",
       "path": ".github/skills/apex-unslop/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/skills/apex-unslop/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/skills/apex-unslop/SKILL.md"
       },
       "meta": {
         "invocable": true,
@@ -1195,10 +1248,10 @@
       "id": "skill:apex-vendor-prompting",
       "category": "skill",
       "label": "apex-vendor-prompting",
-      "description": "**ANALYSIS SKILL** — Manual-only audit of Anthropic Claude and OpenAI GPT-5.6 prompting guidance and APEX conventions. WHEN: explicitly invoked as /apex-vendor-prompting for a vendor-specific prompt audit. DO NOT USE FOR: automatic authoring loads, routine edits covered by instructions, generic Markdown style.",
+      "description": "**ANALYSIS SKILL** — Manual-only audit of Anthropic Claude Opus 5.5 and OpenAI GPT-6 / GPT-5.6 prompting guidance and APEX conventions. WHEN: explicitly invoked as /apex-vendor-prompting for a vendor-specific prompt audit. DO NOT USE FOR: automatic authoring loads, routine edits covered by instructions, generic Markdown style.",
       "path": ".github/skills/apex-vendor-prompting/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/skills/apex-vendor-prompting/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/skills/apex-vendor-prompting/SKILL.md"
       },
       "meta": {
         "invocable": true,
@@ -1214,7 +1267,7 @@
       "description": "**UTILITY SKILL** — Machine-readable workflow DAG for the multi-step agent pipeline. Defines node types, edge conditions, gates, and fan-out patterns. WHEN: \"orchestrator step routing\", \"resume from graph\", \"workflow validation\", \"workflow DAG\", \"workflow gate\", \"fan-out pattern\". USE FOR: orchestrator step routing, resume-from-graph, workflow validation. DO NOT USE FOR: Azure infrastructure, code generation, troubleshooting.",
       "path": ".github/skills/apex-workflow-engine/SKILL.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/skills/apex-workflow-engine/SKILL.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/skills/apex-workflow-engine/SKILL.md"
       },
       "meta": {
         "invocable": false,
@@ -1230,7 +1283,7 @@
       "description": "Enforceable structural and runtime rules for Copilot agent and prompt files",
       "path": ".github/instructions/agent-authoring.instructions.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/instructions/agent-authoring.instructions.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/instructions/agent-authoring.instructions.md"
       },
       "meta": {
         "applyTo": "**/*.agent.md, **/*.prompt.md"
@@ -1240,10 +1293,10 @@
       "id": "instruction:agent-operating-frame",
       "category": "instruction",
       "label": "agent-operating-frame",
-      "description": "Shared operating frame for main step agents — read SKILL.md once, use apex-recall for cached lookups, never edit upstream artifacts. Pairs with each agent's body-level Operating frame H2.",
+      "description": "Shared operating frame for main step agents — read SKILL.md once, use apex-recall for cached lookups, never edit upstream artifacts. Pairs with the agent's Operating frame or Constraints H2.",
       "path": ".github/instructions/agent-operating-frame.instructions.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/instructions/agent-operating-frame.instructions.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/instructions/agent-operating-frame.instructions.md"
       },
       "meta": {
         "applyTo": ".github/agents/*.agent.md"
@@ -1256,7 +1309,7 @@
       "description": "Guidelines for creating high-quality Agent Skills for GitHub Copilot",
       "path": ".github/instructions/agent-skills.instructions.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/instructions/agent-skills.instructions.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/instructions/agent-skills.instructions.md"
       },
       "meta": {
         "applyTo": "**/.github/skills/**/SKILL.md, **/.claude/skills/**/SKILL.md"
@@ -1269,7 +1322,7 @@
       "description": "Template compliance rules for artifact generation",
       "path": ".github/instructions/azure-artifacts.instructions.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/instructions/azure-artifacts.instructions.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/instructions/azure-artifacts.instructions.md"
       },
       "meta": {
         "applyTo": "**/agent-output/**/*.md"
@@ -1282,7 +1335,7 @@
       "description": "Azure Developer CLI (azd) manifest conventions for multi-project co-location. Enforces infra.path, environment naming, and repo-root prohibition.",
       "path": ".github/instructions/azure-yaml.instructions.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/instructions/azure-yaml.instructions.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/instructions/azure-yaml.instructions.md"
       },
       "meta": {
         "applyTo": "**/azure.yaml"
@@ -1295,10 +1348,10 @@
       "description": "Code quality guidelines: commenting best practices (WHY not WHAT) and review priorities with security checks",
       "path": ".github/instructions/code-quality.instructions.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/instructions/code-quality.instructions.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/instructions/code-quality.instructions.md"
       },
       "meta": {
-        "applyTo": ".github/**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}, tools/scripts/**/*.{js,mjs,cjs,ts,py,sh}, infra/**/*.{bicep,tf}, tools/mcp-servers/**/*.{py,ts,js,mjs}, site/**/*.{ts,mjs,js}"
+        "applyTo": ".github/**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}, tools/scripts/**/*.{js,mjs,cjs,ts,py,sh}, infra/**/*.{bicep,tf}, tools/mcp-servers/**/*.{py,ts,js,mjs}"
       }
     },
     {
@@ -1308,7 +1361,7 @@
       "description": "Context window optimization rules for agent definitions, skills, and instruction files",
       "path": ".github/instructions/context-optimization.instructions.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/instructions/context-optimization.instructions.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/instructions/context-optimization.instructions.md"
       },
       "meta": {
         "applyTo": ".github/agents/**/*.agent.md, .github/skills/**/SKILL.md, .github/instructions/*.instructions.md"
@@ -1321,7 +1374,7 @@
       "description": "Required documentation updates for product changes; published documentation belongs to apex-docs.",
       "path": ".github/instructions/docs-trigger.instructions.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/instructions/docs-trigger.instructions.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/instructions/docs-trigger.instructions.md"
       },
       "meta": {
         "applyTo": "**/*.agent.md, **/.github/skills/**/SKILL.md, **/tools/scripts/*.mjs"
@@ -1334,7 +1387,7 @@
       "description": "Project-specific standards for GitHub Actions workflows in this repository",
       "path": ".github/instructions/github-actions.instructions.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/instructions/github-actions.instructions.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/instructions/github-actions.instructions.md"
       },
       "meta": {
         "applyTo": ".github/workflows/*.yml,.github/workflows/*.yaml"
@@ -1347,7 +1400,7 @@
       "description": "MANDATORY Azure Policy discovery requirements for governance constraints",
       "path": ".github/instructions/governance-discovery.instructions.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/instructions/governance-discovery.instructions.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/instructions/governance-discovery.instructions.md"
       },
       "meta": {
         "applyTo": "**/04-governance-constraints.md, **/04-governance-constraints.json"
@@ -1360,7 +1413,7 @@
       "description": "Bicep-specific IaC best practices for Azure templates. Security baseline, naming, AVM mandate, anti-patterns.",
       "path": ".github/instructions/iac-bicep-best-practices.instructions.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/instructions/iac-bicep-best-practices.instructions.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/instructions/iac-bicep-best-practices.instructions.md"
       },
       "meta": {
         "applyTo": "**/*.bicep"
@@ -1373,7 +1426,7 @@
       "description": "IaC planning best practices for implementation plans. Policy compliance, cost monitoring, repeatability.",
       "path": ".github/instructions/iac-plan-best-practices.instructions.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/instructions/iac-plan-best-practices.instructions.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/instructions/iac-plan-best-practices.instructions.md"
       },
       "meta": {
         "applyTo": "**/04-implementation-plan.md"
@@ -1386,7 +1439,7 @@
       "description": "Terraform-specific IaC best practices for Azure templates. AVM-first, CAF naming, security baseline, provider pins.",
       "path": ".github/instructions/iac-terraform-best-practices.instructions.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/instructions/iac-terraform-best-practices.instructions.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/instructions/iac-terraform-best-practices.instructions.md"
       },
       "meta": {
         "applyTo": "**/*.tf"
@@ -1399,7 +1452,7 @@
       "description": "Guidelines for creating high-quality custom instruction files for GitHub Copilot",
       "path": ".github/instructions/instructions.instructions.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/instructions/instructions.instructions.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/instructions/instructions.instructions.md"
       },
       "meta": {
         "applyTo": "**/*.instructions.md"
@@ -1412,7 +1465,7 @@
       "description": "JavaScript and Node.js conventions for validation scripts and tooling",
       "path": ".github/instructions/javascript.instructions.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/instructions/javascript.instructions.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/instructions/javascript.instructions.md"
       },
       "meta": {
         "applyTo": "**/*.{js,mjs,cjs}"
@@ -1425,7 +1478,7 @@
       "description": "JSON and JSONC formatting conventions for configuration and data files",
       "path": ".github/instructions/json.instructions.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/instructions/json.instructions.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/instructions/json.instructions.md"
       },
       "meta": {
         "applyTo": "**/*.{json,jsonc}"
@@ -1438,7 +1491,7 @@
       "description": "Lesson collection and retrospective protocol for orchestrator agents. Captures process observations during workflow execution and generates lessons-learned artifacts at completion.",
       "path": ".github/instructions/lesson-collection.instructions.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/instructions/lesson-collection.instructions.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/instructions/lesson-collection.instructions.md"
       },
       "meta": {
         "applyTo": "**/*orchestrator*.agent.md"
@@ -1451,10 +1504,10 @@
       "description": "Documentation and content creation standards for markdown files",
       "path": ".github/instructions/markdown.instructions.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/instructions/markdown.instructions.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/instructions/markdown.instructions.md"
       },
       "meta": {
-        "applyTo": "site/src/content/docs/**/*.{md,mdx}, .github/copilot-instructions.md, .github/PULL_REQUEST_TEMPLATE.md, .github/plugins/**/*.md, tools/apex-prompts/**/*.md, .github/skills/**/templates/**/*.md, agent-output/**/*.md, docs/**/*.md, infra/**/*.md, tools/mcp-servers/**/*.md, tools/scripts/**/*.md, tests/**/*.md, AGENTS.md, README.md, CHANGELOG.md, CONTRIBUTING.md, CONTRIBUTORS.md, QUALITY_SCORE.md, VERSION.md"
+        "applyTo": ".github/copilot-instructions.md, .github/PULL_REQUEST_TEMPLATE.md, .github/plugins/**/*.md, tools/apex-prompts/**/*.md, .github/skills/**/templates/**/*.md, agent-output/**/*.md, docs/**/*.md, infra/**/*.md, tools/mcp-servers/**/*.md, tools/scripts/**/*.md, tests/**/*.md, AGENTS.md, README.md, CHANGELOG.md, CONTRIBUTING.md, CONTRIBUTORS.md, QUALITY_SCORE.md, VERSION.md"
       }
     },
     {
@@ -1464,10 +1517,10 @@
       "description": "Prevents hard-coded numeric counts for project entities (agents, skills, instructions, validators). Enforces descriptive language and count-manifest.json as single source of truth.",
       "path": ".github/instructions/no-hardcoded-counts.instructions.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/instructions/no-hardcoded-counts.instructions.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/instructions/no-hardcoded-counts.instructions.md"
       },
       "meta": {
-        "applyTo": ".github/**/*.{md,json}, tools/scripts/**/*.mjs, site/src/content/docs/**/*.{md,mdx}, AGENTS.md, README.md, CHANGELOG.md, QUALITY_SCORE.md, VERSION.md"
+        "applyTo": ".github/**/*.{md,json}, tools/scripts/**/*.mjs, AGENTS.md, README.md, CHANGELOG.md, QUALITY_SCORE.md, VERSION.md"
       }
     },
     {
@@ -1477,7 +1530,7 @@
       "description": "Prevents terminal heredoc file corruption in VS Code Copilot by enforcing use of file editing tools instead of shell redirections",
       "path": ".github/instructions/no-heredoc.instructions.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/instructions/no-heredoc.instructions.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/instructions/no-heredoc.instructions.md"
       },
       "meta": {
         "applyTo": "**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}"
@@ -1490,7 +1543,7 @@
       "description": "Prevents interactive shell prompts and long-output terminal replays from being injected into chat. Forbids -i flags on mv/rm/cp, read -p, and confirm prompts (incl. inside bash -c '...'). Pipe long output to files. Scoped to chat-context-loaded files; skill references/ and templates/ are exempt because they hold standalone scripts users run locally.",
       "path": ".github/instructions/no-interactive-shell.instructions.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/instructions/no-interactive-shell.instructions.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/instructions/no-interactive-shell.instructions.md"
       },
       "meta": {
         "applyTo": "**/.github/agents/**/*.agent.md, **/.github/skills/**/SKILL.md, **/.github/instructions/**/*.instructions.md, **/.github/prompts/**/*.prompt.md, **/tools/apex-prompts/**/*.prompt.md, **/AGENTS.md, **/.github/copilot-instructions.md, **/README.md"
@@ -1503,7 +1556,7 @@
       "description": "PowerShell cmdlet and scripting best practices based on Microsoft guidelines",
       "path": ".github/instructions/powershell.instructions.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/instructions/powershell.instructions.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/instructions/powershell.instructions.md"
       },
       "meta": {
         "applyTo": "**/*.ps1,**/*.psm1"
@@ -1516,7 +1569,7 @@
       "description": "Guidelines for creating high-quality prompt files for GitHub Copilot",
       "path": ".github/instructions/prompt.instructions.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/instructions/prompt.instructions.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/instructions/prompt.instructions.md"
       },
       "meta": {
         "applyTo": "**/*.prompt.md"
@@ -1529,7 +1582,7 @@
       "description": "Python coding conventions for diagram generation, MCP servers, and tooling scripts",
       "path": ".github/instructions/python.instructions.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/instructions/python.instructions.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/instructions/python.instructions.md"
       },
       "meta": {
         "applyTo": "**/*.py"
@@ -1542,7 +1595,7 @@
       "description": "Shell scripting best practices and conventions for bash, sh, zsh, and other shells",
       "path": ".github/instructions/shell.instructions.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/instructions/shell.instructions.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/instructions/shell.instructions.md"
       },
       "meta": {
         "applyTo": "**/*.sh"
@@ -1555,7 +1608,7 @@
       "description": "Authoring rules for the SKU Manifest artifact (sku-manifest-v1)",
       "path": ".github/instructions/sku-manifest.instructions.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/instructions/sku-manifest.instructions.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/instructions/sku-manifest.instructions.md"
       },
       "meta": {
         "applyTo": "**/sku-manifest.{md,json}"
@@ -1568,7 +1621,7 @@
       "description": "Sourced vendor advice and APEX authoring conventions for agent and prompt files. Rule IDs map to apex-vendor-prompting/rules.json; validator: npm run lint:vendor-prompting.",
       "path": ".github/instructions/vendor-prompting.instructions.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/instructions/vendor-prompting.instructions.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/instructions/vendor-prompting.instructions.md"
       },
       "meta": {
         "applyTo": "**/*.agent.md, **/*.prompt.md"
@@ -1581,7 +1634,7 @@
       "description": "Extract and compress Copilot debug logs related to custom agent activity into .apex-logs/ as a tar.gz bundle. User uploads the bundle manually to OneDrive via a provided link.",
       "path": ".github/prompts/apex-debug-log-export.prompt.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/prompts/apex-debug-log-export.prompt.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/prompts/apex-debug-log-export.prompt.md"
       },
       "meta": {}
     },
@@ -1592,7 +1645,7 @@
       "description": "Stage everything except agent-output/, infra/, and .github/skills/sensei/ (unless on feat/skills-sensei), auto-generate a conventional commit, push, then prompt to open or update a PR. CLI-only (git + gh).",
       "path": ".github/prompts/apex-git-commit.prompt.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/prompts/apex-git-commit.prompt.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/prompts/apex-git-commit.prompt.md"
       },
       "meta": {}
     },
@@ -1603,7 +1656,7 @@
       "description": "Resume an existing APEX project through the Orchestrator's canonical recovery and routing procedure.",
       "path": ".github/prompts/apex-resume-workflow.prompt.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/prompts/apex-resume-workflow.prompt.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/prompts/apex-resume-workflow.prompt.md"
       },
       "meta": {}
     },
@@ -1614,7 +1667,7 @@
       "description": "Generate as-built documentation for an existing Azure deployment with no prior artifacts. Discovers resources, collects requirements interactively, synthesizes pseudo-artifacts, then hands off to 08-As-Built.",
       "path": "tools/apex-prompts/utility-prompts/as-built-from-azure.prompt.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/tools/apex-prompts/utility-prompts/as-built-from-azure.prompt.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/tools/apex-prompts/utility-prompts/as-built-from-azure.prompt.md"
       },
       "meta": {}
     },
@@ -1625,7 +1678,7 @@
       "description": "Score every agent (main + subagents) across the four assessment layers — deterministic L1/L2 via the assess-agents harness, judgment L2 role clarity + L4 adversarial via Explore fan-out, optional L3 runtime from a debug-log profile. Produces per-agent scorecards + a ranked fleet plan. Plans only — never edits an agent in the same pass.",
       "path": "tools/apex-prompts/utility-prompts/assess-agents.prompt.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/tools/apex-prompts/utility-prompts/assess-agents.prompt.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/tools/apex-prompts/utility-prompts/assess-agents.prompt.md"
       },
       "meta": {}
     },
@@ -1636,7 +1689,7 @@
       "description": "Assess the .github folder (agents, skills, instructions, copilot-instructions.md) and produce a prioritized, read-only remediation plan. Plans only — never edits in the same pass.",
       "path": "tools/apex-prompts/utility-prompts/assess-github-folder.prompt.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/tools/apex-prompts/utility-prompts/assess-github-folder.prompt.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/tools/apex-prompts/utility-prompts/assess-github-folder.prompt.md"
       },
       "meta": {}
     },
@@ -1647,18 +1700,7 @@
       "description": "Audit agent context window utilization from Copilot Chat debug logs and produce optimization recommendations.",
       "path": "tools/apex-prompts/utility-prompts/context-audit.prompt.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/tools/apex-prompts/utility-prompts/context-audit.prompt.md"
-      },
-      "meta": {}
-    },
-    {
-      "id": "prompt:execution-subagent-claude",
-      "category": "prompt",
-      "label": "execution-subagent-claude",
-      "description": "Claude-flavored variant of the execution-subagent invocation prompt contract. Wraps the three required slots in XML tags per claude-best-practices R-CL-1. Use this when invoking a Claude-family subagent. Reference: issue #425, Wave 3a follow-up.",
-      "path": "tools/apex-prompts/utility-prompts/execution-subagent-claude.prompt.md",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/tools/apex-prompts/utility-prompts/execution-subagent-claude.prompt.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/tools/apex-prompts/utility-prompts/context-audit.prompt.md"
       },
       "meta": {}
     },
@@ -1666,10 +1708,10 @@
       "id": "prompt:execution-subagent-gpt",
       "category": "prompt",
       "label": "execution-subagent-gpt",
-      "description": "GPT-family variant of the execution-subagent invocation prompt contract. Markdown H2 form (outcome-first), matching the GPT-5.x prompting guide. Use this when invoking a GPT-family subagent. Reference: issue #425, Wave 3a follow-up.",
+      "description": "GPT-family variant of the execution-subagent invocation prompt contract. Markdown H2 form (outcome-first), matching the GPT-5.6 prompt guidance. Use this when invoking a GPT-family subagent. Reference: issue #425, Wave 3a follow-up.",
       "path": "tools/apex-prompts/utility-prompts/execution-subagent-gpt.prompt.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/tools/apex-prompts/utility-prompts/execution-subagent-gpt.prompt.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/tools/apex-prompts/utility-prompts/execution-subagent-gpt.prompt.md"
       },
       "meta": {}
     },
@@ -1680,7 +1722,7 @@
       "description": "Reference-only invocation contract for named execution workers; not an operational slash entrypoint.",
       "path": "tools/apex-prompts/utility-prompts/execution-subagent.prompt.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/tools/apex-prompts/utility-prompts/execution-subagent.prompt.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/tools/apex-prompts/utility-prompts/execution-subagent.prompt.md"
       },
       "meta": {}
     },
@@ -1691,7 +1733,7 @@
       "description": "Open a sensei-free PR from feat/skills-sensei (or any sensei-bearing branch) into main. Dynamically discovers sensei-coupled files, classifies them into tiers, asks for approval, then creates a clean chore/merge-{source}-to-{target} branch and PR.",
       "path": "tools/apex-prompts/utility-prompts/merge-sensei-free-pr.prompt.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/tools/apex-prompts/utility-prompts/merge-sensei-free-pr.prompt.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/tools/apex-prompts/utility-prompts/merge-sensei-free-pr.prompt.md"
       },
       "meta": {}
     },
@@ -1702,7 +1744,7 @@
       "description": "",
       "path": "tools/apex-prompts/utility-prompts/plan-fourLayerAgentAssessment.prompt.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/tools/apex-prompts/utility-prompts/plan-fourLayerAgentAssessment.prompt.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/tools/apex-prompts/utility-prompts/plan-fourLayerAgentAssessment.prompt.md"
       },
       "meta": {}
     },
@@ -1713,7 +1755,7 @@
       "description": "Conduct a phased, dependency-aware review of the entire project. Builds a transient review-index first, then walks every domain in upstream-to-downstream order with explicit blast-radius analysis at each gate.",
       "path": "tools/apex-prompts/utility-prompts/project-wide-review.prompt.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/tools/apex-prompts/utility-prompts/project-wide-review.prompt.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/tools/apex-prompts/utility-prompts/project-wide-review.prompt.md"
       },
       "meta": {}
     },
@@ -1724,7 +1766,7 @@
       "description": "Ingest pasted or existing Bicep or Terraform, normalize it into the repo, run static review plus AVM and governance checks, and generate WAF review artifacts.",
       "path": "tools/apex-prompts/utility-prompts/review-imported-iac.prompt.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/tools/apex-prompts/utility-prompts/review-imported-iac.prompt.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/tools/apex-prompts/utility-prompts/review-imported-iac.prompt.md"
       },
       "meta": {}
     },
@@ -1735,7 +1777,7 @@
       "description": "Resume an existing APEX project through the Orchestrator's canonical recovery and routing procedure.",
       "path": "tools/apex-prompts/workflow-prompts/00-resume-workflow.prompt.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/tools/apex-prompts/workflow-prompts/00-resume-workflow.prompt.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/tools/apex-prompts/workflow-prompts/00-resume-workflow.prompt.md"
       },
       "meta": {}
     },
@@ -1746,7 +1788,7 @@
       "description": "Gather Azure project requirements through structured discovery phases and produce 01-requirements.md.",
       "path": "tools/apex-prompts/workflow-prompts/02-requirements.prompt.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/tools/apex-prompts/workflow-prompts/02-requirements.prompt.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/tools/apex-prompts/workflow-prompts/02-requirements.prompt.md"
       },
       "meta": {}
     },
@@ -1757,7 +1799,7 @@
       "description": "Perform a WAF assessment and generate cost estimates based on completed requirements.",
       "path": "tools/apex-prompts/workflow-prompts/03-architect.prompt.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/tools/apex-prompts/workflow-prompts/03-architect.prompt.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/tools/apex-prompts/workflow-prompts/03-architect.prompt.md"
       },
       "meta": {}
     },
@@ -1768,7 +1810,7 @@
       "description": "Generate architecture diagrams and Architecture Decision Records (ADRs). Optional step — can be skipped.",
       "path": "tools/apex-prompts/workflow-prompts/04-design.prompt.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/tools/apex-prompts/workflow-prompts/04-design.prompt.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/tools/apex-prompts/workflow-prompts/04-design.prompt.md"
       },
       "meta": {}
     },
@@ -1779,7 +1821,7 @@
       "description": "Discover Azure Policy constraints for the project subscription and produce governance constraint artifacts.",
       "path": "tools/apex-prompts/workflow-prompts/04g-governance.prompt.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/tools/apex-prompts/workflow-prompts/04g-governance.prompt.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/tools/apex-prompts/workflow-prompts/04g-governance.prompt.md"
       },
       "meta": {}
     },
@@ -1790,7 +1832,7 @@
       "description": "Create an IaC implementation plan with governance constraints, dependency and runtime diagrams.",
       "path": "tools/apex-prompts/workflow-prompts/05-iac-planner.prompt.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/tools/apex-prompts/workflow-prompts/05-iac-planner.prompt.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/tools/apex-prompts/workflow-prompts/05-iac-planner.prompt.md"
       },
       "meta": {}
     },
@@ -1801,7 +1843,7 @@
       "description": "Generate near-production-ready Bicep templates from the implementation plan.",
       "path": "tools/apex-prompts/workflow-prompts/06b-bicep-codegen.prompt.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/tools/apex-prompts/workflow-prompts/06b-bicep-codegen.prompt.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/tools/apex-prompts/workflow-prompts/06b-bicep-codegen.prompt.md"
       },
       "meta": {}
     },
@@ -1812,7 +1854,7 @@
       "description": "Generate near-production-ready Terraform configurations from the implementation plan.",
       "path": "tools/apex-prompts/workflow-prompts/06t-terraform-codegen.prompt.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/tools/apex-prompts/workflow-prompts/06t-terraform-codegen.prompt.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/tools/apex-prompts/workflow-prompts/06t-terraform-codegen.prompt.md"
       },
       "meta": {}
     },
@@ -1823,7 +1865,7 @@
       "description": "Deploy Bicep templates to Azure with what-if analysis and deployment validation.",
       "path": "tools/apex-prompts/workflow-prompts/07b-bicep-deploy.prompt.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/tools/apex-prompts/workflow-prompts/07b-bicep-deploy.prompt.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/tools/apex-prompts/workflow-prompts/07b-bicep-deploy.prompt.md"
       },
       "meta": {}
     },
@@ -1834,7 +1876,7 @@
       "description": "Deploy Terraform configurations to Azure with plan preview and phased execution.",
       "path": "tools/apex-prompts/workflow-prompts/07t-terraform-deploy.prompt.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/tools/apex-prompts/workflow-prompts/07t-terraform-deploy.prompt.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/tools/apex-prompts/workflow-prompts/07t-terraform-deploy.prompt.md"
       },
       "meta": {}
     },
@@ -1845,7 +1887,7 @@
       "description": "Generate the as-built documentation suite from all prior artifacts and deployed state.",
       "path": "tools/apex-prompts/workflow-prompts/08-as-built.prompt.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/tools/apex-prompts/workflow-prompts/08-as-built.prompt.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/tools/apex-prompts/workflow-prompts/08-as-built.prompt.md"
       },
       "meta": {}
     },
@@ -1856,7 +1898,7 @@
       "description": "Diagnose Azure resource health issues with guided troubleshooting and remediation planning.",
       "path": "tools/apex-prompts/workflow-prompts/09-diagnose-resource.prompt.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/tools/apex-prompts/workflow-prompts/09-diagnose-resource.prompt.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/tools/apex-prompts/workflow-prompts/09-diagnose-resource.prompt.md"
       },
       "meta": {}
     },
@@ -1867,7 +1909,7 @@
       "description": "Run an adversarial review against any agent-output artifact to find gaps and weaknesses.",
       "path": "tools/apex-prompts/workflow-prompts/10-challenger-review.prompt.md",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/tools/apex-prompts/workflow-prompts/10-challenger-review.prompt.md"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/tools/apex-prompts/workflow-prompts/10-challenger-review.prompt.md"
       },
       "meta": {}
     },
@@ -1878,7 +1920,7 @@
       "description": "node tools/scripts/validate-artifacts.mjs",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "node tools/scripts/validate-artifacts.mjs",
@@ -1893,7 +1935,7 @@
       "description": "node tools/scripts/validate-agents.mjs",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "node tools/scripts/validate-agents.mjs",
@@ -1908,7 +1950,7 @@
       "description": "python3 tools/scripts/validate_orchestrator_handoff.py",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "python3 tools/scripts/validate_orchestrator_handoff.py",
@@ -1923,7 +1965,7 @@
       "description": "python3 tools/scripts/validate_review_ceiling.py",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "python3 tools/scripts/validate_review_ceiling.py",
@@ -1938,7 +1980,7 @@
       "description": "python3 tools/scripts/validate_question_batching.py",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "python3 tools/scripts/validate_question_batching.py",
@@ -1953,7 +1995,7 @@
       "description": "node tools/scripts/validate-skills.mjs",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "node tools/scripts/validate-skills.mjs",
@@ -1968,7 +2010,7 @@
       "description": "node tools/scripts/validate-version-sync.mjs",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "node tools/scripts/validate-version-sync.mjs",
@@ -1983,7 +2025,7 @@
       "description": "node tools/scripts/validate-no-deprecated-refs.mjs",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "node tools/scripts/validate-no-deprecated-refs.mjs",
@@ -1998,7 +2040,7 @@
       "description": "node tools/scripts/validate-mcp-config.mjs",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "node tools/scripts/validate-mcp-config.mjs",
@@ -2013,7 +2055,7 @@
       "description": "node tools/scripts/validate-extension-bloat.mjs",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "node tools/scripts/validate-extension-bloat.mjs",
@@ -2028,7 +2070,7 @@
       "description": "node tools/scripts/validate-headings-summary.mjs",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "node tools/scripts/validate-headings-summary.mjs",
@@ -2043,7 +2085,7 @@
       "description": "node tools/scripts/validate-instruction-checks.mjs",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "node tools/scripts/validate-instruction-checks.mjs",
@@ -2058,7 +2100,7 @@
       "description": "node tools/scripts/validate-governance-refs.mjs",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "node tools/scripts/validate-governance-refs.mjs",
@@ -2073,7 +2115,7 @@
       "description": "node tools/scripts/validate-session-state.mjs",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "node tools/scripts/validate-session-state.mjs",
@@ -2088,7 +2130,7 @@
       "description": "node tools/scripts/validate-workflow-graph.mjs",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "node tools/scripts/validate-workflow-graph.mjs",
@@ -2103,7 +2145,7 @@
       "description": "node tools/scripts/validate-lens-references.mjs",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "node tools/scripts/validate-lens-references.mjs",
@@ -2118,7 +2160,7 @@
       "description": "node tools/scripts/validate-challenger-findings.mjs",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "node tools/scripts/validate-challenger-findings.mjs",
@@ -2133,7 +2175,7 @@
       "description": "node tools/scripts/validate-challenger-presence.mjs",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "node tools/scripts/validate-challenger-presence.mjs",
@@ -2148,7 +2190,7 @@
       "description": "node tools/scripts/validate-workflow-table-sync.mjs",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "node tools/scripts/validate-workflow-table-sync.mjs",
@@ -2163,7 +2205,7 @@
       "description": "node tools/scripts/validate-agent-registry.mjs",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "node tools/scripts/validate-agent-registry.mjs",
@@ -2178,7 +2220,7 @@
       "description": "node tools/scripts/validate-skill-checks.mjs",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "node tools/scripts/validate-skill-checks.mjs",
@@ -2193,7 +2235,7 @@
       "description": "node tools/scripts/lint-json.mjs",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "node tools/scripts/lint-json.mjs",
@@ -2208,7 +2250,7 @@
       "description": "node tools/scripts/validate-json-schemas.mjs",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "node tools/scripts/validate-json-schemas.mjs",
@@ -2223,7 +2265,7 @@
       "description": "node tools/scripts/validate-glob-audit.mjs",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "node tools/scripts/validate-glob-audit.mjs",
@@ -2238,7 +2280,7 @@
       "description": "node tools/scripts/validate-orphaned-content.mjs",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "node tools/scripts/validate-orphaned-content.mjs",
@@ -2253,7 +2295,7 @@
       "description": "node tools/scripts/check-docs-freshness.mjs",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "node tools/scripts/check-docs-freshness.mjs",
@@ -2268,7 +2310,7 @@
       "description": "node tools/scripts/validate-no-hardcoded-counts.mjs",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "node tools/scripts/validate-no-hardcoded-counts.mjs",
@@ -2283,7 +2325,7 @@
       "description": "node tools/scripts/validate-hooks.mjs",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "node tools/scripts/validate-hooks.mjs"
@@ -2296,7 +2338,7 @@
       "description": "node tools/scripts/validate-context-budget.mjs",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "node tools/scripts/validate-context-budget.mjs",
@@ -2311,7 +2353,7 @@
       "description": "node tools/scripts/validate-iac-security-baseline.mjs",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "node tools/scripts/validate-iac-security-baseline.mjs",
@@ -2326,7 +2368,7 @@
       "description": "node tools/scripts/validate-governance-baseline.mjs",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "node tools/scripts/validate-governance-baseline.mjs",
@@ -2341,7 +2383,7 @@
       "description": "node tools/scripts/validate-policy-precheck.mjs",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "node tools/scripts/validate-policy-precheck.mjs",
@@ -2356,7 +2398,7 @@
       "description": "node tools/scripts/validate-sku-manifest.mjs",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "node tools/scripts/validate-sku-manifest.mjs",
@@ -2371,7 +2413,7 @@
       "description": "node tools/scripts/validate-sku-iac-coverage.mjs",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "node tools/scripts/validate-sku-iac-coverage.mjs",
@@ -2386,7 +2428,7 @@
       "description": "node tools/scripts/validate-decision-keys.mjs",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "node tools/scripts/validate-decision-keys.mjs",
@@ -2401,7 +2443,7 @@
       "description": "node tools/scripts/validate-banned-phrases.mjs",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "node tools/scripts/validate-banned-phrases.mjs",
@@ -2416,7 +2458,7 @@
       "description": "node tools/scripts/validate-vscode-config.mjs",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "node tools/scripts/validate-vscode-config.mjs",
@@ -2431,7 +2473,7 @@
       "description": "node tools/scripts/validate-terminology.mjs",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "node tools/scripts/validate-terminology.mjs",
@@ -2446,7 +2488,7 @@
       "description": "node tools/scripts/validate-models.mjs --only=consistency",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "node tools/scripts/validate-models.mjs --only=consistency",
@@ -2461,7 +2503,7 @@
       "description": "node tools/scripts/validate-models.mjs --only=deprecated",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "node tools/scripts/validate-models.mjs --only=deprecated",
@@ -2476,7 +2518,7 @@
       "description": "node tools/scripts/validate-models.mjs --only=catalog",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "node tools/scripts/validate-models.mjs --only=catalog",
@@ -2491,7 +2533,7 @@
       "description": "EXPLORER_GRAPH_STRICT=1 node tools/scripts/validate-explorer-graph.mjs",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "EXPLORER_GRAPH_STRICT=1 node tools/scripts/validate-explorer-graph.mjs",
@@ -2506,25 +2548,10 @@
       "description": "node tools/scripts/validate-region-canonical.mjs",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "node tools/scripts/validate-region-canonical.mjs",
-        "orphan": true
-      },
-      "parent": "group:validator-orphans"
-    },
-    {
-      "id": "validator:validate-retirement-scan",
-      "category": "validator",
-      "label": "validate:retirement-scan",
-      "description": "node tools/scripts/audit-retirement-candidates.mjs --check .archive/retirement-scan-2026-08-27.json",
-      "path": "package.json",
-      "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
-      },
-      "meta": {
-        "command": "node tools/scripts/audit-retirement-candidates.mjs --check .archive/retirement-scan-2026-08-27.json",
         "orphan": true
       },
       "parent": "group:validator-orphans"
@@ -2536,7 +2563,7 @@
       "description": "node --test tools/tests/audit-retirement-candidates.test.mjs",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "node --test tools/tests/audit-retirement-candidates.test.mjs",
@@ -2551,7 +2578,7 @@
       "description": "node --test tools/tests/validate-region-canonical.test.mjs",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "node --test tools/tests/validate-region-canonical.test.mjs",
@@ -2566,7 +2593,7 @@
       "description": "node --test tools/tests/lib/governance-baseline.test.mjs",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "node --test tools/tests/lib/governance-baseline.test.mjs",
@@ -2581,7 +2608,7 @@
       "description": "node --test tools/tests/validate-agents/classify-model.test.mjs",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "node --test tools/tests/validate-agents/classify-model.test.mjs",
@@ -2596,7 +2623,7 @@
       "description": "node --test tools/tests/compare-devcontainer-verdicts.test.mjs",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "node --test tools/tests/compare-devcontainer-verdicts.test.mjs",
@@ -2611,7 +2638,7 @@
       "description": "node --test tools/tests/validate-all.test.mjs tools/tests/generate-explorer-graph.test.mjs tools/tests/lib/json.test.mjs tools/tests/lib/ajv-validator.test.mjs tools/tests/lib/npm-script-graph.test.mjs tools/tests/lib/parse-frontmatter.test.mjs tools/tests/lib/parsing-helpers.test.mjs",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "node --test tools/tests/validate-all.test.mjs tools/tests/generate-explorer-graph.test.mjs tools/tests/lib/json.test.mjs tools/tests/lib/ajv-validator.test.mjs tools/tests/lib/npm-script-graph.test.mjs tools/tests/lib/parse-frontmatter.test.mjs tools/tests/lib/parsing-helpers.test.mjs",
@@ -2626,7 +2653,7 @@
       "description": "node --test tools/tests/scripts/*.mjs",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "node --test tools/tests/scripts/*.mjs",
@@ -2641,7 +2668,7 @@
       "description": "node --test tools/tests/validate-sku-manifest.test.mjs",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "node --test tools/tests/validate-sku-manifest.test.mjs",
@@ -2656,7 +2683,7 @@
       "description": "node tools/scripts/safe-shell.mjs",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "node tools/scripts/safe-shell.mjs",
@@ -2671,7 +2698,7 @@
       "description": "node tools/scripts/validate-tool-versions.mjs",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "node tools/scripts/validate-tool-versions.mjs",
@@ -2686,7 +2713,7 @@
       "description": "markdownlint-cli2",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "markdownlint-cli2"
@@ -2699,7 +2726,7 @@
       "description": "cd tools/apex-recall && python3 -m ruff check src/",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "cd tools/apex-recall && python3 -m ruff check src/"
@@ -2712,7 +2739,7 @@
       "description": "terraform fmt -check -recursive infra/terraform/",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "terraform fmt -check -recursive infra/terraform/",
@@ -2727,7 +2754,7 @@
       "description": "bash tools/scripts/check-bicep-fmt.sh",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "bash tools/scripts/check-bicep-fmt.sh",
@@ -2742,7 +2769,7 @@
       "description": "status=0; for dir in infra/terraform/*/; do if [ -f \"$dir/main.tf\" ]; then echo \"Validating $dir\"; (cd \"$dir\" && terraform init -backend=false -input=false && terraform validate) || status=1; fi; done; exit \"$status\"",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "status=0; for dir in infra/terraform/*/; do if [ -f \"$dir/main.tf\" ]; then echo \"Validating $dir\"; (cd \"$dir\" && terraform init -backend=false -input=false && terraform validate) || status=1; fi; done; exit \"$status\"",
@@ -2757,7 +2784,7 @@
       "description": "python3 -m pytest tools/tests/test_apex_recall/ -q && python3 -m pytest tools/apex-recall/tests/ -q",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "python3 -m pytest tools/tests/test_apex_recall/ -q && python3 -m pytest tools/apex-recall/tests/ -q"
@@ -2770,7 +2797,7 @@
       "description": "python3 -m pytest tools/tests/scripts tools/tests/python-diagrams -q",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "python3 -m pytest tools/tests/scripts tools/tests/python-diagrams -q"
@@ -2783,7 +2810,7 @@
       "description": "python3 -m pytest .github/skills/apex-azure-governance-discovery/scripts/test_governance_baseline.py -q",
       "path": "package.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/package.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/package.json"
       },
       "meta": {
         "command": "python3 -m pytest .github/skills/apex-azure-governance-discovery/scripts/test_governance_baseline.py -q",
@@ -2798,7 +2825,7 @@
       "description": "",
       "path": ".github/workflows/branch-enforcement.yml",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/workflows/branch-enforcement.yml"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/workflows/branch-enforcement.yml"
       },
       "meta": {
         "orphan": true
@@ -2812,7 +2839,7 @@
       "description": "",
       "path": ".github/workflows/ci.yml",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/workflows/ci.yml"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/workflows/ci.yml"
       },
       "meta": {}
     },
@@ -2823,7 +2850,21 @@
       "description": "",
       "path": ".github/workflows/consumer-template-checks.yml",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/workflows/consumer-template-checks.yml"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/workflows/consumer-template-checks.yml"
+      },
+      "meta": {
+        "orphan": true
+      },
+      "parent": "group:workflow-orphans"
+    },
+    {
+      "id": "workflow:upstream-skill-drift",
+      "category": "workflow",
+      "label": "upstream-skill-drift",
+      "description": "",
+      "path": ".github/workflows/upstream-skill-drift.yml",
+      "links": {
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/workflows/upstream-skill-drift.yml"
       },
       "meta": {
         "orphan": true
@@ -2837,7 +2878,7 @@
       "description": "",
       "path": ".github/workflows/validate-devcontainer-base.yml",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/workflows/validate-devcontainer-base.yml"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.github/workflows/validate-devcontainer-base.yml"
       },
       "meta": {
         "orphan": true
@@ -2851,7 +2892,7 @@
       "description": "HTTP: https://api.githubcopilot.com/mcp/",
       "path": ".vscode/mcp.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.vscode/mcp.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.vscode/mcp.json"
       },
       "meta": {
         "type": "http"
@@ -2864,7 +2905,7 @@
       "description": "HTTP: https://mcp.management.azure.com",
       "path": ".vscode/mcp.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.vscode/mcp.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.vscode/mcp.json"
       },
       "meta": {
         "type": "http"
@@ -2877,7 +2918,7 @@
       "description": "stdio: npx",
       "path": ".vscode/mcp.json",
       "links": {
-        "source": "https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.vscode/mcp.json"
+        "source": "https://github.com/jonathan-vella/apex/blob/fb65b780c9953cb0c9d1900310501b9f8a34f467/.vscode/mcp.json"
       },
       "meta": {
         "type": "stdio"
@@ -2886,21 +2927,21 @@
     {
       "id": "group:validator-orphans",
       "category": "validator",
-      "label": "Validator (unlinked, 57)",
-      "description": "57 validator nodes with no cross-references in the current graph.",
+      "label": "Validator (unlinked, 56)",
+      "description": "56 validator nodes with no cross-references in the current graph.",
       "isGroup": true,
       "meta": {
-        "groupSize": 57
+        "groupSize": 56
       }
     },
     {
       "id": "group:workflow-orphans",
       "category": "workflow",
-      "label": "CI Workflow (unlinked, 3)",
-      "description": "3 ci workflow nodes with no cross-references in the current graph.",
+      "label": "CI Workflow (unlinked, 4)",
+      "description": "4 ci workflow nodes with no cross-references in the current graph.",
       "isGroup": true,
       "meta": {
-        "groupSize": 3
+        "groupSize": 4
       }
     }
   ],
@@ -3362,6 +3403,18 @@
       "kind": "uses-skill"
     },
     {
+      "id": "agent:03-architect--uses-skill->skill:apex-azure-kubernetes",
+      "source": "agent:03-architect",
+      "target": "skill:apex-azure-kubernetes",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:03-architect--uses-skill->skill:apex-azure-upgrade",
+      "source": "agent:03-architect",
+      "target": "skill:apex-azure-upgrade",
+      "kind": "uses-skill"
+    },
+    {
       "id": "agent:04-design--uses-skill->skill:apex-azure-defaults",
       "source": "agent:04-design",
       "target": "skill:apex-azure-defaults",
@@ -3437,6 +3490,12 @@
       "id": "agent:05-iac-planner--uses-skill->skill:apex-terraform-patterns",
       "source": "agent:05-iac-planner",
       "target": "skill:apex-terraform-patterns",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:05-iac-planner--uses-skill->skill:apex-azure-kubernetes",
+      "source": "agent:05-iac-planner",
+      "target": "skill:apex-azure-kubernetes",
       "kind": "uses-skill"
     },
     {
@@ -3554,6 +3613,12 @@
       "kind": "uses-skill"
     },
     {
+      "id": "agent:08-as-built--uses-skill->skill:apex-azure-reliability",
+      "source": "agent:08-as-built",
+      "target": "skill:apex-azure-reliability",
+      "kind": "uses-skill"
+    },
+    {
       "id": "agent:09-diagnose--uses-skill->skill:apex-azure-defaults",
       "source": "agent:09-diagnose",
       "target": "skill:apex-azure-defaults",
@@ -3563,6 +3628,12 @@
       "id": "agent:09-diagnose--uses-skill->skill:apex-azure-diagnostics",
       "source": "agent:09-diagnose",
       "target": "skill:apex-azure-diagnostics",
+      "kind": "uses-skill"
+    },
+    {
+      "id": "agent:09-diagnose--uses-skill->skill:apex-azure-reliability",
+      "source": "agent:09-diagnose",
+      "target": "skill:apex-azure-reliability",
       "kind": "uses-skill"
     },
     {
@@ -3839,12 +3910,6 @@
       "id": "instruction:agent-authoring--applies-to->prompt:context-audit",
       "source": "instruction:agent-authoring",
       "target": "prompt:context-audit",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:agent-authoring--applies-to->prompt:execution-subagent-claude",
-      "source": "instruction:agent-authoring",
-      "target": "prompt:execution-subagent-claude",
       "kind": "applies-to"
     },
     {
@@ -4160,6 +4225,12 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:agent-skills--applies-to->skill:apex-azure-kubernetes",
+      "source": "instruction:agent-skills",
+      "target": "skill:apex-azure-kubernetes",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:agent-skills--applies-to->skill:apex-azure-kusto",
       "source": "instruction:agent-skills",
       "target": "skill:apex-azure-kusto",
@@ -4184,6 +4255,12 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:agent-skills--applies-to->skill:apex-azure-reliability",
+      "source": "instruction:agent-skills",
+      "target": "skill:apex-azure-reliability",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:agent-skills--applies-to->skill:apex-azure-resources",
       "source": "instruction:agent-skills",
       "target": "skill:apex-azure-resources",
@@ -4193,6 +4270,12 @@
       "id": "instruction:agent-skills--applies-to->skill:apex-azure-storage",
       "source": "instruction:agent-skills",
       "target": "skill:apex-azure-storage",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:agent-skills--applies-to->skill:apex-azure-upgrade",
+      "source": "instruction:agent-skills",
+      "target": "skill:apex-azure-upgrade",
       "kind": "applies-to"
     },
     {
@@ -4502,6 +4585,12 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:context-optimization--applies-to->skill:apex-azure-kubernetes",
+      "source": "instruction:context-optimization",
+      "target": "skill:apex-azure-kubernetes",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:context-optimization--applies-to->skill:apex-azure-kusto",
       "source": "instruction:context-optimization",
       "target": "skill:apex-azure-kusto",
@@ -4526,6 +4615,12 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:context-optimization--applies-to->skill:apex-azure-reliability",
+      "source": "instruction:context-optimization",
+      "target": "skill:apex-azure-reliability",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:context-optimization--applies-to->skill:apex-azure-resources",
       "source": "instruction:context-optimization",
       "target": "skill:apex-azure-resources",
@@ -4535,6 +4630,12 @@
       "id": "instruction:context-optimization--applies-to->skill:apex-azure-storage",
       "source": "instruction:context-optimization",
       "target": "skill:apex-azure-storage",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:context-optimization--applies-to->skill:apex-azure-upgrade",
+      "source": "instruction:context-optimization",
+      "target": "skill:apex-azure-upgrade",
       "kind": "applies-to"
     },
     {
@@ -4850,6 +4951,12 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:docs-trigger--applies-to->skill:apex-azure-kubernetes",
+      "source": "instruction:docs-trigger",
+      "target": "skill:apex-azure-kubernetes",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:docs-trigger--applies-to->skill:apex-azure-kusto",
       "source": "instruction:docs-trigger",
       "target": "skill:apex-azure-kusto",
@@ -4874,6 +4981,12 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:docs-trigger--applies-to->skill:apex-azure-reliability",
+      "source": "instruction:docs-trigger",
+      "target": "skill:apex-azure-reliability",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:docs-trigger--applies-to->skill:apex-azure-resources",
       "source": "instruction:docs-trigger",
       "target": "skill:apex-azure-resources",
@@ -4883,6 +4996,12 @@
       "id": "instruction:docs-trigger--applies-to->skill:apex-azure-storage",
       "source": "instruction:docs-trigger",
       "target": "skill:apex-azure-storage",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:docs-trigger--applies-to->skill:apex-azure-upgrade",
+      "source": "instruction:docs-trigger",
+      "target": "skill:apex-azure-upgrade",
       "kind": "applies-to"
     },
     {
@@ -5348,6 +5467,12 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:markdown--applies-to->skill:apex-azure-kubernetes",
+      "source": "instruction:markdown",
+      "target": "skill:apex-azure-kubernetes",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:markdown--applies-to->skill:apex-azure-kusto",
       "source": "instruction:markdown",
       "target": "skill:apex-azure-kusto",
@@ -5372,6 +5497,12 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:markdown--applies-to->skill:apex-azure-reliability",
+      "source": "instruction:markdown",
+      "target": "skill:apex-azure-reliability",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:markdown--applies-to->skill:apex-azure-resources",
       "source": "instruction:markdown",
       "target": "skill:apex-azure-resources",
@@ -5381,6 +5512,12 @@
       "id": "instruction:markdown--applies-to->skill:apex-azure-storage",
       "source": "instruction:markdown",
       "target": "skill:apex-azure-storage",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:markdown--applies-to->skill:apex-azure-upgrade",
+      "source": "instruction:markdown",
+      "target": "skill:apex-azure-upgrade",
       "kind": "applies-to"
     },
     {
@@ -5690,6 +5827,12 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:no-interactive-shell--applies-to->skill:apex-azure-kubernetes",
+      "source": "instruction:no-interactive-shell",
+      "target": "skill:apex-azure-kubernetes",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:no-interactive-shell--applies-to->skill:apex-azure-kusto",
       "source": "instruction:no-interactive-shell",
       "target": "skill:apex-azure-kusto",
@@ -5714,6 +5857,12 @@
       "kind": "applies-to"
     },
     {
+      "id": "instruction:no-interactive-shell--applies-to->skill:apex-azure-reliability",
+      "source": "instruction:no-interactive-shell",
+      "target": "skill:apex-azure-reliability",
+      "kind": "applies-to"
+    },
+    {
       "id": "instruction:no-interactive-shell--applies-to->skill:apex-azure-resources",
       "source": "instruction:no-interactive-shell",
       "target": "skill:apex-azure-resources",
@@ -5723,6 +5872,12 @@
       "id": "instruction:no-interactive-shell--applies-to->skill:apex-azure-storage",
       "source": "instruction:no-interactive-shell",
       "target": "skill:apex-azure-storage",
+      "kind": "applies-to"
+    },
+    {
+      "id": "instruction:no-interactive-shell--applies-to->skill:apex-azure-upgrade",
+      "source": "instruction:no-interactive-shell",
+      "target": "skill:apex-azure-upgrade",
       "kind": "applies-to"
     },
     {
@@ -5873,12 +6028,6 @@
       "id": "instruction:no-interactive-shell--applies-to->prompt:context-audit",
       "source": "instruction:no-interactive-shell",
       "target": "prompt:context-audit",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:no-interactive-shell--applies-to->prompt:execution-subagent-claude",
-      "source": "instruction:no-interactive-shell",
-      "target": "prompt:execution-subagent-claude",
       "kind": "applies-to"
     },
     {
@@ -6041,12 +6190,6 @@
       "id": "instruction:prompt--applies-to->prompt:context-audit",
       "source": "instruction:prompt",
       "target": "prompt:context-audit",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:prompt--applies-to->prompt:execution-subagent-claude",
-      "source": "instruction:prompt",
-      "target": "prompt:execution-subagent-claude",
       "kind": "applies-to"
     },
     {
@@ -6329,12 +6472,6 @@
       "id": "instruction:vendor-prompting--applies-to->prompt:context-audit",
       "source": "instruction:vendor-prompting",
       "target": "prompt:context-audit",
-      "kind": "applies-to"
-    },
-    {
-      "id": "instruction:vendor-prompting--applies-to->prompt:execution-subagent-claude",
-      "source": "instruction:vendor-prompting",
-      "target": "prompt:execution-subagent-claude",
       "kind": "applies-to"
     },
     {
@@ -6734,6 +6871,12 @@
       "kind": "refs"
     },
     {
+      "id": "skill:apex-azure-cloud-migrate--refs->skill:apex-azure-validate",
+      "source": "skill:apex-azure-cloud-migrate",
+      "target": "skill:apex-azure-validate",
+      "kind": "refs"
+    },
+    {
       "id": "skill:apex-azure-compliance--refs->skill:apex-azure-cost-optimization",
       "source": "skill:apex-azure-compliance",
       "target": "skill:apex-azure-cost-optimization",
@@ -6764,6 +6907,12 @@
       "kind": "refs"
     },
     {
+      "id": "skill:apex-azure-compute--refs->skill:apex-azure-quotas",
+      "source": "skill:apex-azure-compute",
+      "target": "skill:apex-azure-quotas",
+      "kind": "refs"
+    },
+    {
       "id": "skill:apex-azure-cost-optimization--refs->skill:apex-azure-compliance",
       "source": "skill:apex-azure-cost-optimization",
       "target": "skill:apex-azure-compliance",
@@ -6779,6 +6928,12 @@
       "id": "skill:apex-azure-cost-optimization--refs->skill:apex-azure-diagnostics",
       "source": "skill:apex-azure-cost-optimization",
       "target": "skill:apex-azure-diagnostics",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:apex-azure-cost-optimization--refs->skill:apex-azure-storage",
+      "source": "skill:apex-azure-cost-optimization",
+      "target": "skill:apex-azure-storage",
       "kind": "refs"
     },
     {
@@ -6818,6 +6973,12 @@
       "kind": "refs"
     },
     {
+      "id": "skill:apex-azure-diagnostics--refs->skill:apex-azure-kubernetes",
+      "source": "skill:apex-azure-diagnostics",
+      "target": "skill:apex-azure-kubernetes",
+      "kind": "refs"
+    },
+    {
       "id": "skill:apex-azure-diagnostics--refs->skill:apex-azure-validate",
       "source": "skill:apex-azure-diagnostics",
       "target": "skill:apex-azure-validate",
@@ -6827,6 +6988,24 @@
       "id": "skill:apex-azure-governance-discovery--refs->skill:apex-azure-artifacts",
       "source": "skill:apex-azure-governance-discovery",
       "target": "skill:apex-azure-artifacts",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:apex-azure-kubernetes--refs->skill:apex-azure-defaults",
+      "source": "skill:apex-azure-kubernetes",
+      "target": "skill:apex-azure-defaults",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:apex-azure-kubernetes--refs->skill:apex-azure-diagnostics",
+      "source": "skill:apex-azure-kubernetes",
+      "target": "skill:apex-azure-diagnostics",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:apex-azure-kubernetes--refs->skill:apex-azure-quotas",
+      "source": "skill:apex-azure-kubernetes",
+      "target": "skill:apex-azure-quotas",
       "kind": "refs"
     },
     {
@@ -6878,6 +7057,12 @@
       "kind": "refs"
     },
     {
+      "id": "skill:apex-azure-rbac--refs->skill:apex-azure-defaults",
+      "source": "skill:apex-azure-rbac",
+      "target": "skill:apex-azure-defaults",
+      "kind": "refs"
+    },
+    {
       "id": "skill:apex-azure-rbac--refs->skill:apex-azure-deploy",
       "source": "skill:apex-azure-rbac",
       "target": "skill:apex-azure-deploy",
@@ -6887,6 +7072,12 @@
       "id": "skill:apex-azure-rbac--refs->skill:apex-entra-app-registration",
       "source": "skill:apex-azure-rbac",
       "target": "skill:apex-entra-app-registration",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:apex-azure-reliability--refs->skill:apex-azure-diagnostics",
+      "source": "skill:apex-azure-reliability",
+      "target": "skill:apex-azure-diagnostics",
       "kind": "refs"
     },
     {
@@ -6926,6 +7117,12 @@
       "kind": "refs"
     },
     {
+      "id": "skill:apex-azure-upgrade--refs->skill:apex-azure-cloud-migrate",
+      "source": "skill:apex-azure-upgrade",
+      "target": "skill:apex-azure-cloud-migrate",
+      "kind": "refs"
+    },
+    {
       "id": "skill:apex-azure-validate--refs->skill:apex-azure-deploy",
       "source": "skill:apex-azure-validate",
       "target": "skill:apex-azure-deploy",
@@ -6959,6 +7156,12 @@
       "id": "skill:apex-entra-app-registration--refs->skill:apex-azure-compliance",
       "source": "skill:apex-entra-app-registration",
       "target": "skill:apex-azure-compliance",
+      "kind": "refs"
+    },
+    {
+      "id": "skill:apex-entra-app-registration--refs->skill:apex-azure-deploy",
+      "source": "skill:apex-entra-app-registration",
+      "target": "skill:apex-azure-deploy",
       "kind": "refs"
     },
     {
@@ -7118,5 +7321,5 @@
       "kind": "refs"
     }
   ],
-  "sourceCommit": "a656e66d83cfae8d525ce0d2012b124599b37252"
+  "sourceCommit": "fb65b780c9953cb0c9d1900310501b9f8a34f467"
 }
