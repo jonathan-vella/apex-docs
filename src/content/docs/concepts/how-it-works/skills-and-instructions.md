@@ -90,35 +90,45 @@ Agents must load missing required guidance; essential approval, security, output
 stop rules remain in production agent bodies. The table summarizes scope rather than
 duplicating every glob; exact patterns live in `.github/instructions/*.instructions.md`.
 
-| Instruction                    | `applyTo`                                                            | Enforces                                                       |
-| ------------------------------ | -------------------------------------------------------------------- | -------------------------------------------------------------- |
-| `iac-bicep-best-practices`     | `**/*.bicep`                                                         | Bicep: security baseline, AVM, cost monitoring, repeatability  |
-| `iac-terraform-best-practices` | `**/*.tf`                                                            | Terraform: AVM-TF, provider pinning, naming, security baseline |
-| `iac-plan-best-practices`      | `**/04-implementation-plan.md`                                       | IaC plan structure, governance alignment                       |
-| `azure-artifacts`              | `**/agent-output/**/*.md`                                            | H2 template compliance for artefacts                           |
-| `agent-authoring` | Agents and prompts | Frontmatter, handoffs, and body contracts |
-| `agent-skills`                 | `**/.github/skills/**/SKILL.md`                                      | Skill file format standards                                    |
-| `instructions`                 | `**/*.instructions.md`                                               | Meta: instruction file guidelines                              |
-| `markdown`                     | `**/*.md`                                                            | Documentation standards                                        |
-| `context-optimization`         | Agents, skills, instructions                                         | Context window management rules                                |
-| `code-quality`                 | `**/*.{js,mjs,cjs,ts,tsx,jsx,py,ps1,sh,bicep,tf}`                    | Review priorities and comment quality                          |
-| `governance-discovery`         | `**/04-governance-constraints.*`                                     | Azure Policy discovery requirements                            |
-| `github-actions`               | `.github/workflows/*.yml`                                            | GitHub Actions workflow standards                              |
-| `javascript`                   | `**/*.{js,mjs,cjs}`                                                  | JavaScript/Node.js conventions                                 |
-| `json`                         | `**/*.{json,jsonc}`                                                  | JSON/JSONC formatting                                          |
-| `lesson-collection` | Orchestrator agent definitions | Production lesson collection protocol |
-| `no-hardcoded-counts` | Selected authoring, tooling, and docs files | Counts come from `count-manifest.json` |
-| `python`                       | `**/*.py`                                                            | Python coding conventions                                      |
-| `shell`                        | `**/*.sh`                                                            | Shell scripting best practices                                 |
-| `powershell`                   | `**/*.ps1`, `**/*.psm1`                                              | PowerShell cmdlet best practices                               |
-| `prompt`                       | `**/*.prompt.md`                                                     | Prompt file guidelines                                         |
-| `no-heredoc` | Code and script files | Prevents terminal heredoc corruption |
+| Instruction                    | `applyTo`                                                        | Enforces                                                       |
+| ------------------------------ | ---------------------------------------------------------------- | -------------------------------------------------------------- |
+| `iac-bicep-best-practices`     | `**/*.bicep`                                                     | Bicep: security baseline, AVM, cost monitoring, repeatability  |
+| `iac-terraform-best-practices` | `**/*.tf`                                                        | Terraform: AVM-TF, provider pinning, naming, security baseline |
+| `iac-plan-best-practices`      | `**/04-implementation-plan.md`                                   | IaC plan structure, governance alignment                       |
+| `azure-artifacts`              | `**/agent-output/**/*.md`                                        | H2 template compliance for artefacts                           |
+| `sku-manifest`                 | `**/sku-manifest.{md,json}`                                      | SKU Manifest authoring rules                                   |
+| `governance-discovery`         | `**/04-governance-constraints.*`                                 | Azure Policy discovery requirements                            |
+| `azure-yaml`                   | `**/azure.yaml`                                                  | azd manifest conventions for co-located projects               |
+| `agent-authoring`              | Agents and prompts                                               | Frontmatter, handoffs, and body contracts                      |
+| `vendor-prompting`             | Agents and prompts                                               | Sourced vendor advice with rule IDs                            |
+| `agent-operating-frame`        | `.github/agents/*.agent.md`                                      | Shared operating frame for main step agents                    |
+| `lesson-collection`            | Orchestrator agent definitions                                   | Production lesson collection protocol                          |
+| `agent-skills`                 | `**/.github/skills/**/SKILL.md`                                  | Skill file format standards                                    |
+| `instructions`                 | `**/*.instructions.md`                                           | Meta: instruction file guidelines                              |
+| `prompt`                       | `**/*.prompt.md`                                                 | Prompt file guidelines                                         |
+| `context-optimization`         | Agents, skills, instructions                                     | Context window management rules                                |
+| `no-interactive-shell`         | Chat-loaded agents, skills, instructions, prompts, and root docs | No interactive prompts, bounded terminal output                |
+| `docs-trigger`                 | Agents, skills, and `tools/scripts/*.mjs`                        | Required product documentation updates                         |
+| `no-hardcoded-counts`          | Selected authoring, tooling, and docs files                      | Counts come from `count-manifest.json`                         |
+| `no-heredoc`                   | Code and script files                                            | Prevents terminal heredoc corruption                           |
+| `markdown`                     | Selected docs, templates, prompts, and root Markdown files       | Documentation standards                                        |
+| `code-quality`                 | Code under `.github/`, `tools/`, and `infra/`                    | Review priorities and comment quality                          |
+| `github-actions`               | `.github/workflows/*.{yml,yaml}`                                 | GitHub Actions workflow standards                              |
+| `javascript`                   | `**/*.{js,mjs,cjs}`                                              | JavaScript/Node.js conventions                                 |
+| `json`                         | `**/*.{json,jsonc}`                                              | JSON/JSONC formatting                                          |
+| `python`                       | `**/*.py`                                                        | Python coding conventions                                      |
+| `shell`                        | `**/*.sh`                                                        | Shell scripting best practices                                 |
+| `powershell`                   | `**/*.ps1`, `**/*.psm1`                                          | PowerShell cmdlet best practices                               |
 
 When multiple instructions apply to the same file via overlapping `applyTo` globs,
 precedence rules determine which takes priority. See
 `.github/instructions/references/precedence-matrix.md` for the full matrix.
-Short version: Azure Policy compliance (Tier 1) always wins over domain IaC (Tier 2),
-which wins over cross-cutting cost rules (Tier 3), which wins over general code quality (Tier 4).
+Short version: Azure Policy constraints (Tier 1) always win. Domain instructions such as
+the IaC tracks, `azure-artifacts`, and `agent-authoring` (Tier 2) win over cross-cutting
+rules such as `context-optimization`, `no-interactive-shell`, and `docs-trigger` (Tier 3),
+which win over general style: `code-quality`, `markdown`, and the language files (Tier 4).
+Files under `references/` have no `applyTo`. They are canonical sources that instructions
+link to, not an extra precedence layer.
 
 **`iac-bicep-best-practices.instructions.md`** and
 **`iac-terraform-best-practices.instructions.md`** are the
