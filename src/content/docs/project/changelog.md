@@ -33,8 +33,9 @@ It does not automatically describe the newest product commit.
   instruction files were deduplicated and corrected
   ([#719](https://github.com/jonathan-vella/apex/pull/719)).
 - Agent frontmatter now uses the `GPT-6 Sol (copilot)` and `GPT-6 Luna (copilot)` picker labels
-  and sets `reasoning-effort` directly. Luna agents use `max` and all other agents use `default`
-  ([#720](https://github.com/jonathan-vella/apex/pull/720), open at the time of writing).
+  and sets `reasoning-effort` directly ([#720](https://github.com/jonathan-vella/apex/pull/720)).
+  Luna agents use `max` and all other agents use `medium`
+  ([#721](https://github.com/jonathan-vella/apex/pull/721), open at the time of writing).
 
 ## August 2026
 
