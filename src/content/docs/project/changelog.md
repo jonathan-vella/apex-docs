@@ -35,6 +35,12 @@ It does not automatically describe the newest product commit.
 - Agent frontmatter now uses the `GPT-6 Sol (copilot)` and `GPT-6 Luna (copilot)` picker labels
   and sets `reasoning-effort` directly. Luna agents use `max` and all other agents use `default`
   ([#720](https://github.com/jonathan-vella/apex/pull/720), open at the time of writing).
+- The step agents moved to Claude models. Claude Opus 5.5 (high effort) now runs requirements,
+  architecture, IaC planning, challenger review and context optimization. Claude Sonnet 5.5
+  (medium effort) runs design, governance, code generation, deployment, as-built documentation
+  and diagnostics. The Orchestrator and subagents keep their models. Claude agents now follow a
+  body contract, which the validator enforces
+  ([#726](https://github.com/jonathan-vella/apex/pull/726), open at the time of writing).
 
 ## August 2026
 

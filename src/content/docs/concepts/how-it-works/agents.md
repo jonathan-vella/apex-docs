@@ -123,7 +123,16 @@ empty helper allowlist when no delegation is needed.
 
 ### Step 3: write the agent body
 
-State the role, goal, success criteria, constraints, output, and stop rules.
+The required body shape depends on the agent's model family:
+
+- GPT agents state the role, goal, success criteria, constraints, output, and stop rules as H2
+  sections.
+- Claude agents state the role and its completion criteria in `## Role`, then put the
+  constraints, output, and stop rules in `<scope_fencing>`, `<output_contract>`, and
+  `<stop_conditions>` blocks. Research-heavy agents also need an
+  `<investigate_before_answering>` block, and long bodies need a `<context_awareness>` block.
+
+The product validator enforces the rules for each model family.
 Reference skills for detailed procedures. Keep essential approval and safety
 requirements explicit rather than assuming an authoring glob attaches at runtime.
 
