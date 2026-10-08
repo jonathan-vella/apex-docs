@@ -31,7 +31,7 @@
     "starlight-links-validator": "^0.26.0"
   },
   "overrides": {
-    "devalue": "^5.9.2",
+    "devalue": "^5.9.4",
     "nanoid": "3.3.18"
   },
   "devDependencies": {
