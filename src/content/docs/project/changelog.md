@@ -15,6 +15,19 @@ The site's generated reference data uses the revision recorded in
 [`apex-source.json`](https://github.com/jonathan-vella/apex-docs/blob/main/apex-source.json).
 It does not automatically describe the newest product commit.
 
+## October 2026
+
+- Four workflow bugs were fixed ([#743](https://github.com/jonathan-vella/apex/pull/743), open at
+  the time of writing):
+  - Windows clones now keep `.bicepparam` files with LF line endings, so the IaC handoff tree
+    hash matches the dev container.
+  - A confirmation review after several revisions can use any unused pass number, not just 1
+    to 3. Earlier review files stay in place.
+  - App Service apps that pull images from Azure Container Registry with a managed identity now
+    get a registry that accepts ARM audience tokens. Deploy also checks this setting.
+  - The SKU manifest renderer reads `actual_sku` as the schema defines it, by environment and
+    then region, so As-Built no longer reports false drift.
+
 ## September 2026
 
 - The documentation site moved to the apex-docs repository. APEX retired its copy of the site after the
