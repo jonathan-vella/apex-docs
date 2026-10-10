@@ -17,6 +17,13 @@ It does not automatically describe the newest product commit.
 
 ## October 2026
 
+- Pending product change, reviewed on October 10: explicit signed risk acceptance for non-production lab Plans.
+  Original findings and review verdicts remain unchanged. Kit permission can permit Plan approval and CodeGen;
+  deployment needs separate adopter authority and human approval. Runtime completion, resume and downstream entry
+  fail closed when evidence is missing, expired, revoked or changed; CI only warns. Step order is now checked, with a
+  logged human override. See
+  [explicit lab risk acceptance](/concepts/workflow-deep-dive/#explicit-lab-risk-acceptance).
+
 - Four workflow bugs were fixed ([#743](https://github.com/jonathan-vella/apex/pull/743), open at
   the time of writing):
   - Windows clones now keep `.bicepparam` files with LF line endings, so the IaC handoff tree

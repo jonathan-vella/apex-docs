@@ -14,11 +14,11 @@ its task, and produces artifacts. Required reviews and approvals determine wheth
 the next step can proceed. Helpers can perform permitted bounded tasks, but the
 main-agent sequence is not an autonomous subagent chain.
 
-| Record | Purpose | What it does not prove |
-|---|---|---|
-| `agent-output/{project}/` | Requirements, decisions, reviews, contracts, and observed results | A file's presence does not establish freshness or approval. |
-| Primary session state through `apex-recall` | Current decisions, findings, and step progress | State does not authorize deployment or replace reviewed artifacts. |
-| Workflow graph | Dependencies, expected outputs, and review defaults | An edge does not execute an agent or grant permission. |
+| Record                                      | Purpose                                                           | What it does not prove                                             |
+| ------------------------------------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------ |
+| `agent-output/{project}/`                   | Requirements, decisions, reviews, contracts, and observed results | A file's presence does not establish freshness or approval.        |
+| Primary session state through `apex-recall` | Current decisions, findings, and step progress                    | State does not authorize deployment or replace reviewed artifacts. |
+| Workflow graph                              | Dependencies, expected outputs, and review defaults               | An edge does not execute an agent or grant permission.             |
 
 ## The five context surfaces
 
@@ -57,6 +57,42 @@ Git hooks and CI run configured checks. Agent hooks run at their declared lifecy
 events. Each mechanism covers specific rules, not all correctness or safety.
 A Challenger review evaluates the requested artifact scope and remains a separate
 human-selected step.
+
+## Explicit lab risk acceptance
+
+This capability requires an APEX runtime with `risk-authorization-v1` and `apex-recall check-gate`.
+It is a pending product change, not a capability established by this site's older pinned source.
+The [current-source maintainer contract](https://github.com/jonathan-vella/apex/blob/main/tools/apex-recall/docs/risk-authorizations.md)
+defines the signed records and operator setup after that change ships.
+
+An authorized owner can accept a specific unremediated Plan risk for a non-production lab when remediation is
+not feasible. Acceptance leaves the original findings, severity, review verdict and hashes unchanged. The gate
+reports `exception-authorized`; a `NEEDS_REVISION` review does not become `APPROVED`.
+
+An operator must verify each signer's delegated authority and install a protected external trust configuration.
+The owner selects individual finding IDs and signs the exact project, actions, review bytes, artifact hashes,
+supporting inputs, residual impact, validity window and verification obligations. An independent reviewer signs
+the eligibility assessment. Chat consent or an `accepted_risks` decision supplies no risk-owner authority.
+
+Applicable law and technical deployment impossibility cannot be waived. A mandatory governance or security
+requirement needs a valid exception from that rule's authority. Best-practice guidance alone is not a mandatory
+rule. Unresolved eligibility, missing authority, changed hashes, expiry and revocation block progression.
+
+Kit maintainer authorization can permit Plan approval and CodeGen without claiming adopter tenant approval.
+Deployment requires a separate adopter authorization for the actual lab tenant, subscription, event, inputs and
+phase. It must name the cleanup owner and teardown obligations. Kit approval permits neither deployment nor
+production reuse. Collect execution and teardown evidence afterward, never as invented pre-deployment proof.
+
+The owner evaluates authorization first, then asks the authorized human for separate gate approval.
+Completion, transition, resume and downstream entry use the same evaluator for the requested action and block
+when evidence is missing, expired, revoked or changed. CI and GitHub checks report the same problems as
+warnings only, so a lab never fails a pipeline on its own.
+
+Apex-recall also checks step order: starting or completing a step before its predecessor is done is refused
+unless a human passes `--allow-out-of-order "<reason>"`, which is logged in `decisions.order_overrides`.
+All existing review-integrity, code-validation, policy, preview and deployment approval checks still apply.
+Existing projects receive no automatic authorization or migration. No Azure deployment was tested for this
+documentation change; product regression tests use isolated synthetic lab evidence.
 
 ## Stage-by-stage walkthrough
 
@@ -221,11 +257,11 @@ central services. Do not assume every landing zone has the same deployment.
 
 #### ALZ layer and APEX step consumer
 
-| Platform concern | Workload step |
-|---|---|
-| Effective policy and inheritance | Governance discovers constraints; Plan maps them to implementation. |
-| Existing network and DNS ownership | Architecture selects connectivity; Plan records references and responsibilities. |
-| Identity and role scope | Plan and CodeGen implement the approved access model. |
+| Platform concern                       | Workload step                                                                              |
+| -------------------------------------- | ------------------------------------------------------------------------------------------ |
+| Effective policy and inheritance       | Governance discovers constraints; Plan maps them to implementation.                        |
+| Existing network and DNS ownership     | Architecture selects connectivity; Plan records references and responsibilities.           |
+| Identity and role scope                | Plan and CodeGen implement the approved access model.                                      |
 | Diagnostics and monitoring destination | Plan identifies ownership; CodeGen wires the approved resources; As-built records results. |
 
 ### How ALZ guardrails accelerate and de-risk APEX
