@@ -17,6 +17,11 @@ It does not automatically describe the newest product commit.
 
 ## October 2026
 
+- Requirements, Architecture, IaC Planner, Challenger and Context Optimizer moved from GPT-6.1 Sol
+  to Claude Sonnet 5.5, still at high effort. Their bodies now follow the Claude body contract.
+  The utility prompts and the Luna subagents keep their models
+  ([#758](https://github.com/jonathan-vella/apex/pull/758), open at the time of writing).
+
 - Pending product change, reviewed on October 10: explicit signed risk acceptance for non-production lab Plans.
   Original findings and review verdicts remain unchanged. Kit permission can permit Plan approval and CodeGen;
   deployment needs separate adopter authority and human approval. Runtime completion, resume and downstream entry
