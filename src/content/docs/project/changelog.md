@@ -17,6 +17,23 @@ It does not automatically describe the newest product commit.
 
 ## October 2026
 
+- Azure MCP moves from 2.0.5 to 3.0.0 ([#759](https://github.com/jonathan-vella/apex/pull/759), open at the time of
+  writing). Version 3.0.0 rejects unknown tool parameters, so three skill examples were corrected. It lists
+  `extension_azqr` only when azqr 3.0.0 or later is installed, so the dev container now installs a pinned, checksum-verified
+  azqr. References to an Azure MCP `azd` tool, which never existed, were removed.
+
+- Terraform planning and CodeGen use the Azure MCP `azureterraform` commands for module versions, READMEs and
+  provider docs, with the Registry API as fallback
+  ([#760](https://github.com/jonathan-vella/apex/pull/760), open at the time of writing).
+
+- The committed governance baseline is now an offline-generated ALZ Corp default instead of a tenant snapshot, and
+  Governance offers it as clearly labelled assumed governance next to live discovery
+  ([#762](https://github.com/jonathan-vella/apex/pull/762), open at the time of writing). Policy discovery also
+  evaluates the diagnostic-settings initiatives' conditional effects.
+
+- The Azure deprecation fetcher moved to the live Azure Updates feed, and the AVM index was refreshed
+  ([#761](https://github.com/jonathan-vella/apex/pull/761), open at the time of writing).
+
 - Requirements, Architecture, IaC Planner, Challenger and Context Optimizer moved from GPT-6.1 Sol
   to Claude Sonnet 5.5, still at high effort. Their bodies now follow the Claude body contract.
   The utility prompts and the Luna subagents keep their models

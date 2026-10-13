@@ -106,8 +106,14 @@ identity credentials as supported by the server.
 | GitHub MCP | HTTP | Repository, issue, and pull-request context |
 
 Architecture diagrams are generated locally through the `apex-python-diagrams` skill,
-not through MCP. Terraform provider and module metadata comes from the public
-Terraform Registry API; initialized provider schemas come from Terraform CLI.
+not through MCP. Terraform module versions, module READMEs and provider documentation come from the Azure MCP
+`azureterraform` commands (`avm versions`, `avm get`, `azurerm get`, `azapi get`), with the public Terraform
+Registry API as the fallback. The AVM module index stays the source for module existence and lifecycle, and
+initialized provider schemas come from Terraform CLI.
+
+An unknown module makes `avm versions` return status 400 (`ArgumentException`, "not found in available modules");
+that is the only response agents treat as "unpublished". `azurerm get` returns status 200 even for an unknown
+resource type, so an empty `arguments` list with a "Documentation not found" summary means the type does not exist.
 
 ## Verification
 
@@ -130,7 +136,7 @@ Actual tool availability still depends on the server and client session.
 | Azure Resource Manager MCP | Signed-in VS Code Azure identity for scoped tools; retail prices are public |
 | Azure MCP server | Azure CLI or managed identity |
 | GitHub MCP | Client-managed GitHub authentication |
-| Public Terraform Registry lookups | No Azure credentials required |
+| Public Terraform Registry and `azureterraform` lookups | No Azure credentials required |
 
 Authentication and authorization failures must be surfaced to the user. Agents
 must not fall back to remembered prices or expose tokens, tenant details, or
