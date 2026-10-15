@@ -17,6 +17,33 @@ It does not automatically describe the newest product commit.
 
 ## October 2026
 
+- Lessons from the nordic-foods run changed the session tooling and several validators
+  ([#764](https://github.com/jonathan-vella/apex/pull/764), open at the time of writing).
+  Five changes can break existing projects:
+  - **Reopening a step marks later steps stale.** `start-step --force` sets dependent
+    steps to the new `stale` status and `plan_status` to `SUPERSEDED`. Treat unknown
+    statuses as unfinished, complete each stale step again in order, and get a new
+    Plan approval. See
+    [Reopen a completed step](/guides/session-debugging/#reopen-a-completed-step).
+  - **Step 2 cannot complete with leftovers.** `complete-step` and
+    `transition --complete` exit 2 (`step2_residue`) while a `*.tmp.md` file or a
+    `FAILED` cost estimate is in the project folder. Move failed or superseded cost files
+    to `_meta/`, delete scratch files, and rerun.
+  - **Reviews cannot freeze mutable files.** `sku-manifest.json`, `00-handoff.md`,
+    `README.md`, recall state and `*-decisions.json` are rejected as supporting inputs,
+    and existing reviews that declare them fail. Generate a new review without them and
+    quote what you read, such as the manifest revision, in the review text.
+  - **A `phase` parameter may not have a default.** Remove the default and pass the phase
+    explicitly, then refresh the contract hashes.
+  - **Raw resources need an exceptions row.** When the plan has a
+    `### Raw Resource Exceptions` section, add one row per resource without an AVM
+    module, then refresh the contract hashes.
+
+  New and changed commands and checks: `review-audit --attempt-input`,
+  `validate:iac-contract --stage` with `blocks`, contract fields `phase`, `consumes` and
+  `target`, policy `status`, and `sync:draft-contract-hashes`. See the
+  [validation reference](/reference/validation-reference/).
+
 - Requirements, Architecture, IaC Planner, Challenger and Context Optimizer moved from GPT-6.1 Sol
   to Claude Sonnet 5.5, still at high effort. Their bodies now follow the Claude body contract.
   The utility prompts and the Luna subagents keep their models

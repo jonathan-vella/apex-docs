@@ -45,6 +45,10 @@ number, an artifact filename, or the presence of a prior result.
 |---|---|---|
 | Conflict, exit 2 | The writer detected competing state or changed watched inputs and did not replace primary state. | Preserve the error, read the current state, and resolve the competing work before retrying. |
 | `committed_but_index_stale`, exit 3 | The primary write committed, but the index update failed. | Follow the command's explicit reindex instructions. Do not repeat the mutation as if nothing happened. |
+| `step2_residue`, exit 2 | Step 2 cannot complete while a `*.tmp.md` file or a
+cost estimate with status `FAILED` is in the project folder. `--allow-missing-challenger`
+does not bypass it. | Move superseded or failed cost files to `_meta/`, delete scratch
+files, and rerun the command. |
 | `already_applied` | An identical validated operation was already recorded. | Inspect the recorded result rather than forcing the step to run again. |
 | Recovery required | Primary state is missing or damaged and cannot support the requested operation. | Preserve evidence and obtain explicit owner authorization for recovery. |
 
@@ -73,6 +77,34 @@ Do not remove it merely because it looks old.
 
 <span id="missing-steps"></span>
 <span id="schema-version-mismatch"></span>
+
+## Reopen a completed step
+
+`apex-recall start-step <project> <step> --force` reopens a completed step. The
+command marks every dependent step that is `complete` or `in_progress` as `stale`
+and clears its start and completion times. If the plan was `APPROVED` or
+`EXCEPTION_AUTHORIZED` and the reopened step is 1, 2, 3.5 or 4, the command sets
+`plan_status` to `SUPERSEDED`. Artifacts and risk authorizations stay as history.
+
+A stale step is not complete, so the next step cannot start until the stale step is
+completed again in order. Starting or transitioning into a stale step clears its
+stale markers. Readers that do not know the `stale` status should treat it as
+unfinished. A reopen needs a new Plan approval before `plan_status` returns to
+`APPROVED`.
+
+Use `apex-recall show <project> --json` to confirm the stale steps, then regenerate
+the handoff with `render-session-handoff` so it lists them with the reason.
+
+## Record a review attempt
+
+`apex-recall review-audit` records review attempts: `started` before the review and
+the actual outcome after it. Pass each frozen input with `--attempt-input <path>`
+(repeatable) instead of computing `--input-digest` by hand. The command hashes the
+sorted workspace-relative paths and file hashes, so the start and the outcome
+records use the same digest, and a file that changed during the review is rejected.
+
+The output includes `input_digest` and `permission_granted_by_this_record: false`.
+The record is evidence only. It does not authorize a retry or a step.
 
 ## Resume a blocked step
 
