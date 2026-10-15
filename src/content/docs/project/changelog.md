@@ -17,6 +17,14 @@ It does not automatically describe the newest product commit.
 
 ## October 2026
 
+- The cost-estimate subagent now prices only through the Azure MCP `pricing_get` tool and no longer uses any Azure
+  Resource Manager MCP tool; its deployed-cost mode is removed. The ARM MCP server keeps only the `CostManagement`
+  toolset for the cost-optimization skill. The Architect prices candidate comparisons one decision per call, with exact
+  meter hints, after a bundled call exhausted the 20-request budget in a live run. The public Retail Prices API
+  fallback accepts `pricing_get` empty results
+  ([#764](https://github.com/jonathan-vella/apex/pull/764), open at the time of writing). Estimates priced earlier
+  through ARM MCP need a refresh to carry the new source label.
+
 - Azure MCP moves from 2.0.5 to 3.0.0 ([#759](https://github.com/jonathan-vella/apex/pull/759), open at the time of
   writing). Version 3.0.0 rejects unknown tool parameters, so three skill examples were corrected. It lists
   `extension_azqr` only when azqr 3.0.0 or later is installed, so the dev container now installs a pinned, checksum-verified
