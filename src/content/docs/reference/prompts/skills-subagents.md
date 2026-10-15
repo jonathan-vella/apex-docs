@@ -116,7 +116,7 @@ Use apex-azure-quotas to check whether Standard_D4s_v5 is available in swedencen
 ### apex-azure-cost-optimization
 
 Finds savings from actual cost and utilization data. It queries and forecasts costs
-through the Azure Resource Manager MCP tools, prices alternatives through retail prices,
+through the Azure Resource Manager MCP tools, prices alternatives through Azure MCP `pricing_get`,
 and writes reports to `agent-output/{project}/`. It falls back to the REST APIs only when an
 MCP tool is unavailable, and storage findings start from Azure Advisor recommendations.
 
@@ -295,7 +295,7 @@ and returns a structured change summary.
 
 ### cost-estimate-subagent
 
-Queries Azure Resource Manager MCP for retail SKU pricing. Compares regions
+Queries Azure MCP `pricing_get` for retail SKU pricing, one decision per call for candidate comparisons. Compares regions
 and returns a structured cost breakdown.
 
 ## When validation fails

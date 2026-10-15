@@ -36,6 +36,19 @@ Output: agent-output/{project}/04-governance-constraints.md
 - SKU allowlist projection via `derive-sku-allowlist.mjs`, written into
   `sku-manifest.sku_allowlist_snapshot`.
 
+## Baseline instead of live discovery
+
+When the committed baseline (`.github/data/governance-policy-baseline.json.gz`) covers the target subscription,
+04g can render from it instead of calling Azure. The repository ships an **ALZ Corp default** baseline: the policy
+that a subscription inherits under the Azure landing zone Corp management group (the `root`, `landing_zones` and
+`corp` archetypes of a pinned ALZ library release, including assignments shipped as `DoNotEnforce`). It has one
+synthetic subscription entry, so no real subscription matches it.
+
+When the target subscription is absent, 04g asks you to choose **Run live discovery** or **Use ALZ Corp default as
+assumed governance**. The default is labelled assumed and not tenant-verified in every artifact, and the review below
+stays mandatory. Teams that run the tenant baseline workflow replace the file with their own policy state.
+Regenerate the default with `npm run generate:governance-baseline-alz`.
+
 ## Review
 
 One `governance-reconciliation` review is mandatory when constraints exist. Use

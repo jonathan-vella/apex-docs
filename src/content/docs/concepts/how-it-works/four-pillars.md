@@ -70,8 +70,8 @@ Tools perform operations such as reading a file, running a validator, or queryin
 Azure pricing. Tool availability and authentication are distinct from authorization
 for a particular action.
 
-The configured integrations include hosted Azure Resource Manager MCP for pricing
-and cost queries, workspace stdio Azure MCP, and GitHub MCP. The old custom Python
+The configured integrations include workspace stdio Azure MCP (including retail pricing), hosted Azure Resource
+Manager MCP for cost queries, and GitHub MCP. The old custom Python
 pricing server is not the current integration.
 
 See [MCP integration](/concepts/how-it-works/mcp-integration/) for configuration and
