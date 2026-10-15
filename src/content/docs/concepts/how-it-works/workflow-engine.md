@@ -46,6 +46,11 @@ The [public state contract](https://github.com/jonathan-vella/apex/blob/a656e66d
 defines conflicts, idempotent retries, and authorized recovery. These mechanisms
 do not lock arbitrary editors or guarantee a multi-file transaction.
 
+Reopening a completed step with `start-step --force` marks the steps that depend on
+it as `stale` and sets `plan_status` to `SUPERSEDED` when a Plan approval rested on
+it. A stale step must be completed again in order before the next step can start.
+See [Reopen a completed step](/guides/session-debugging/#reopen-a-completed-step).
+
 ### Session break protocol
 
 Before starting a new chat, retain the handoff, current decisions, relevant

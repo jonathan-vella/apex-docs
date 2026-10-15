@@ -158,6 +158,8 @@ All scripts are in the `tools/scripts/` directory. Run via `npm run <command>`.
 | npm Command              | Script                       | Purpose                                                   |
 | ------------------------ | ---------------------------- | --------------------------------------------------------- |
 | `validate:session-state` | `validate-session-state.mjs` | Schema validation + deprecated lock/claim field detection |
+| `validate:challenger-presence` | `validate-challenger-presence.mjs` | Required review findings exist for each review-mandated step; for projects with Step 2 complete, no `*.tmp.md` or `FAILED` cost files remain at the top level |
+| `validate:challenger-findings` | `validate-challenger-findings.mjs` | Review findings schema and freshness; rejects mutable parent-owned files (`sku-manifest.json`, `00-handoff.md`, `README.md`, recall state, `*-decisions.json`) as supporting inputs |
 
 ### Quality and cross-reference validators
 
@@ -227,6 +229,24 @@ artifacts (Steps 4–6), not by lefthook or CI. They have no committed inputs on
 | `validate:iac-handoff`               | 06b/06t CodeGen                     | `05-iac-handoff.json` + tree hash  |
 | `validate:environment-manifest`      | 05-IaC Planner                      | `04-environment-manifest.json`     |
 | `validate:policy-property-map`       | 05-IaC Planner                      | `04-policy-property-map.json`      |
+| `sync:draft-contract-hashes`         | 05-IaC Planner                      | Refreshes `plan_ref` and `l1m_ref` digests of an unapproved draft contract; keeps formatting; `--write` replaces the file atomically |
+
+#### Contract validator rules
+
+- `validate:iac-contract --readiness --stage deploy|post-deploy|go-live` (default
+  `deploy`) fails an unresolved required capability only when its optional `blocks`
+  list includes that stage or an earlier one. Without `blocks` a capability blocks
+  every stage.
+- A `phase` or `deployment_phase` parameter may not declare a `default`.
+- Resources may declare `phase`, `consumes` (resources reached over a private path)
+  and, on private endpoints, `target`. A `depends_on` into a later phase fails, and a
+  consumer must `depends_on` a private endpoint that targets what it consumes.
+  Contracts without these fields are not checked.
+- `validate:iac-contract-consistency` requires every resource without an AVM module
+  entry to appear in the plan's `### Raw Resource Exceptions` section when that
+  section exists.
+- `validate:policy-property-map` accepts `status` per policy: `satisfied`, `pending`,
+  `not-applicable` (needs `not_applicable_reason`) and `unsatisfiable` (fails).
 
 ## CI workflows
 
