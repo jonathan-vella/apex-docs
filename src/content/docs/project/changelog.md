@@ -17,21 +17,30 @@ It does not automatically describe the newest product commit.
 
 ## October 2026
 
-- APEX cut over from the legacy VS Code Local prompt harness to the GitHub Copilot SDK harness in
-  VS Code ([#767](https://github.com/jonathan-vella/apex/pull/767)):
-  - Legacy `.github/prompts` and `tools/apex-prompts` are archived under `.archive/pre-cpharness/`;
+- Proposed migration to the GitHub Copilot SDK harness inside VS Code,
+  reviewed on October 17 at candidate
+  [`a315279`](https://github.com/jonathan-vella/apex/tree/a315279aa5d09bfc7657c14536c1776cadcd6069)
+  in [#779](https://github.com/jonathan-vella/apex/pull/779). Main reverted the earlier
+  [#767](https://github.com/jonathan-vella/apex/pull/767) cutover; this candidate is not released:
+  - The candidate archives legacy `.github/prompts` and `tools/apex-prompts` under `.archive/pre-cpharness/`;
     canonical manual entry skills (`/apex-workflow-start`, `/apex-git-commit`,
     `/apex-debug-log-export`) and native `ask_user` JSON Schema forms replace Local-only primitives.
-  - Active agents omit model and reasoning-effort pins so the operator and runtime control model
+  - Proposed active agents omit model and reasoning-effort pins so the operator and runtime control model
     selection (including Auto and HydraFusion).
-  - `01-Orchestrator` dispatches step workers directly with `WORKER_EXECUTE`
-    (`verify-worker-ready.mjs --phase execute`) and supports first-class Autopilot mode across
-    authorized steps.
-  - Automatic independent reviews invoke built-in `rubber-duck` synchronously (`APEX_REVIEW`) and
+  - The worker-readiness proposal declares direct `WORKER_EXECUTE` dispatch
+    and `verify-worker-ready.mjs --phase execute` attribution, with a separate diagnostic
+    handshake. Other candidate instructions still require a pre-dispatch handshake.
+    This conflict and native acceptance need resolution.
+  - Proposed Autopilot behavior covers authorized work only. `APEX_UNATTENDED=1` alone grants
+    no authority and does not bypass governance, human gates, or deployment approval.
+  - Proposed automatic independent reviews invoke built-in `rubber-duck` synchronously (`APEX_REVIEW`) and
     persist validated findings via `record-review.mjs`, while `10-Challenger` remains optional for
     manual review or repair.
-  - Native SDK `events.jsonl` telemetry is profiled and verified directly via `profile:debug-log`,
-    `smoke:verify`, and `validate:review-ceiling`.
+  - Candidate commands analyze native SDK `events.jsonl` telemetry through `profile:debug-log`,
+    `smoke:verify`, and `validate:review-ceiling`. Source declarations and documentation checks
+    do not establish runtime acceptance.
+  - Native smoke acceptance, live pricing, critical human-gate behavior, and live cleanup
+    remain unverified in this documentation review.
 
 - Requirements, Architecture, IaC Planner, Challenger and Context Optimizer moved from GPT-6.1 Sol
   to Claude Sonnet 5.5, still at high effort. Their bodies now follow the Claude body contract.
