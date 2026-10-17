@@ -8,16 +8,25 @@ description: "Follow APEX from requirements to as-built evidence, with named age
 ## Overview
 
 APEX helps you turn requirements into an Azure infrastructure plan, Bicep or
-Terraform code, and deployment evidence. You select the main agents and approve
-their handoffs. The Orchestrator identifies the next step; it does not execute
-the main-agent sequence on your behalf.
+Terraform code, and deployment evidence. In the proposed migration, you select
+`01-Orchestrator` and approve its handoffs; it dispatches allowlisted step
+workers. You may still select individual step agents directly.
+
+:::caution[Proposed migration and acceptance limits]
+The migration source is [APEX PR #779](https://github.com/jonathan-vella/apex/pull/779)
+at [`a315279`](https://github.com/jonathan-vella/apex/tree/a315279aa5d09bfc7657c14536c1776cadcd6069),
+not a released contract on APEX main. Main reverted the earlier cutover.
+Native smoke acceptance, live pricing, critical human-gate behavior, and live
+cleanup remain unverified in this documentation review. The Explorer keeps its
+separate generated source pin.
+:::
 
 Start with the [quickstart](/getting-started/quickstart/) if you have not created
 a repository from the Accelerator template.
 
 ### Formalized workflow engine
 
-The [workflow graph](https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/skills/apex-workflow-engine/templates/workflow-graph.json)
+The proposed [workflow graph](https://github.com/jonathan-vella/apex/blob/a315279aa5d09bfc7657c14536c1776cadcd6069/.github/skills/apex-workflow-engine/templates/workflow-graph.json)
 defines step dependencies, expected artifacts, and review defaults.
 `apex-recall` records project state. Neither a graph edge nor a completed-state
 field grants permission to deploy.
@@ -33,10 +42,13 @@ artifacts describing different requirements.
 
 ### Review finalization and recovery
 
-Use the named `10-Challenger` handoff when a review is required. The main reviewer
-is not a helper subagent. Read findings, resolve the required changes, and record
-the actual outcome. Review filenames and old approval text do not prove that
-the current inputs were reviewed.
+The candidate assigns automatic workflow reviews to built-in `rubber-duck` synchronously through
+the one-shot review contract (`APEX_REVIEW`) and persist attributed findings via
+`record-review.mjs` (`challenge-findings-*.json`). Technical returns stay with
+the same Orchestrator; `10-Challenger` remains available for optional manual
+review or repair. Read findings, resolve the required changes, and record the
+actual outcome. Review filenames and old approval text do not prove that the
+current inputs were reviewed.
 
 If state or index updates fail, follow
 [session recovery](/guides/session-debugging/) instead of resetting JSON fields.
@@ -56,21 +68,37 @@ CodeGen rather than expecting the deployment agent to substitute a service or SK
 
 ### The orchestrator pattern
 
-Select `01-Orchestrator` when you need help locating the next step. It explains
-the required evidence and offers a handoff. You choose the target agent and
-approve the scope.
+Select `01-Orchestrator` to coordinate the multi-step workflow. The candidate's
+[worker-readiness contract](https://github.com/jonathan-vella/apex/blob/a315279aa5d09bfc7657c14536c1776cadcd6069/.github/skills/apex-workflow-engine/references/worker-readiness.md)
+proposes direct dispatch via `task` with `WORKER_EXECUTE` in interactive and
+Autopilot modes. It describes post-dispatch attribution with
+`verify-worker-ready.mjs --phase execute` and retains a diagnostic two-turn
+handshake. Other candidate instructions still require the handshake before
+dispatch. This conflict and native acceptance remain unresolved.
+
+Interactive gates present `00-handoff.md` and require human approval before
+advancing. The Autopilot proposal uses `APEX_UNATTENDED=1` or an explicit
+`"run in autopilot"` request to resolve discovery defaults from the project brief,
+apply review mitigations, and advance through already authorized work. Neither
+the environment variable nor a generic Autopilot request authorizes governance
+exceptions, human-gate bypass, deployment, or cleanup. Required approvals must
+cover the actual action and current scope; unresolved authority stops the run.
+Preserve `apex-recall` checkpoints and fresh review evidence.
 
 <span id="agent-delegation-graph"></span>
 
-The current relationship is a human-selected handoff between main agents.
-Allowed helper subagents remain separate and cannot replace main-agent selection.
-The older delegation illustration is not the current execution contract.
+The proposed `01-Orchestrator` dispatches allowlisted main step workers; step workers invoke
+only their declared leaf subagents (`rubber-duck`, `cost-estimate-subagent`, and
+validate/preview subagents). Direct user selection of individual step agents
+remains supported; note that sending an idle cross-chat message may clear
+selected-agent metadata, so resume directly in the selected Orchestrator chat.
 
 ## Agent roster
 
 ### Primary orchestrator
 
-`01-Orchestrator` routes the conversation to the appropriate main agent.
+In the candidate, `01-Orchestrator` dispatches the appropriate allowlisted step
+worker after the required approval, rather than only suggesting manual selection.
 
 ### Core agents (by workflow step)
 
@@ -104,7 +132,9 @@ and what the next agent will do. Stop if requirements, costs, policy evidence,
 or resource scope are unclear.
 
 Deployment requires explicit authorization for the proposed changes. A request
-to validate code is not permission to provision infrastructure.
+to validate code is not permission to provision infrastructure. Routing diagnostics,
+an `EXECUTE_VERIFIED` result, model metadata, or an export archive do not establish
+approval. Live cleanup needs its own authorized scope and observed results.
 
 ## Workflow steps
 
@@ -191,7 +221,8 @@ still apply when no adversarial review runs.
 
 An agent owns a selected task. A skill supplies task-specific instructions.
 A helper subagent performs permitted delegated work. A handoff asks the human
-to move to another main agent. Use those terms consistently.
+to approve the next scope; the proposed Orchestrator then dispatches its worker.
+Direct agent selection remains an alternative, not a mandatory handoff step.
 
 ## Quick reference
 

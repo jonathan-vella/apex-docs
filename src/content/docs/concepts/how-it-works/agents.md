@@ -3,14 +3,22 @@ title: "Agent architecture"
 description: "Choose main agents, understand helper boundaries, and author changes without bypassing approvals."
 ---
 
+:::caution[Proposed migration, not a released runtime contract]
+This page describes the candidate in [APEX PR #779](https://github.com/jonathan-vella/apex/pull/779),
+reviewed at [`a315279`](https://github.com/jonathan-vella/apex/tree/a315279aa5d09bfc7657c14536c1776cadcd6069).
+APEX main reverted the earlier cutover. The candidate's source declarations do not
+prove native smoke acceptance, live pricing, critical human-gate behavior, or live
+cleanup. Those remain unverified in this documentation review.
+:::
+
 ## Agent anatomy
 
 An `.agent.md` file has metadata and an instruction body. Metadata declares the
-name, description, model, tools, invocation rules, and handoff targets. The body
+name, description, tools, invocation rules, and handoff targets. The body
 defines the task, expected evidence, constraints, and stop conditions.
 
-Read the actual
-[agent definitions](https://github.com/jonathan-vella/apex/tree/a656e66d83cfae8d525ce0d2012b124599b37252/.github/agents)
+Read the proposed
+[agent definitions](https://github.com/jonathan-vella/apex/tree/a315279aa5d09bfc7657c14536c1776cadcd6069/.github/agents)
 instead of copying a model name or body-size limit from an old example.
 
 ### Tools
@@ -22,18 +30,39 @@ authorize every possible operation. The task and its approval boundaries still a
 ### Handoffs
 
 Main agents produce artifacts under `agent-output/{project}/`. A handoff identifies
-the next main agent and its inputs. You select that agent and approve the scope.
-The Orchestrator is a routing aid, not a main-agent scheduler.
+the next main agent and its inputs. In the proposed migration, you select
+`01-Orchestrator` and approve the scope; it dispatches allowlisted step workers
+rather than requiring manual agent selection at every handoff. Direct selection
+of an individual step agent remains supported. Neither route removes human gates.
 
-### Local and Agent Host boundaries
+<span id="local-and-agent-host-boundaries"></span>
 
-Local prompt files are adapters, not proof that another client supports the same
-entry point. Main agents, including `10-Challenger`, require human selection and
-use `disable-model-invocation: true`.
+### Copilot SDK harness and entry skills
 
-A skill inherits the selected agent's context and tool permissions. It does not
-switch agents or grant access. Validate client discovery, model availability,
-and instruction attachment separately from source-file syntax.
+The candidate targets the GitHub Copilot SDK harness inside VS Code. Legacy Local
+`.prompt.md` files are archived under `.archive/pre-cpharness/`; canonical manual
+entry skills live under `.github/skills/` (`/apex-workflow-start`,
+`/apex-git-commit`, and `/apex-debug-log-export`).
+
+`01-Orchestrator` remains human-selected (`disable-model-invocation: true`) and
+the candidate declares delegation to allowlisted step agents in worker contexts.
+Active agent definitions omit model and reasoning-effort pins so the operator
+and runtime control selection, including Auto and HydraFusion. Model metadata is
+diagnostic, not evidence of worker readiness or approval.
+
+The proposed [worker-readiness contract](https://github.com/jonathan-vella/apex/blob/a315279aa5d09bfc7657c14536c1776cadcd6069/.github/skills/apex-workflow-engine/references/worker-readiness.md)
+declares direct `WORKER_EXECUTE` dispatch for normal and Autopilot runs, followed
+by `verify-worker-ready.mjs --phase execute` and `EXECUTE_VERIFIED` attribution.
+It retains a two-turn tool-free handshake through `--phase initial` and
+`--phase complete` for diagnostic routing checks. Other candidate instructions
+still require a pre-dispatch handshake. This source inconsistency needs
+reconciliation and native acceptance evidence before either path can be called
+an accepted runtime contract.
+
+`APEX_UNATTENDED=1` selects proposed unattended behavior; it does not grant
+authority. An Autopilot request does not bypass governance, required reviews,
+human gates, or separate deployment authorization. A skill inherits the selected
+agent's context and tool permissions; it does not switch agents or grant access.
 
 ### APEX and generic application workflows
 
@@ -70,7 +99,7 @@ artifacts. Do not treat the earlier answer as permanently immutable.
 The owner resolves choices such as SKU selection, budget trade-offs, review
 findings, and governance constraints. Record actual decisions, not inferred
 acceptance. Use the product's
-[decision-key contract](https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/tools/apex-recall/docs/decision-keys.md)
+[candidate decision-key contract](https://github.com/jonathan-vella/apex/blob/a315279aa5d09bfc7657c14536c1776cadcd6069/tools/apex-recall/docs/decision-keys.md)
 for supported keys.
 
 Discovered tag policy controls required keys, values, and casing. When no inherited
@@ -83,14 +112,22 @@ Helpers perform bounded tasks such as pricing, code validation, preview, or
 policy precheck. Their parent must permit that delegation. They return evidence
 to the owner and do not take over the main workflow.
 
-Challenger is a human-selected main agent. Do not route its work through a
-`challenger-review-subagent` example from older documentation.
+`10-Challenger` remains available for optional manual review and repair. The
+candidate assigns automatic reviews to built-in `rubber-duck`, not the legacy
+`challenger-review-subagent`.
 
 ## The challenger pattern
 
 Use the [current review matrix](/concepts/workflow/#adversarial-review-matrix).
-Architecture and cost-estimate reviews are independent. Deep review is opt-in.
-Design and CodeGen reviews are optional; Deploy has no Challenger review.
+The candidate declares that automatic independent workflow reviews invoke built-in `rubber-duck`
+reviewer synchronously via the one-shot review contract (`APEX_REVIEW`) and
+persist validated findings with `record-review.mjs` and
+`validate-challenger-findings.mjs --verify-cache`. `10-Challenger` remains an
+optional manual review and repair workflow rather than a mandatory automatic
+handoff hop. Architecture and cost-estimate reviews are independent. Deep review
+is opt-in (`decisions.review_depth = "deep"`), preserving separate canonical
+pass files. Design and CodeGen reviews are optional; Deploy has no Challenger
+review.
 
 Inspect the findings and resolve required changes against the reviewed inputs.
 When a reviewer is unavailable, stop and use the human handoff. Missing, empty,
@@ -107,32 +144,30 @@ artifacts and unresolved issues explicitly, and use
 
 Make product-agent changes in APEX or your template-derived project, not apex-docs.
 Follow the current
-[agent-authoring instructions](https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/instructions/agent-authoring.instructions.md).
+[candidate agent-authoring instructions](https://github.com/jonathan-vella/apex/blob/a315279aa5d09bfc7657c14536c1776cadcd6069/.github/instructions/agent-authoring.instructions.md).
 
 ### Step 1: choose agent type and model
 
-Choose a human-facing main agent or a bounded helper. Use an approved model that
-the intended runtime and account can access. Do not infer a helper's model from
-its parent or silently substitute another model.
+Choose a human-facing main agent or a bounded helper. Under the proposed policy,
+active definitions omit model and reasoning-effort pins. Leave per-call model,
+effort, and context overrides unset so the operator and runtime control selection.
+Do not infer effective selection or permission from a catalog label.
 
 ### Step 2: create the agent file
 
 Use an existing agent of the same type as a starting point, then review every
-metadata field. Production main agents need human-entry restrictions. Use an
-empty helper allowlist when no delegation is needed.
+metadata field. Keep `01-Orchestrator` human-selected. Step agents permit only
+the proposed approved Orchestrator dispatch, and leaves cannot delegate or ask
+the user. Use an empty helper allowlist when no delegation is needed.
 
 ### Step 3: write the agent body
 
-The required body shape depends on the agent's model family:
+The candidate validates body structure independently of the selected model.
+Main agents use one H1 and either the Markdown contract with Role, Goal, Success
+criteria, Constraints, Output, and Stop rules H2s, or the structured contract with
+`## Role`, `<scope_fencing>`, `<output_contract>`, and `<stop_conditions>`.
+Leaf workers use their role-specific input, activity, output, and failure contract.
 
-- GPT agents state the role, goal, success criteria, constraints, output, and stop rules as H2
-  sections.
-- Claude agents state the role and its completion criteria in `## Role`, then put the
-  constraints, output, and stop rules in `<scope_fencing>`, `<output_contract>`, and
-  `<stop_conditions>` blocks. Research-heavy agents also need an
-  `<investigate_before_answering>` block, and long bodies need a `<context_awareness>` block.
-
-The product validator enforces the rules for each model family.
 Reference skills for detailed procedures. Keep essential approval and safety
 requirements explicit rather than assuming an authoring glob attaches at runtime.
 
