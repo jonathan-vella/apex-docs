@@ -17,6 +17,22 @@ It does not automatically describe the newest product commit.
 
 ## October 2026
 
+- APEX cut over from the legacy VS Code Local prompt harness to the GitHub Copilot SDK harness in
+  VS Code ([#767](https://github.com/jonathan-vella/apex/pull/767)):
+  - Legacy `.github/prompts` and `tools/apex-prompts` are archived under `.archive/pre-cpharness/`;
+    canonical manual entry skills (`/apex-workflow-start`, `/apex-git-commit`,
+    `/apex-debug-log-export`) and native `ask_user` JSON Schema forms replace Local-only primitives.
+  - Active agents omit model and reasoning-effort pins so the operator and runtime control model
+    selection (including Auto and HydraFusion).
+  - `01-Orchestrator` dispatches step workers directly with `WORKER_EXECUTE`
+    (`verify-worker-ready.mjs --phase execute`) and supports first-class Autopilot mode across
+    authorized steps.
+  - Automatic independent reviews invoke built-in `rubber-duck` synchronously (`APEX_REVIEW`) and
+    persist validated findings via `record-review.mjs`, while `10-Challenger` remains optional for
+    manual review or repair.
+  - Native SDK `events.jsonl` telemetry is profiled and verified directly via `profile:debug-log`,
+    `smoke:verify`, and `validate:review-ceiling`.
+
 - Requirements, Architecture, IaC Planner, Challenger and Context Optimizer moved from GPT-6.1 Sol
   to Claude Sonnet 5.5, still at high effort. Their bodies now follow the Claude body contract.
   The utility prompts and the Luna subagents keep their models

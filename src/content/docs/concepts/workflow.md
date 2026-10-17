@@ -33,10 +33,13 @@ artifacts describing different requirements.
 
 ### Review finalization and recovery
 
-Use the named `10-Challenger` handoff when a review is required. The main reviewer
-is not a helper subagent. Read findings, resolve the required changes, and record
-the actual outcome. Review filenames and old approval text do not prove that
-the current inputs were reviewed.
+Automatic workflow reviews invoke built-in `rubber-duck` synchronously through
+the one-shot review contract (`APEX_REVIEW`) and persist attributed findings via
+`record-review.mjs` (`challenge-findings-*.json`). Technical returns stay with
+the same Orchestrator; `10-Challenger` remains available for optional manual
+review or repair. Read findings, resolve the required changes, and record the
+actual outcome. Review filenames and old approval text do not prove that the
+current inputs were reviewed.
 
 If state or index updates fail, follow
 [session recovery](/guides/session-debugging/) instead of resetting JSON fields.
@@ -56,15 +59,22 @@ CodeGen rather than expecting the deployment agent to substitute a service or SK
 
 ### The orchestrator pattern
 
-Select `01-Orchestrator` when you need help locating the next step. It explains
-the required evidence and offers a handoff. You choose the target agent and
-approve the scope.
+Select `01-Orchestrator` to coordinate the multi-step workflow. In interactive
+mode, it presents `00-handoff.md` and waits for human approval at each gate
+before dispatching the next specialist worker via `task` (`WORKER_EXECUTE`). In
+Autopilot mode (`APEX_UNATTENDED=1` or an explicit `"run in autopilot"` request),
+`01-Orchestrator` dispatches workers directly with `WORKER_EXECUTE`, resolves
+mid-step discovery defaults from the project brief, applies `must_fix` and
+`should_fix` review mitigations, and advances across authorized steps while
+preserving `apex-recall` checkpoints and review validation.
 
 <span id="agent-delegation-graph"></span>
 
-The current relationship is a human-selected handoff between main agents.
-Allowed helper subagents remain separate and cannot replace main-agent selection.
-The older delegation illustration is not the current execution contract.
+`01-Orchestrator` dispatches allowlisted main step workers; step workers invoke
+only their declared leaf subagents (`rubber-duck`, `cost-estimate-subagent`, and
+validate/preview subagents). Direct user selection of individual step agents
+remains supported; note that sending an idle cross-chat message may clear
+selected-agent metadata, so resume directly in the selected Orchestrator chat.
 
 ## Agent roster
 

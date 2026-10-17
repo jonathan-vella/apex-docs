@@ -25,15 +25,26 @@ Main agents produce artifacts under `agent-output/{project}/`. A handoff identif
 the next main agent and its inputs. You select that agent and approve the scope.
 The Orchestrator is a routing aid, not a main-agent scheduler.
 
-### Local and Agent Host boundaries
+### Copilot SDK harness and entry skills
 
-Local prompt files are adapters, not proof that another client supports the same
-entry point. Main agents, including `10-Challenger`, require human selection and
-use `disable-model-invocation: true`.
+APEX targets the GitHub Copilot SDK harness inside VS Code. Legacy Local
+`.prompt.md` files are archived under `.archive/pre-cpharness/`; canonical manual
+entry skills live under `.github/skills/` (`/apex-workflow-start`,
+`/apex-git-commit`, and `/apex-debug-log-export`).
 
-A skill inherits the selected agent's context and tool permissions. It does not
-switch agents or grant access. Validate client discovery, model availability,
-and instruction attachment separately from source-file syntax.
+`01-Orchestrator` remains human-selected (`disable-model-invocation: true`) and
+dispatches allowlisted step agents (`02-Requirements` through `08-As-Built`,
+`09-Diagnose`, `10-Challenger`) in isolated worker contexts. Active agent
+definitions omit model and reasoning-effort pins so the operator and runtime
+control model selection (including Auto and HydraFusion).
+
+In normal and Autopilot runs (`APEX_UNATTENDED=1` or an explicit `"run in
+autopilot"` prompt), `01-Orchestrator` dispatches step workers directly with
+`WORKER_EXECUTE` (`verify-worker-ready.mjs --phase execute` →
+`EXECUTE_VERIFIED`). A standalone two-turn tool-free handshake (`--phase
+initial` / `--phase complete`) remains available for diagnostic routing checks.
+A skill inherits the selected agent's context and tool permissions; it does not
+switch agents or grant access.
 
 ### APEX and generic application workflows
 
@@ -89,8 +100,15 @@ Challenger is a human-selected main agent. Do not route its work through a
 ## The challenger pattern
 
 Use the [current review matrix](/concepts/workflow/#adversarial-review-matrix).
-Architecture and cost-estimate reviews are independent. Deep review is opt-in.
-Design and CodeGen reviews are optional; Deploy has no Challenger review.
+Automatic independent workflow reviews invoke the built-in `rubber-duck`
+reviewer synchronously via the one-shot review contract (`APEX_REVIEW`) and
+persist validated findings with `record-review.mjs` and
+`validate-challenger-findings.mjs --verify-cache`. `10-Challenger` remains an
+optional manual review and repair workflow rather than a mandatory automatic
+handoff hop. Architecture and cost-estimate reviews are independent. Deep review
+is opt-in (`decisions.review_depth = "deep"`), preserving separate canonical
+pass files. Design and CodeGen reviews are optional; Deploy has no Challenger
+review.
 
 Inspect the findings and resolve required changes against the reviewed inputs.
 When a reviewer is unavailable, stop and use the human handoff. Missing, empty,
