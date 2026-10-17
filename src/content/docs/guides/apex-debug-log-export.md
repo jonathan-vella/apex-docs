@@ -12,29 +12,16 @@ review agent behavior, tool calls, skill loading, token use, or context bloat.
 The prompt creates the archive locally. It never uploads the bundle for you; you
 review and upload the archive manually.
 
-## Native Copilot SDK session logs
+## How debug logs are enabled
 
-In the VS Code Copilot SDK harness, native session events are written to:
+The dev container enables Copilot Chat debug-file logging through
+`.devcontainer/devcontainer.json`:
 
 ```text
-~/.copilot/session-state/<sessionId>/events.jsonl
+github.copilot.chat.agentDebugLog.fileLogging.enabled: true
 ```
 
-You can profile and verify a native SDK session log directly without raw log
-conversion:
-
-```bash
-npm run profile:debug-log -- ~/.copilot/session-state/<sessionId>/events.jsonl --json
-npm run smoke:verify -- ~/.copilot/session-state/<sessionId>/events.jsonl --strict
-npm run validate:review-ceiling -- --budget ~/.copilot/session-state/<sessionId>/events.jsonl --strict
-```
-
-To create a redacted export bundle for sharing, invoke the canonical
-`/apex-debug-log-export` skill in Copilot Chat.
-
-## Legacy Local debug logs
-
-In historical Local VS Code sessions, debug logs were written under:
+After you start a chat, VS Code creates a debug-log directory under:
 
 ```text
 ~/.vscode-server/data/User/workspaceStorage/<wsId>/GitHub.copilot-chat/debug-logs/<sessionId>/
