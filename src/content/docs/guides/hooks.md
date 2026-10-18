@@ -1,306 +1,184 @@
 ---
 title: "Agent Hooks"
-description: "VS Code Agent Hooks for automated code quality"
+description: "APEX runtime-hook retirement, lost protection, and the separate Git validation tooling that remains."
 ---
 
-VS Code Agent Hooks automate code quality enforcement by running shell commands at key
-lifecycle points during agent sessions. They complement the instruction-based approach
-with deterministic, code-driven automation.
-
-:::note[Git hooks vs. Agent hooks]
-This page covers **VS Code Agent Hooks** (lifecycle events during agent sessions).
-For **git hooks** (pre-commit, pre-push, commit-msg via lefthook), see the
-[Validation & Linting Reference](../../reference/validation-reference/).
+:::caution[Runtime hooks retired by owner decision]
+The owner intentionally deleted APEX `.github/hooks/` runtime hooks during the
+October 18 migration. No APEX runtime hooks are currently provided in that
+checkout. Do not restore the deleted directory or introduce replacement hooks.
+This decision does not certify the proposed runtime or its permission boundaries.
 :::
 
-:::note[Client support]
-Check the installed client's [hook documentation](https://code.visualstudio.com/docs/copilot/customization/hooks).
-Agent-scoped hooks (defined in `.agent.md` frontmatter) require
-`chat.useCustomAgentHooks: true` in `.vscode/settings.json`.
-Source configuration does not prove that another client executes these hooks.
+This page records what was retired and preserves published heading anchors.
+It is not a hook installation or recovery guide. The site's generated product
+metadata has a separate older source pin and may still describe historical hooks.
+
+:::note[Git hooks vs. Agent hooks]
+APEX runtime hooks ran during agent sessions. Git Lefthook, pre-commit,
+pre-push, commit-message checks, secret scanning, and CI are separate tooling.
+They are not retired by this decision. For their configured coverage, see the
+[Validation & Linting Reference](../../reference/validation-reference/).
 :::
 
 ## How hooks work
 
-```mermaid
-sequenceDiagram
-    participant A as Agent
-    participant H as Hook
-    participant T as Tool
-
-    A->>H: PreToolUse (before tool runs)
-    alt Blocked
-        H-->>A: deny + reason
-    else Allowed
-        H-->>A: continue
-        A->>T: Execute tool
-        T-->>A: Result
-    end
-```
+Historically, a `PreToolUse` hook evaluated a tool call before execution and could
+deny it. `SubagentStop` ran an advisory output check. Those APEX checks no longer
+run after the directory's deletion. Native tool restrictions are not automatically
+equivalent to the old regex guard. Verify native permissions before relying on them.
 
 ## Hook inventory
 
-| Hook Directory         | Event(s)     | Purpose                                     | Timeout |
+This is a historical inventory, not a list of installed or required hooks.
+
+| Retired directory      | Former event | Former purpose                              | Former timeout |
 | :--------------------- | :----------- | :------------------------------------------ | ------: |
 | `tool-guardian/`       | PreToolUse   | Block dangerous terminal commands           |     10s |
 | `subagent-validation/` | SubagentStop | Validate subagent output quality (advisory) |     15s |
 
-This page describes product hooks, not apex-docs hooks. Secret scanning is handled by
-**gitleaks** (pre-commit via lefthook), not by an agent hook. Earlier
-`secrets-scanner`, `session-telemetry`, and
-`tool-audit` hooks were removed: the first duplicated gitleaks, and the latter
-two only wrote logs that nothing consumed.
+Earlier `secrets-scanner`, `session-telemetry`, and `tool-audit` hooks had already
+been removed. The first duplicated gitleaks; the latter two only wrote logs that
+nothing consumed. This history does not authorize restoring any of them.
 
 ## Configuration
 
-Hooks are registered in `.vscode/settings.json`:
-
-```json
-{
-  "chat.hookFilesLocations": {
-    ".github/hooks/tool-guardian": true,
-    ".github/hooks/subagent-validation": true
-  },
-  "chat.useCustomAgentHooks": true
-}
-```
+Do not register the deleted APEX hooks in `.vscode/settings.json`, the dev container,
+or agent frontmatter. Stale caller and validation references belong to the source
+retirement change. This docs update does not verify their removal.
 
 ### Agent-scoped hooks
 
-Agents can define hooks in their YAML frontmatter (requires `chat.useCustomAgentHooks`):
-
-```yaml
-hooks:
-  PreToolUse:
-    - type: command
-      command: "bash .github/hooks/tool-guardian/guard-tool.sh"
-      timeout: 10
-```
-
-:::caution[Do not duplicate global hooks]
-If a hook is already registered globally in `chat.hookFilesLocations`, do not
-redefine it in agent frontmatter. Duplicate registration can run it twice.
-Use agent-scoped hooks only for agent-specific logic not covered by global hooks.
-:::
+Moving a deleted hook into `.agent.md` frontmatter would reintroduce it. The owner
+did not authorize that workaround. Native roles and tool allowlists must be checked
+on their own; they do not by themselves isolate credentials or Azure authority.
 
 ## Safety considerations
 
+The underlying Azure security, live governance, SKU, AVM, cost-provenance, and
+approval requirements survive runtime-hook retirement. Real-Azure deployment and
+E2E are authorized in principle only. The exact tenant, subscription, resource
+boundary, budget, and action scope remain unestablished. No cloud action may
+proceed until that scope is established. Cleanup is not authorized.
+
+Native Autopilot cannot supply genuine owner signoff. An unavailable owner answer
+does not approve anything. Neither hook deletion nor passing documentation checks
+accepts the pilot, approval boundary, or full migration.
+
 ### Self-modification protection
 
-The PreToolUse hook blocks file-edit tools (`replace_string_in_file`, `create_file`, etc.)
-from modifying files under `.github/hooks/`. Path resolution uses `realpath` to handle
-symlinks and traversal attacks (`../`).
+The deleted `PreToolUse` guard checked file-edit paths under `.github/hooks/`,
+including resolved symlinks and traversal. That hook-based self-modification
+protection is gone. Do not describe it as active.
 
 ### Command precision (low false-positive rate)
 
-`tool-guardian` runs in `block` mode by default, so its patterns are anchored to
-avoid blocking legitimate work. Destructive `rm -rf` rules match a whole-target
-delete (`rm -rf /`, `rm -rf .`, `rm -rf ~`) but allow scoped sub-paths
-(`rm -rf ./dist`, `rm -rf ~/project/build`); SQL rules match `TRUNCATE TABLE`
-rather than the `truncate` coreutil; and there is no blanket `sudo` block
-(routine `sudo apt-get` is allowed, while `sudo rm -rf /` is still caught by the
-`rm` rule).
+The retired guard used anchored regex patterns for selected destructive commands.
+Those pattern checks no longer run. Native tool restrictions have not been shown
+to reproduce their command-level coverage, and this guide makes no equivalent
+protection claim.
 
 ### Timeout enforcement
 
-Each hook specifies a timeout. Test timeout and failure behavior in the target
-client. Do not treat an interrupted or skipped hook as a successful check.
-
-To stay within budget, `tool-guardian` avoids per-pattern subprocess fan-out: it
-runs a single combined-alternation `grep` and only falls through to the detailed,
-per-pattern loop when that pre-check matches. `subagent-validation` does all
-parsing and emission in one `python3` process.
+The former hooks declared timeouts. Their absence is not a passing timeout or
+safety check. No replacement timeout mechanism is established here.
 
 ### Bounded logging
 
-`tool-guardian` appends a JSONL audit line per evaluated tool call via the shared
-`hook_log` helper, which rotates the log to `<file>.1` once it reaches
-`HOOK_LOG_MAX_BYTES` (default 1 MiB) so it cannot grow without bound.
+The deleted guard used a rotating JSONL audit log. That hook audit trail no longer
+exists for new calls. Optional native session telemetry is a separate measurement
+source, not a replacement enforcement mechanism or proof of human approval.
 
 ### Secret scanning (handled by gitleaks, not a hook)
 
-Secrets are caught by **gitleaks** at the pre-commit layer (via lefthook). This
-scan soft-skips locally if `gitleaks` is missing, and gitleaks is not run in CI.
-Commits made with `--no-verify`, without lefthook installed, or via the GitHub
-UI will not be scanned. There is no agent hook for secret scanning; a former
-bespoke regex-based
-`secrets-scanner` was removed because it duplicated gitleaks with a weaker
-ruleset.
+Gitleaks at the Git pre-commit layer is unrelated to the retired APEX runtime
+hooks. Preserve that tooling and inspect its actual installed configuration.
+The documented product scan soft-skips locally when gitleaks is missing and is
+not run in CI. A commit made outside its configured execution path is not proof
+of a scan. Do not bypass Git hooks to work around runtime-hook retirement.
 
 ## Hook directory structure
 
-Each hook follows this pattern:
-
-```text
-.github/hooks/{name}/
-├── hooks.json          # Event binding + timeout
-└── {name}.sh           # Shell script (present at configured path; exec bit optional)
-```
+The historical `.github/hooks/{name}/` directories held an event-binding
+`hooks.json` and a shell script. The owner deleted the runtime-hook directory;
+this layout is not a setup requirement.
 
 ### Shared library
 
-The helpers `hook_timestamp`, `hook_emit_continue`, `hook_json_escape`,
-`hook_log`, `hook_parse_allowlist`, and `hook_is_allowlisted` live in
-`.github/hooks/lib/common.sh`. Hook scripts source it (currently `tool-guardian`)
-so JSON emission, logging, timestamps, and allowlist parsing stay DRY:
-
-```bash
-source "$(dirname "${BASH_SOURCE[0]}")/../lib/common.sh"
-```
-
-`lib/` holds no `hooks.json`. It is a sourced library rather than a registered hook,
-so `npm run validate:hooks` skips it.
+The former `.github/hooks/lib/common.sh` supplied shared JSON, logging, timestamp,
+and allowlist helpers. It is retired with the directory.
 
 ### Hooks.JSON schema
 
-```json
-{
-  "hooks": {
-    "<EventName>": [
-      {
-        "type": "command",
-        "command": "bash .github/hooks/{name}/{name}.sh",
-        "timeout": 30
-      }
-    ]
-  }
-}
-```
-
-Valid event names: `PreToolUse`, `PostToolUse`, `SessionStart`, `SubagentStart`,
-`SubagentStop`, `Stop`.
+Historical `hooks.json` files bound lifecycle events to shell commands and
+timeouts. No APEX runtime-hook configuration is currently provided in the
+migration checkout.
 
 ### Script conventions
 
-All hook scripts must:
-
-1. Start with `#!/usr/bin/env bash`
-2. Include `set -euo pipefail`
-3. Read JSON from stdin
-4. Write JSON to stdout (`{"continue": true}` or `{"hookSpecificOutput": {...}}`)
-5. Be present at the configured path and be invoked through `bash` in `hooks.json`
-   so execution does not depend on the file mode
+The removed shell scripts read JSON from stdin and returned JSON decisions.
+Their historical conventions do not require replacement scripts.
 
 ## Validation
 
-```bash
-# Validate hook configurations
-npm run validate:hooks
-
-# Run hook integration tests
-npm run test:hooks
-```
+`validate:hooks` and `test:hooks` were product commands for the old implementation.
+Do not recreate deleted files to satisfy them. Product maintainers own retirement
+of stale callers, settings, and tests; this documentation does not certify that
+source phase as complete. Preserve unrelated validators and Git checks.
 
 ## Adding a new hook
 
+This heading remains for existing links. Adding a runtime hook is not part of
+the authorized migration. The former creation instructions have been retired.
+
 ### 1. Create the hook directory and script
 
-```bash
-mkdir -p .github/hooks/my-hook-name
-```
-
-Create `.github/hooks/my-hook-name/my-hook-name.sh`:
-
-```bash
-#!/usr/bin/env bash
-set -euo pipefail
-
-INPUT=$(cat)
-
-# Parse input JSON
-FIELD=$(printf '%s' "$INPUT" | python3 -c \
-  "import sys,json; print(json.load(sys.stdin)['field'])")
-
-# Your logic here...
-
-# Output JSON safely (prevents injection)
-python3 -c "
-import json, sys
-print(json.dumps({'continue': True, 'systemMessage': sys.argv[1]}))
-" "Your message"
-```
+Do not recreate `.github/hooks/` or a substitute directory.
 
 ### 2. Create hooks.JSON
 
-```json
-{
-  "hooks": {
-    "PostToolUse": [
-      {
-        "type": "command",
-        "command": "bash .github/hooks/my-hook-name/my-hook-name.sh",
-        "timeout": 30
-      }
-    ]
-  }
-}
-```
+Do not introduce replacement event bindings.
 
 ### 3. Register in VS Code settings
 
-Add to `chat.hookFilesLocations` in `.vscode/settings.json`:
-
-```json
-".github/hooks/my-hook-name": true
-```
+Do not register deleted paths to match older examples or generated metadata.
 
 ### 4. Add tests and validate
 
-Add test cases under `tools/tests/bats/`, then run:
-
-```bash
-npm run validate:hooks
-npm run test:hooks
-```
+Keep retirement tests and unrelated quality checks separate. A source validator
+passing does not prove native permission or pilot acceptance.
 
 ### Best practices
 
-- Serialize JSON with `python3 json.dumps()` instead of string interpolation.
-- **Fast execution**: Keep hooks under their timeout; check tool availability with `command -v`
-- **No network calls**: Hooks should be fast and local
-- **Path safety**: Use `realpath` and verify paths are within the repository
-- **Error handling**: Fail explicitly on malformed input or missing required tools.
-  Do not emit a success response from an error fallback.
+Record lost protection honestly. Do not hide it behind a tool allowlist, an
+Autopilot response, or a source-check result.
 
 ## Troubleshooting
 
 ### Hook not firing
 
-1. Verify the hook directory is listed in `chat.hookFilesLocations` in `.vscode/settings.json`
-2. Check the script exists and the configured command uses `bash`:
-   `ls -la .github/hooks/{name}/{name}.sh`
-3. View hook output: **Output** panel → **GitHub Copilot Chat Hooks** channel
+In the migration checkout, the owner deleted these hooks intentionally. Their
+absence is not a discovery error to repair by restoring files. Diagnose stale
+callers in the product retirement change without disabling unrelated tooling.
 
 ### Hook timeout
 
-If a hook times out, report the check as unperformed and inspect the client result. Check for:
-
-- Network calls that delay a local check
-- Large file processing
-- Missing tool binaries (hooks should check `command -v` before running tools)
+An old timeout or success log is historical evidence only. It does not establish
+protection for a current tool call.
 
 ### Manual testing
 
-Test a hook locally by piping mock JSON:
-
-```bash
-echo '{"toolName":"run_in_terminal","toolInput":"rm -rf /"}' | \
-  bash .github/hooks/tool-guardian/guard-tool.sh
-```
+Do not reconstruct or exercise a deleted hook as a migration prerequisite.
+Native permission checks require their own bounded, authorized evidence.
 
 ## Relationship to git hooks
 
-Agent hooks (`.github/hooks/`) and git hooks (`lefthook.yml`) serve different purposes:
-
-|             | Agent Hooks                   | Git Hooks (lefthook)           |
-| :---------- | :---------------------------- | :----------------------------- |
-| **When**    | During agent sessions         | On git commit/push             |
-| **Scope**   | Individual tool invocations   | Staged/changed files           |
-| **Config**  | `.github/hooks/*/hooks.json`  | `lefthook.yml`                 |
-| **Purpose** | Real-time quality enforcement | Pre-commit/pre-push validation |
-
-Agent hooks check configured session events. Git hooks check configured commit
-and push operations. Neither covers operations that bypass its execution path.
+| Mechanism | Current migration status | Coverage limit |
+|---|---|---|
+| APEX `.github/hooks/` runtime hooks | Intentionally deleted; no replacements | Former tool-call checks and hook logging are gone. |
+| Git hooks through `lefthook.yml` | Not retired by this decision | Only configured commit and push operations are checked. |
+| Gitleaks and CI | Not retired by this decision | Verify installed tools and actual job scope. |
+| azd hooks in `azure.yaml` | Separate application lifecycle mechanism | Review against the approved Azure action scope; runtime-hook deletion grants no cloud permission. |
 
 ## Related
 

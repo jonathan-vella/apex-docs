@@ -21,7 +21,7 @@ defines the dependencies.
 | Skill | Supply task-specific procedures and reference material | It does not grant tools, change models, or authorize work. |
 | Helper subagent | Perform a bounded task permitted by its parent | It does not own the main workflow. |
 | `apex-recall` | Read and update project state through its supported commands | State is not a substitute for current artifacts or approval. |
-| Validators and hooks | Check the contracts they implement | Passing checks do not prove every requirement or establish application health. |
+| Validators and Git hooks | Check the contracts they implement | Passing checks do not prove every requirement or establish application health. APEX runtime hooks are [retired](/guides/hooks/). |
 
 ## The orchestrator pattern
 

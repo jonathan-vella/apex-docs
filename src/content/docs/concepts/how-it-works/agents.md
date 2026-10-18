@@ -3,12 +3,16 @@ title: "Agent architecture"
 description: "Distinguish the existing agent workflow from the proposed VS Code runtime simplification and its approval boundaries."
 ---
 
-:::caution[Owner plan approval pending]
-The October 18 proposal in [APEX PR #779](https://github.com/jonathan-vella/apex/pull/779)
-is documentation and planning only. The owner selected `PLAN_THEN_APPROVE`.
-No migration implementation, representative no-cloud pilot, deployment, or
-runtime acceptance is authorized by this update. Existing production rules remain
-unchanged. The earlier candidate at
+:::caution[Execution authorized, runtime acceptance unverified]
+On October 18, the owner authorized the approved migration execution and
+evidence-based packet progression in
+[APEX PR #779](https://github.com/jonathan-vella/apex/pull/779), superseding
+the earlier `PLAN_THEN_APPROVE` hold. That authorization is not acceptance of
+the proposed engineering lead, skills, pilot, or runtime implementation.
+Real-Azure deployment and E2E work are authorized in principle only. The exact
+tenant, subscription, resource boundary, budget, and action scope remain
+unestablished, so no cloud action may proceed on that basis. Cleanup is not
+authorized. The earlier candidate at
 [`a315279`](https://github.com/jonathan-vella/apex/tree/a315279aa5d09bfc7657c14536c1776cadcd6069)
 is historical implementation evidence, not the approved target or a shipped contract.
 :::
@@ -38,6 +42,16 @@ authority nor proof that native Autopilot is selected. Consequential permission,
 expense, security, or requirements changes and deployment approval require a
 genuine independent owner boundary.
 
+The owner intentionally deleted APEX `.github/hooks/` runtime hooks. No APEX
+runtime hooks are currently provided in this migration checkout; do not restore
+them or introduce replacement hooks. Their regex command guard, self-modification
+check, advisory output check, and hook audit logging no longer protect tool calls.
+Native tool restrictions are not proven equivalent. Verify native permission
+boundaries before relying on them, including the still-unknown cloud boundary.
+Azure requirements survive this retirement. Git Lefthook, pre-commit checks,
+secret scanning, and CI are separate tooling, not retired by this decision.
+See the [retirement record](/guides/hooks/).
+
 The proposal removes per-worker readiness handshakes and log replay from the
 future routine execution path only after the owner accepts the pilot and its
 replacement checks. Current production readiness rules still apply. Neither a
@@ -57,6 +71,18 @@ prompts. Passing source or documentation checks is not runtime end-to-end
 acceptance. Optional usage measurements must record missing data as `UNKNOWN`,
 not zero; no token, cost, or latency savings are established.
 
+October 18 prerequisite observations reported by the migration owner are narrower
+than pilot acceptance. A native background task returned `INPUT_REQUIRED`, and
+same-task `write_agent` continuation worked on its retained worker ID. A skill
+loaded in the parent, and pricing MCP metadata discovery succeeded without a
+cloud query. Native `ask_user` in Autopilot returned `user not available`, not
+human signoff. The owner-scope question was also unavailable; no cloud writes
+followed. The existing GitHub `copilot`, `dev`, `prod`, and `staging` environments
+had no `protection_rules`; `pages` had only a branch policy. These observations
+do not establish a deployment approval boundary. The full pilot, source phases,
+and fleet migration remain unverified. This docs update did not reproduce those
+runtime checks.
+
 Use the approved feature branch's
 [PRD](https://github.com/jonathan-vella/apex/blob/feat/copilot-harness-migration/tools/plans/copilot-harness-migration/prd.md),
 [backlog](https://github.com/jonathan-vella/apex/blob/feat/copilot-harness-migration/tools/plans/copilot-harness-migration/backlog.md),
@@ -67,13 +93,14 @@ CHM01 [#769](https://github.com/jonathan-vella/apex/issues/769) and CHM02
 The remaining packets cover actual VS Code native capability in CHM03
 [#773](https://github.com/jonathan-vella/apex/issues/773), the representative
 no-cloud pilot in CHM04 [#772](https://github.com/jonathan-vella/apex/issues/772),
-MCP and hooks in CHM05 [#775](https://github.com/jonathan-vella/apex/issues/775),
+MCP and runtime-hook retirement in CHM05 [#775](https://github.com/jonathan-vella/apex/issues/775),
 evidence and optional usage in CHM06 [#768](https://github.com/jonathan-vella/apex/issues/768),
 documentation in CHM07 [#774](https://github.com/jonathan-vella/apex/issues/774),
 and the final release matrix in CHM08 [#770](https://github.com/jonathan-vella/apex/issues/770).
-Owner plan approval must precede implementation or the pilot.
-The full production simplification also needs accepted representative no-cloud
-pilot evidence before cutover.
+Owner execution authorization permits implementation and evidence-based packet
+progression, including the representative no-cloud pilot. It does not mark any
+packet accepted. The full production simplification still needs accepted pilot,
+replacement-check, source-phase, and final release evidence before cutover.
 
 The sections below explain existing workflow concepts and the earlier candidate
 where identified. They do not require the proposed simplified runtime to retain

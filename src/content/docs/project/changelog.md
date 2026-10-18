@@ -17,14 +17,24 @@ It does not automatically describe the newest product commit.
 
 ## October 2026
 
-- Planning-only migration revision on October 18 in
-  [#779](https://github.com/jonathan-vella/apex/pull/779), with
-  **owner plan approval pending** under `PLAN_THEN_APPROVE`. The earlier
+- Owner-authorized migration execution on October 18 in
+  [#779](https://github.com/jonathan-vella/apex/pull/779) supersedes the earlier
+  `PLAN_THEN_APPROVE` hold and permits evidence-based packet progression. It does
+  not accept the proposed lead, skills, source implementation, or runtime pilot.
+  The earlier
   [`a315279`](https://github.com/jonathan-vella/apex/tree/a315279aa5d09bfc7657c14536c1776cadcd6069)
   candidate is historical, not an approved or shipped contract. Main reverted
   the earlier [#767](https://github.com/jonathan-vella/apex/pull/767) cutover.
-  No migration implementation, pilot, merge, site publication, or deployment is
-  authorized by this planning update:
+  Real-Azure deployment and E2E are authorized in principle only. The exact tenant,
+  subscription, resource boundary, budget, and action scope are not established,
+  so cloud execution remains blocked. Cleanup is not authorized. No merge or site
+  publication is authorized by this documentation update.
+  - The owner intentionally deleted APEX `.github/hooks/` runtime hooks. No runtime
+    hooks are currently provided in the migration checkout. Do not restore or
+    replace them. The old regex command guard and other hook protections are gone;
+    native tool restrictions are not proven equivalent. Native permission
+    boundaries must be verified. Git Lefthook, pre-commit checks, secret scanning,
+    CI, and azd lifecycle hooks are separate and remain outside this retirement.
   - The target supports only the Copilot session target, Copilot SDK/Agent Host,
     inside VS Code. Other product runtimes are out of scope; historical archives
     and readers remain available.
@@ -39,8 +49,8 @@ It does not automatically describe the newest product commit.
     human approval or proof of native Autopilot selection. Consequential changes
     and deployment approval need an independent owner boundary.
   - Per-worker handshake and log replay would leave the future routine execution
-    path only after pilot and replacement-check acceptance. Live production rules
-    remain unchanged.
+    path only after pilot and replacement-check acceptance. Hook retirement does
+    not waive readiness, review, or Azure requirements.
   - Tested Azure security, live governance, SKU and AVM contracts, cost provenance,
     durable decisions, atomic writes, and historical compatibility remain required.
     One independent technical review path is proposed; the owner must decide any

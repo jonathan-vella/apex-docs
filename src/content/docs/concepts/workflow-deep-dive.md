@@ -53,8 +53,12 @@ See [session state debugging](/guides/session-debugging/) and the
 
 ### Hooks and validators
 
-Git hooks and CI run configured checks. Agent hooks run at their declared lifecycle
-events. Each mechanism covers specific rules, not all correctness or safety.
+Git hooks and CI run configured checks. The owner retired APEX `.github/hooks/`
+runtime hooks in the October 18 migration. Their protection is no longer present;
+do not restore or replace them. Native permission boundaries still need verification.
+See the [retirement record](/guides/hooks/). Git Lefthook, pre-commit security
+checks, and underlying Azure requirements are not retired.
+Each remaining mechanism covers specific rules, not all correctness or safety.
 A Challenger review evaluates the requested artifact scope and remains a separate
 human-selected step.
 

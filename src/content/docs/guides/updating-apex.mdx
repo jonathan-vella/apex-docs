@@ -65,6 +65,12 @@ exclusions, exceptions and seed rules:
 | `.github/workflows/` | These are handled separately. Review workflow changes and permissions before intentionally using `npm run sync:workflows`. |
 | Private data and locally seeded indexes | Read the actual exclusion and seed lists. Do not copy private data into an upstream contribution. |
 
+The owner intentionally deleted APEX `.github/hooks/` runtime hooks in the
+October 18 migration. Preserve that retirement when reviewing an older baseline
+or a sync diff; do not restore or replace the hooks to match the table. This
+does not retire Git Lefthook, pre-commit security checks, or unrelated CI.
+See the [retirement record](/guides/hooks/).
+
 Do not replace this review with a bulk copy of APEX main or a destructive Git
 reset. A dry run helps inspect the proposed update; it is not proof that the
 result preserves every local customization.

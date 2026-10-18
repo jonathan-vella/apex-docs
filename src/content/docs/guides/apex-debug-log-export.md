@@ -1,15 +1,16 @@
 ---
 title: "Debug log export"
-description: "Review the earlier native log-export candidate, optional measurement limits, and the pending VS Code migration plan."
+description: "Review the earlier native log-export candidate and distinguish authorized VS Code migration work from accepted runtime evidence."
 sidebar:
   order: 9
 ---
 
 The earlier `/apex-debug-log-export` candidate describes a bundle of selected
 native Copilot SDK events under `.apex-logs/`. It does not upload the archive.
-This page preserves that candidate procedure for review, not as an instruction
-to implement the migration or start a pilot. Inspect any archive before sharing
-it with an authorized recipient.
+This page preserves that candidate procedure for review, not as accepted target
+behavior. The owner has authorized migration execution and evidence-based packet
+progression, but has not accepted the proposed lead, skills, or runtime pilot.
+Inspect any archive before sharing it with an authorized recipient.
 
 :::caution[Candidate procedure, not accepted runtime evidence]
 The earlier implementation in [APEX PR #779](https://github.com/jonathan-vella/apex/pull/779)
@@ -17,11 +18,14 @@ at [`a315279`](https://github.com/jonathan-vella/apex/tree/a315279aa5d09bfc7657c
 is not the approved target. Its
 [entry skill](https://github.com/jonathan-vella/apex/blob/a315279aa5d09bfc7657c14536c1776cadcd6069/.github/skills/apex-debug-log-export/SKILL.md)
 and [export procedure](https://github.com/jonathan-vella/apex/blob/a315279aa5d09bfc7657c14536c1776cadcd6069/.github/skills/apex-context-management/references/debug-log-export.md)
-are not released. The October 18 revision is planning only under
-`PLAN_THEN_APPROVE`, with owner plan approval pending. Prior READY and synthetic
-shutdown evidence are withdrawn; no runtime pilot or deployment acceptance is
-established. Log analysis does not verify live pricing, genuine human approval,
-deployment, or cleanup.
+are not released. Owner execution authorization on October 18 supersedes the
+earlier `PLAN_THEN_APPROVE` hold; it does not certify these commands or any runtime
+result. Real-Azure deployment and E2E are authorized in principle only, with no
+exact tenant, subscription, resource boundary, budget, or action scope established.
+That scope must be established before cloud execution. Cleanup is not authorized.
+Prior READY and synthetic shutdown evidence remains withdrawn; no runtime pilot
+or deployment acceptance is established. Log analysis does not verify live
+pricing, genuine human approval, deployment, or cleanup.
 :::
 
 ## Optional measurement and runtime scope
@@ -35,7 +39,15 @@ The [migration planning section](/concepts/how-it-works/agents/#proposed-simplif
 links to the current PRD and delivery gates. Telemetry is optional contextual
 measurement, not a per-worker log-replay requirement for the future routine
 execution path. Removing current readiness checks requires accepted replacement
-checks and a representative no-cloud pilot after owner plan approval.
+checks and a representative no-cloud pilot. Execution authorization permits that
+work, but does not establish its acceptance.
+
+APEX `.github/hooks/` runtime hooks were intentionally deleted. No runtime hooks
+are currently provided in the migration checkout, and hook audit logging is no
+longer available. Do not recreate hooks to collect telemetry or restore the old
+regex guard. Native session events do not replace that protection. Verify native
+permission boundaries separately; underlying Azure requirements still apply.
+Git Lefthook and pre-commit security checks are unrelated to this retirement.
 
 Treat missing usage as `UNKNOWN`, not zero. Record capture scope and limitations
 beside any measurements. There is no established token, cost, or latency saving.
@@ -115,7 +127,7 @@ The earlier candidate's proposed Copilot Chat invocation was:
 /apex-debug-log-export
 ```
 
-That candidate describes these steps, which this planning update does not certify
+That candidate describes these steps, which this documentation update does not certify
 as exercised native behavior:
 
 1. List native sessions that match the workspace identity.

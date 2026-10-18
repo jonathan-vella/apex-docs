@@ -12,12 +12,16 @@ Terraform code, and deployment evidence. The step walkthrough below explains the
 existing workflow. The proposed simplification does not require every existing
 step or leaf agent to remain a separate runtime role.
 
-:::caution[Plan first, owner approval pending]
-[APEX PR #779](https://github.com/jonathan-vella/apex/pull/779) remains a proposal.
-The October 18 update is planning only under `PLAN_THEN_APPROVE`, not migration
-implementation or permission to run a pilot. Existing production rules stay in
-force. Prior READY, synthetic shutdown, and leading-prompt approval evidence are
-withdrawn. No runtime pilot, deployment, or cleanup acceptance is established.
+:::caution[Authorized execution is not runtime acceptance]
+The owner has authorized approved migration execution and evidence-based packet
+progression in [APEX PR #779](https://github.com/jonathan-vella/apex/pull/779).
+This supersedes the earlier `PLAN_THEN_APPROVE` hold, but does not accept the
+proposed lead, skills, source implementation, or runtime pilot. Real-Azure
+deployment and E2E are authorized in principle only. The exact tenant,
+subscription, resource boundary, budget, and action scope are not established;
+cloud execution remains blocked until they are. Cleanup is not authorized.
+Prior READY, synthetic shutdown, and leading-prompt approval evidence remains
+withdrawn. No runtime pilot or deployment acceptance is established.
 The earlier [`a315279`](https://github.com/jonathan-vella/apex/tree/a315279aa5d09bfc7657c14536c1776cadcd6069)
 candidate is historical, not the approved target. The Explorer keeps its separate
 generated source pin.
@@ -39,12 +43,14 @@ Terraform adapters. See the
 [planning section](/concepts/how-it-works/agents/#proposed-simplification-and-planning-gate)
 for the PRD, backlog, roadmap, retained contracts, and issue mapping.
 
-For example, after plan approval and acceptance of a representative no-cloud
-pilot, an owner could scope a routine documentation fix to an approved feature
-branch. Native Autopilot would edit, test, repair within bounds, commit, push,
+For example, the owner can scope a routine documentation fix to an approved
+feature branch during the authorized migration. Native Autopilot would edit,
+test, repair within bounds, commit, push,
 update the PR or issue, and address scoped reviewer feedback without repeatedly
 asking for permission. It may answer blocking questions within that scope.
-This is a proposed walkthrough, not a command to start a pilot now.
+This describes the intended behavior, not an accepted runtime result. Packet
+progression requires evidence for each packet; permission to proceed cannot
+stand in for pilot or final release acceptance.
 
 A successful `ask_user` call or form response is not proof of a human decision;
 Autopilot may have supplied it. `APEX_UNATTENDED=1` neither proves native Autopilot
@@ -52,6 +58,14 @@ selection nor grants approval. Consequential permission, expense, security,
 and requirements changes and deployment approval require a genuine independent
 owner boundary. Native agent roles and tool allowlists alone are not credential
 or security isolation.
+
+The owner also retired APEX `.github/hooks/` runtime hooks. Do not restore or
+replace them as part of setup. Their tool-call protection is gone, not silently
+replaced by native tool restrictions. Native permission boundaries still need
+verification. Azure security, governance, SKU, AVM, and cost-provenance requirements
+remain in force. This retirement does not remove Git Lefthook, pre-commit checks,
+secret scanning, CI, or azd lifecycle hooks. See the
+[runtime-hook retirement record](/guides/hooks/).
 
 ### Formalized workflow engine
 

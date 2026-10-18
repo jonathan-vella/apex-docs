@@ -138,7 +138,11 @@ scripts before adopting an alternative.
 The product container declares Azure CLI, Bicep, Terraform, PowerShell, Python,
 Node.js, GitHub CLI, and Azure Developer CLI tooling. Its lifecycle scripts install
 project dependencies and `apex-recall`. VS Code loads the repository's agents,
-skills, instructions, hooks, and MCP configuration.
+skills, instructions, and MCP configuration. The owner intentionally deleted
+APEX `.github/hooks/` runtime hooks in the October 18 migration. Do not restore
+them or add replacement hooks during setup. That decision does not retire
+Git Lefthook, pre-commit security checks, or CI. See the
+[retirement and protection limits](/guides/hooks/).
 
 Use the configuration in your template-derived repository as the setup authority.
 APEX main can contain changes that the template has not yet incorporated. Do not

@@ -7,6 +7,14 @@ This page describes selected commands from the pinned APEX product. Run them in
 that checkout, not apex-docs. The current `package.json`, hook configuration,
 and CI files determine exact coverage.
 
+The owner retired APEX `.github/hooks/` runtime hooks in the October 18 migration.
+Do not restore them or introduce replacement hooks to satisfy an older validation
+recipe. `validate:hooks` and `test:hooks` below are historical pinned commands,
+not current setup requirements. Source-caller retirement belongs to the product
+change and is not verified by this docs update. Git Lefthook, pre-commit checks,
+secret scanning, other validators, and CI remain separate. See the
+[retirement record](/guides/hooks/) for the lost protection and permission limits.
+
 For this documentation site, use `npm run build`, `npm run check:links`,
 `npm test`, and `npm run test:browser`. The build uses the Linux toolchain and
 prepared pinned product metadata. The link checker validates routes and fragments.
@@ -20,7 +28,7 @@ Use `npm run check:external-links` separately for external destinations.
   point.
 - CI uses its configured suites and path filters. A passed local hook does not
   establish that all CI or runtime checks passed.
-- All hooks are defined in [`lefthook.yml`](https://github.com/jonathan-vella/apex/blob/main/lefthook.yml).
+- Git commit and push hooks are defined in [`lefthook.yml`](https://github.com/jonathan-vella/apex/blob/main/lefthook.yml).
 
 :::
 
@@ -87,7 +95,7 @@ flowchart LR
 
 ## Lefthook hooks
 
-All hooks are defined in `lefthook.yml` at the repository root.
+The Git hooks listed here are defined in `lefthook.yml` at the repository root.
 
 ### Pre-commit hooks
 
@@ -174,8 +182,8 @@ All scripts are in the `tools/scripts/` directory. Run via `npm run <command>`.
 | npm Command       | Script                       | Purpose                           |
 | ----------------- | ---------------------------- | --------------------------------- |
 | `validate:vscode` | `validate-vscode-config.mjs` | VS Code settings completeness     |
-| `validate:hooks`  | `validate-hooks.mjs`         | Hook script structure and syntax  |
-| `test:hooks`      | `test-hooks.sh`              | Hook integration tests (bats)     |
+| `validate:hooks`  | `validate-hooks.mjs`         | Historical runtime-hook check; not a setup requirement after retirement |
+| `test:hooks`      | `test-hooks.sh`              | Historical runtime-hook tests; do not recreate deleted hooks to run them |
 | `lint:mcp-config` | `validate-mcp-config.mjs`    | MCP server configuration validity |
 
 ### Code and format linters
@@ -232,6 +240,10 @@ artifacts (Steps 4–6), not by lefthook or CI. They have no committed inputs on
 
 All workflows are in `.github/workflows/`.
 
+This table describes the pinned product configuration, not proof that migration
+callers have been retired. Its historical runtime-hook checks do not authorize
+hook restoration or disabling unrelated CI.
+
 | Workflow                  | File                            | Trigger                      | Purpose                                                                                            |
 | ------------------------- | ------------------------------- | ---------------------------- | -------------------------------------------------------------------------------------------------- |
 | CI                     | `ci.yml`                        | PR to `main`, push to `main` | Full validation suite (markdown, Prettier, agents, skills, hooks, bats tests, MCP, VS Code config) + Python ruff in the external-tests job |
@@ -265,7 +277,7 @@ npm run lint:python:fix            # Fix Python lint issues
 :::tip[Further Reading]
 
 - [Contributing](../../project/contributing/). branch naming and commit conventions
-- [Agent Hooks](../../guides/hooks/). VS Code agent hooks (lifecycle automation)
+- [Agent Hooks](../../guides/hooks/). runtime-hook retirement and historical context
 - [Workflow Validation](../../guides/e2e-testing/). focused checks and manual acceptance
 
   :::

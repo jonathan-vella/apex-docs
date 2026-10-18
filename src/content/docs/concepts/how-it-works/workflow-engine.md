@@ -93,7 +93,9 @@ or reviewer. Skills and runtime artifact summaries serve different purposes.
 
 ### Copilot hooks
 
-Agent hooks run at configured lifecycle events. The product's `tool-guardian`
-and `subagent-validation` hooks cover specific checks; they are not a general
-permission system. See [agent hooks](/guides/hooks/) for their configuration and
-limitations.
+The owner intentionally deleted APEX `.github/hooks/` runtime hooks in the
+October 18 migration. `tool-guardian` and `subagent-validation` are historical,
+not active protections or setup requirements. Do not restore or replace them.
+Native tool restrictions do not establish equivalent protection; verify their
+permission boundaries separately. Git Lefthook and CI remain separate.
+See the [runtime-hook retirement record](/guides/hooks/).
