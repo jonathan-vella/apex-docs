@@ -70,7 +70,11 @@ employee count are not interchangeable. A custom or freeform answer belongs in t
 same native question field, not a second `*_other` field.
 
 Only Migration or Modernization work asks for migration details. Greenfield
-work skips those questions. Later questions guide non-functional requirements,
+work skips those questions. Explicit negations do not reverse the intended
+branch: "not greenfield, migrating an existing workload" keeps migration
+follow-ups, while "no migration or modernization" skips them.
+The helper preserves the captured answer text.
+Later questions guide non-functional requirements,
 user scale, budget, availability, and recovery needs. Private-access choices
 include "Not sure" so the design can establish a secure path without requiring
 the owner to supply network implementation details.
