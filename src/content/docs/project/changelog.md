@@ -17,30 +17,42 @@ It does not automatically describe the newest product commit.
 
 ## October 2026
 
-- Proposed migration to the GitHub Copilot SDK harness inside VS Code,
-  reviewed on October 17 at candidate
+- Planning-only migration revision on October 18 in
+  [#779](https://github.com/jonathan-vella/apex/pull/779), with
+  **owner plan approval pending** under `PLAN_THEN_APPROVE`. The earlier
   [`a315279`](https://github.com/jonathan-vella/apex/tree/a315279aa5d09bfc7657c14536c1776cadcd6069)
-  in [#779](https://github.com/jonathan-vella/apex/pull/779). Main reverted the earlier
-  [#767](https://github.com/jonathan-vella/apex/pull/767) cutover; this candidate is not released:
-  - The candidate archives legacy `.github/prompts` and `tools/apex-prompts` under `.archive/pre-cpharness/`;
-    canonical manual entry skills (`/apex-workflow-start`, `/apex-git-commit`,
-    `/apex-debug-log-export`) and native `ask_user` JSON Schema forms replace Local-only primitives.
-  - Proposed active agents omit model and reasoning-effort pins so the operator and runtime control model
-    selection (including Auto and HydraFusion).
-  - The worker-readiness proposal declares direct `WORKER_EXECUTE` dispatch
-    and `verify-worker-ready.mjs --phase execute` attribution, with a separate diagnostic
-    handshake. Other candidate instructions still require a pre-dispatch handshake.
-    This conflict and native acceptance need resolution.
-  - Proposed Autopilot behavior covers authorized work only. `APEX_UNATTENDED=1` alone grants
-    no authority and does not bypass governance, human gates, or deployment approval.
-  - Proposed automatic independent reviews invoke built-in `rubber-duck` synchronously (`APEX_REVIEW`) and
-    persist validated findings via `record-review.mjs`, while `10-Challenger` remains optional for
-    manual review or repair.
-  - Candidate commands analyze native SDK `events.jsonl` telemetry through `profile:debug-log`,
-    `smoke:verify`, and `validate:review-ceiling`. Source declarations and documentation checks
-    do not establish runtime acceptance.
-  - Native smoke acceptance, live pricing, critical human-gate behavior, and live cleanup
-    remain unverified in this documentation review.
+  candidate is historical, not an approved or shipped contract. Main reverted
+  the earlier [#767](https://github.com/jonathan-vella/apex/pull/767) cutover.
+  No migration implementation, pilot, merge, site publication, or deployment is
+  authorized by this planning update:
+  - The target supports only the Copilot session target, Copilot SDK/Agent Host,
+    inside VS Code. Other product runtimes are out of scope; historical archives
+    and readers remain available.
+  - The proposed shape is an optional short APEX engineering lead or native Agent,
+    on-demand domain skills, a native bounded independent reviewer, and a separately
+    permissioned deploy operator with Bicep and Terraform adapters. The existing
+    roster is not a mandatory target.
+  - Native Autopilot would handle routine engineering, tests, bounded repair,
+    approved feature-branch commits and pushes, PR and issue updates, and scoped
+    review fixes without repeated confirmations. It may answer blocking questions.
+    Successful `ask_user` or form responses and `APEX_UNATTENDED=1` are not genuine
+    human approval or proof of native Autopilot selection. Consequential changes
+    and deployment approval need an independent owner boundary.
+  - Per-worker handshake and log replay would leave the future routine execution
+    path only after pilot and replacement-check acceptance. Live production rules
+    remain unchanged.
+  - Tested Azure security, live governance, SKU and AVM contracts, cost provenance,
+    durable decisions, atomic writes, and historical compatibility remain required.
+    One independent technical review path is proposed; the owner must decide any
+    change to the currently separate architecture cost-feasibility review. Deep
+    review remains opt-in. Review history and unresolved findings stay intact.
+  - Telemetry is optional and contextual. Missing usage is `UNKNOWN`, not zero.
+    There are no established token, cost, or latency savings. Source and
+    documentation checks are not native runtime end-to-end acceptance.
+  - Prior READY evidence, including synthetic shutdown and leading approval prompts,
+    is withdrawn. No runtime pilot or deployment acceptance is established.
+  See the [planning section](/concepts/how-it-works/agents/#proposed-simplification-and-planning-gate)
+  for the PRD, backlog, roadmap, and delivery gates.
 
 - Requirements, Architecture, IaC Planner, Challenger and Context Optimizer moved from GPT-6.1 Sol
   to Claude Sonnet 5.5, still at high effort. Their bodies now follow the Claude body contract.

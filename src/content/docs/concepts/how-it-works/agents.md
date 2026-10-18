@@ -1,15 +1,83 @@
 ---
 title: "Agent architecture"
-description: "Choose main agents, understand helper boundaries, and author changes without bypassing approvals."
+description: "Distinguish the existing agent workflow from the proposed VS Code runtime simplification and its approval boundaries."
 ---
 
-:::caution[Proposed migration, not a released runtime contract]
-This page describes the candidate in [APEX PR #779](https://github.com/jonathan-vella/apex/pull/779),
-reviewed at [`a315279`](https://github.com/jonathan-vella/apex/tree/a315279aa5d09bfc7657c14536c1776cadcd6069).
-APEX main reverted the earlier cutover. The candidate's source declarations do not
-prove native smoke acceptance, live pricing, critical human-gate behavior, or live
-cleanup. Those remain unverified in this documentation review.
+:::caution[Owner plan approval pending]
+The October 18 proposal in [APEX PR #779](https://github.com/jonathan-vella/apex/pull/779)
+is documentation and planning only. The owner selected `PLAN_THEN_APPROVE`.
+No migration implementation, representative no-cloud pilot, deployment, or
+runtime acceptance is authorized by this update. Existing production rules remain
+unchanged. The earlier candidate at
+[`a315279`](https://github.com/jonathan-vella/apex/tree/a315279aa5d09bfc7657c14536c1776cadcd6069)
+is historical implementation evidence, not the approved target or a shipped contract.
 :::
+
+## Proposed simplification and planning gate
+
+The target supports only the Copilot session target, Copilot SDK/Agent Host,
+inside VS Code. Local, CLI, cloud-agent, and other IDE execution runtimes are out
+of scope. CLI tools and SDK documentation may inform an explicitly checked VS Code
+equivalent; that does not offer a CLI product runtime. Historical archives and
+readers remain available.
+
+For routine repository engineering, the proposal permits a short interactive APEX
+engineering lead or the native Agent, with domain skills loaded on demand. It
+proposes a native bounded independent reviewer and one separately permissioned
+deploy operator with Bicep and Terraform adapters. It does not presume that the
+existing main-step and leaf-agent roster must survive the redesign.
+Native roles and tool allowlists alone do not isolate credentials or security
+authority. The deploy operator needs a separate permission boundary.
+
+Native Autopilot would perform most routine engineering, tests, bounded repairs,
+commits and pushes to approved feature branches, PR and issue updates, and scoped
+reviewer fixes without repeated confirmations. It may answer blocking questions
+within that scope. A successful `ask_user` call or form can be answered by
+Autopilot; it is not genuine human approval. `APEX_UNATTENDED=1` grants neither
+authority nor proof that native Autopilot is selected. Consequential permission,
+expense, security, or requirements changes and deployment approval require a
+genuine independent owner boundary.
+
+The proposal removes per-worker readiness handshakes and log replay from the
+future routine execution path only after the owner accepts the pilot and its
+replacement checks. Current production readiness rules still apply. Neither a
+compulsory two-turn handshake nor universal task statelessness defines the target.
+
+The redesign must retain tested Azure security, live governance, SKU and AVM
+contracts, cost provenance, durable project decisions, atomic writes, and
+historical compatibility. Native session SQL and todos are not cross-project
+approval storage. One independent technical review path is proposed. The owner
+must decide any change to the currently mandatory separate architecture
+cost-feasibility review; deep review remains opt-in. Do not repair review history,
+counters, hashes, or findings to make the proposal appear accepted.
+
+The plan has no accepted runtime pilot or deployment result. Prior READY evidence
+was withdrawn, including synthetic shutdown evidence and leading approval
+prompts. Passing source or documentation checks is not runtime end-to-end
+acceptance. Optional usage measurements must record missing data as `UNKNOWN`,
+not zero; no token, cost, or latency savings are established.
+
+Use the approved feature branch's
+[PRD](https://github.com/jonathan-vella/apex/blob/feat/copilot-harness-migration/tools/plans/copilot-harness-migration/prd.md),
+[backlog](https://github.com/jonathan-vella/apex/blob/feat/copilot-harness-migration/tools/plans/copilot-harness-migration/backlog.md),
+and [roadmap](https://github.com/jonathan-vella/apex/blob/feat/copilot-harness-migration/tools/plans/copilot-harness-migration/roadmap.md)
+for the proposal. These are moving planning links, not released behavior pins.
+CHM01 [#769](https://github.com/jonathan-vella/apex/issues/769) and CHM02
+[#771](https://github.com/jonathan-vella/apex/issues/771) remain closed historical work.
+The remaining packets cover actual VS Code native capability in CHM03
+[#773](https://github.com/jonathan-vella/apex/issues/773), the representative
+no-cloud pilot in CHM04 [#772](https://github.com/jonathan-vella/apex/issues/772),
+MCP and hooks in CHM05 [#775](https://github.com/jonathan-vella/apex/issues/775),
+evidence and optional usage in CHM06 [#768](https://github.com/jonathan-vella/apex/issues/768),
+documentation in CHM07 [#774](https://github.com/jonathan-vella/apex/issues/774),
+and the final release matrix in CHM08 [#770](https://github.com/jonathan-vella/apex/issues/770).
+Owner plan approval must precede implementation or the pilot.
+The full production simplification also needs accepted representative no-cloud
+pilot evidence before cutover.
+
+The sections below explain existing workflow concepts and the earlier candidate
+where identified. They do not require the proposed simplified runtime to retain
+the existing roster.
 
 ## Agent anatomy
 
@@ -17,7 +85,7 @@ An `.agent.md` file has metadata and an instruction body. Metadata declares the
 name, description, tools, invocation rules, and handoff targets. The body
 defines the task, expected evidence, constraints, and stop conditions.
 
-Read the proposed
+Read the earlier candidate's
 [agent definitions](https://github.com/jonathan-vella/apex/tree/a315279aa5d09bfc7657c14536c1776cadcd6069/.github/agents)
 instead of copying a model name or body-size limit from an old example.
 
@@ -29,8 +97,8 @@ authorize every possible operation. The task and its approval boundaries still a
 
 ### Handoffs
 
-Main agents produce artifacts under `agent-output/{project}/`. A handoff identifies
-the next main agent and its inputs. In the proposed migration, you select
+Existing main agents produce artifacts under `agent-output/{project}/`. A handoff identifies
+the next main agent and its inputs. In the earlier candidate, you select
 `01-Orchestrator` and approve the scope; it dispatches allowlisted step workers
 rather than requiring manual agent selection at every handoff. Direct selection
 of an individual step agent remains supported. Neither route removes human gates.
@@ -39,9 +107,9 @@ of an individual step agent remains supported. Neither route removes human gates
 
 ### Copilot SDK harness and entry skills
 
-The candidate targets the GitHub Copilot SDK harness inside VS Code. Legacy Local
-`.prompt.md` files are archived under `.archive/pre-cpharness/`; canonical manual
-entry skills live under `.github/skills/` (`/apex-workflow-start`,
+The earlier candidate targets the GitHub Copilot SDK harness inside VS Code. It
+places legacy Local `.prompt.md` files under `.archive/pre-cpharness/` and manual
+entry skills under `.github/skills/` (`/apex-workflow-start`,
 `/apex-git-commit`, and `/apex-debug-log-export`).
 
 `01-Orchestrator` remains human-selected (`disable-model-invocation: true`) and
@@ -50,19 +118,15 @@ Active agent definitions omit model and reasoning-effort pins so the operator
 and runtime control selection, including Auto and HydraFusion. Model metadata is
 diagnostic, not evidence of worker readiness or approval.
 
-The proposed [worker-readiness contract](https://github.com/jonathan-vella/apex/blob/a315279aa5d09bfc7657c14536c1776cadcd6069/.github/skills/apex-workflow-engine/references/worker-readiness.md)
-declares direct `WORKER_EXECUTE` dispatch for normal and Autopilot runs, followed
-by `verify-worker-ready.mjs --phase execute` and `EXECUTE_VERIFIED` attribution.
-It retains a two-turn tool-free handshake through `--phase initial` and
-`--phase complete` for diagnostic routing checks. Other candidate instructions
-still require a pre-dispatch handshake. This source inconsistency needs
-reconciliation and native acceptance evidence before either path can be called
-an accepted runtime contract.
+The earlier [worker-readiness contract](https://github.com/jonathan-vella/apex/blob/a315279aa5d09bfc7657c14536c1776cadcd6069/.github/skills/apex-workflow-engine/references/worker-readiness.md)
+describes direct dispatch and a diagnostic handshake, while other instructions
+in that candidate still require a pre-dispatch handshake. Neither conflicting
+candidate path establishes accepted native behavior. The revised target above
+replaces this design only after approval and pilot acceptance.
 
-`APEX_UNATTENDED=1` selects proposed unattended behavior; it does not grant
-authority. An Autopilot request does not bypass governance, required reviews,
-human gates, or separate deployment authorization. A skill inherits the selected
-agent's context and tool permissions; it does not switch agents or grant access.
+A skill inherits the selected agent's context and tool permissions; it does not
+switch agents or grant access. An unattended environment flag cannot select or
+verify native Autopilot and cannot authorize an owner-only action.
 
 ### APEX and generic application workflows
 
@@ -113,13 +177,14 @@ policy precheck. Their parent must permit that delegation. They return evidence
 to the owner and do not take over the main workflow.
 
 `10-Challenger` remains available for optional manual review and repair. The
-candidate assigns automatic reviews to built-in `rubber-duck`, not the legacy
+earlier candidate assigns automatic reviews to built-in `rubber-duck`, not the legacy
 `challenger-review-subagent`.
 
 ## The challenger pattern
 
-Use the [current review matrix](/concepts/workflow/#adversarial-review-matrix).
-The candidate declares that automatic independent workflow reviews invoke built-in `rubber-duck`
+Use the [existing review matrix](/concepts/workflow/#adversarial-review-matrix)
+until the owner approves a replacement.
+The earlier candidate declares that automatic independent workflow reviews invoke built-in `rubber-duck`
 reviewer synchronously via the one-shot review contract (`APEX_REVIEW`) and
 persist validated findings with `record-review.mjs` and
 `validate-challenger-findings.mjs --verify-cache`. `10-Challenger` remains an

@@ -1,6 +1,6 @@
 ---
 title: "Run the workflow"
-description: "Follow APEX from requirements to as-built evidence, with named agents, review defaults, and human approvals."
+description: "Follow the existing APEX workflow and distinguish its gates from the proposed VS Code and Autopilot redesign."
 ---
 
 <span id="agent-and-skill-workflow"></span>
@@ -8,28 +8,59 @@ description: "Follow APEX from requirements to as-built evidence, with named age
 ## Overview
 
 APEX helps you turn requirements into an Azure infrastructure plan, Bicep or
-Terraform code, and deployment evidence. In the proposed migration, you select
-`01-Orchestrator` and approve its handoffs; it dispatches allowlisted step
-workers. You may still select individual step agents directly.
+Terraform code, and deployment evidence. The step walkthrough below explains the
+existing workflow. The proposed simplification does not require every existing
+step or leaf agent to remain a separate runtime role.
 
-:::caution[Proposed migration and acceptance limits]
-The migration source is [APEX PR #779](https://github.com/jonathan-vella/apex/pull/779)
-at [`a315279`](https://github.com/jonathan-vella/apex/tree/a315279aa5d09bfc7657c14536c1776cadcd6069),
-not a released contract on APEX main. Main reverted the earlier cutover.
-Native smoke acceptance, live pricing, critical human-gate behavior, and live
-cleanup remain unverified in this documentation review. The Explorer keeps its
-separate generated source pin.
+:::caution[Plan first, owner approval pending]
+[APEX PR #779](https://github.com/jonathan-vella/apex/pull/779) remains a proposal.
+The October 18 update is planning only under `PLAN_THEN_APPROVE`, not migration
+implementation or permission to run a pilot. Existing production rules stay in
+force. Prior READY, synthetic shutdown, and leading-prompt approval evidence are
+withdrawn. No runtime pilot, deployment, or cleanup acceptance is established.
+The earlier [`a315279`](https://github.com/jonathan-vella/apex/tree/a315279aa5d09bfc7657c14536c1776cadcd6069)
+candidate is historical, not the approved target. The Explorer keeps its separate
+generated source pin.
 :::
 
 Start with the [quickstart](/getting-started/quickstart/) if you have not created
 a repository from the Accelerator template.
 
+### Proposed routine engineering and owner boundary
+
+The target runtime is the Copilot session target, Copilot SDK/Agent Host, inside
+VS Code only. Local, CLI, cloud-agent, and other IDE product runtimes are out of
+scope. Running a CLI tool inside an authorized VS Code task does not change that.
+
+The proposal uses an optional short APEX engineering lead or native Agent for
+routine repository work, on-demand domain skills, a native bounded independent
+reviewer, and one separately permissioned deploy operator with Bicep and
+Terraform adapters. See the
+[planning section](/concepts/how-it-works/agents/#proposed-simplification-and-planning-gate)
+for the PRD, backlog, roadmap, retained contracts, and issue mapping.
+
+For example, after plan approval and acceptance of a representative no-cloud
+pilot, an owner could scope a routine documentation fix to an approved feature
+branch. Native Autopilot would edit, test, repair within bounds, commit, push,
+update the PR or issue, and address scoped reviewer feedback without repeatedly
+asking for permission. It may answer blocking questions within that scope.
+This is a proposed walkthrough, not a command to start a pilot now.
+
+A successful `ask_user` call or form response is not proof of a human decision;
+Autopilot may have supplied it. `APEX_UNATTENDED=1` neither proves native Autopilot
+selection nor grants approval. Consequential permission, expense, security,
+and requirements changes and deployment approval require a genuine independent
+owner boundary. Native agent roles and tool allowlists alone are not credential
+or security isolation.
+
 ### Formalized workflow engine
 
-The proposed [workflow graph](https://github.com/jonathan-vella/apex/blob/a315279aa5d09bfc7657c14536c1776cadcd6069/.github/skills/apex-workflow-engine/templates/workflow-graph.json)
-defines step dependencies, expected artifacts, and review defaults.
+The earlier candidate's [workflow graph](https://github.com/jonathan-vella/apex/blob/a315279aa5d09bfc7657c14536c1776cadcd6069/.github/skills/apex-workflow-engine/templates/workflow-graph.json)
+records step dependencies, expected artifacts, and review defaults for that design.
 `apex-recall` records project state. Neither a graph edge nor a completed-state
-field grants permission to deploy.
+field grants permission to deploy. The proposal retains durable decisions,
+atomic writes, and historical compatibility. Native session SQL and todos do not
+replace cross-project approval storage.
 
 ## Agent architecture
 
@@ -42,8 +73,8 @@ artifacts describing different requirements.
 
 ### Review finalization and recovery
 
-The candidate assigns automatic workflow reviews to built-in `rubber-duck` synchronously through
-the one-shot review contract (`APEX_REVIEW`) and persist attributed findings via
+The earlier candidate assigns automatic workflow reviews to built-in `rubber-duck` synchronously through
+the one-shot review contract (`APEX_REVIEW`) and persists attributed findings via
 `record-review.mjs` (`challenge-findings-*.json`). Technical returns stay with
 the same Orchestrator; `10-Challenger` remains available for optional manual
 review or repair. Read findings, resolve the required changes, and record the
@@ -68,26 +99,24 @@ CodeGen rather than expecting the deployment agent to substitute a service or SK
 
 ### The orchestrator pattern
 
-Select `01-Orchestrator` to coordinate the multi-step workflow. The candidate's
+In the existing workflow, select `01-Orchestrator` to coordinate the steps.
+The earlier candidate's
 [worker-readiness contract](https://github.com/jonathan-vella/apex/blob/a315279aa5d09bfc7657c14536c1776cadcd6069/.github/skills/apex-workflow-engine/references/worker-readiness.md)
-proposes direct dispatch via `task` with `WORKER_EXECUTE` in interactive and
-Autopilot modes. It describes post-dispatch attribution with
-`verify-worker-ready.mjs --phase execute` and retains a diagnostic two-turn
-handshake. Other candidate instructions still require the handshake before
-dispatch. This conflict and native acceptance remain unresolved.
+contains conflicting direct-dispatch and pre-dispatch handshake requirements.
+It is not an accepted native contract or the target architecture. The proposal
+removes per-worker handshake and log replay from the future routine execution
+path only after pilot and replacement-check acceptance. Current production
+readiness rules remain unchanged, and tasks are not assumed universally stateless.
 
-Interactive gates present `00-handoff.md` and require human approval before
-advancing. The Autopilot proposal uses `APEX_UNATTENDED=1` or an explicit
-`"run in autopilot"` request to resolve discovery defaults from the project brief,
-apply review mitigations, and advance through already authorized work. Neither
-the environment variable nor a generic Autopilot request authorizes governance
-exceptions, human-gate bypass, deployment, or cleanup. Required approvals must
-cover the actual action and current scope; unresolved authority stops the run.
-Preserve `apex-recall` checkpoints and fresh review evidence.
+Current interactive gates present `00-handoff.md` and require human approval
+before advancing. Required approvals cover the actual action and current scope;
+unresolved authority stops the run. Preserve `apex-recall` checkpoints and fresh
+review evidence. The proposed routine Autopilot scope above does not make
+ordinary question responses independent owner approval.
 
 <span id="agent-delegation-graph"></span>
 
-The proposed `01-Orchestrator` dispatches allowlisted main step workers; step workers invoke
+The earlier candidate's `01-Orchestrator` dispatches allowlisted main step workers; step workers invoke
 only their declared leaf subagents (`rubber-duck`, `cost-estimate-subagent`, and
 validate/preview subagents). Direct user selection of individual step agents
 remains supported; note that sending an idle cross-chat message may clear
@@ -97,8 +126,10 @@ selected-agent metadata, so resume directly in the selected Orchestrator chat.
 
 ### Primary orchestrator
 
-In the candidate, `01-Orchestrator` dispatches the appropriate allowlisted step
-worker after the required approval, rather than only suggesting manual selection.
+The existing roster below describes step ownership. The earlier candidate lets
+`01-Orchestrator` dispatch allowlisted step workers after the required approval.
+The proposed simplified runtime may consolidate those roles; this plan does not
+change the live roster.
 
 ### Core agents (by workflow step)
 
@@ -133,7 +164,7 @@ or resource scope are unclear.
 
 Deployment requires explicit authorization for the proposed changes. A request
 to validate code is not permission to provision infrastructure. Routing diagnostics,
-an `EXECUTE_VERIFIED` result, model metadata, or an export archive do not establish
+an earlier candidate's `EXECUTE_VERIFIED` result, model metadata, or an export archive do not establish
 approval. Live cleanup needs its own authorized scope and observed results.
 
 ## Workflow steps
@@ -203,6 +234,9 @@ change the default review policy.
 
 ### Adversarial review matrix
 
+This matrix describes the existing review requirements, not an approved
+simplified target.
+
 | Step | Default Challenger review |
 |---|---|
 | Requirements | One comprehensive review |
@@ -215,7 +249,10 @@ change the default review policy.
 
 Deep architecture or plan review requires explicit opt-in. The independent
 architecture cost-estimate review remains required. Deterministic validators
-still apply when no adversarial review runs.
+still apply when no adversarial review runs. The proposal has one independent
+technical review path. Only an owner decision can change the currently mandatory
+separate architecture cost-feasibility review. No plan update repairs review
+counters, hashes, history, or unresolved findings.
 
 ## Agents vs skills
 

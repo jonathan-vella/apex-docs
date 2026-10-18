@@ -1,23 +1,48 @@
 ---
 title: "Debug log export"
-description: "Review the proposed native Copilot SDK log export, explicit session selection, and sharing limits."
+description: "Review the earlier native log-export candidate, optional measurement limits, and the pending VS Code migration plan."
 sidebar:
   order: 9
 ---
 
-The proposed `/apex-debug-log-export` skill bundles selected native Copilot SDK
-events into `.apex-logs/` for inspection. It never uploads the archive. Review
-its contents before sharing it with an authorized recipient.
+The earlier `/apex-debug-log-export` candidate describes a bundle of selected
+native Copilot SDK events under `.apex-logs/`. It does not upload the archive.
+This page preserves that candidate procedure for review, not as an instruction
+to implement the migration or start a pilot. Inspect any archive before sharing
+it with an authorized recipient.
 
 :::caution[Candidate procedure, not accepted runtime evidence]
-This guide follows [APEX PR #779](https://github.com/jonathan-vella/apex/pull/779)
-at [`a315279`](https://github.com/jonathan-vella/apex/tree/a315279aa5d09bfc7657c14536c1776cadcd6069).
-APEX main reverted the earlier cutover. The candidate
+The earlier implementation in [APEX PR #779](https://github.com/jonathan-vella/apex/pull/779)
+at [`a315279`](https://github.com/jonathan-vella/apex/tree/a315279aa5d09bfc7657c14536c1776cadcd6069)
+is not the approved target. Its
 [entry skill](https://github.com/jonathan-vella/apex/blob/a315279aa5d09bfc7657c14536c1776cadcd6069/.github/skills/apex-debug-log-export/SKILL.md)
 and [export procedure](https://github.com/jonathan-vella/apex/blob/a315279aa5d09bfc7657c14536c1776cadcd6069/.github/skills/apex-context-management/references/debug-log-export.md)
-are proposed, not released. Native export and smoke acceptance remain unverified
-here. Log analysis does not verify live pricing, human approval, deployment, or cleanup.
+are not released. The October 18 revision is planning only under
+`PLAN_THEN_APPROVE`, with owner plan approval pending. Prior READY and synthetic
+shutdown evidence are withdrawn; no runtime pilot or deployment acceptance is
+established. Log analysis does not verify live pricing, genuine human approval,
+deployment, or cleanup.
 :::
+
+## Optional measurement and runtime scope
+
+The proposed target supports only the Copilot session target, Copilot SDK/Agent
+Host, inside VS Code. A native event format or SDK command example does not offer
+CLI, Local, cloud-agent, or other IDE product runtime support. Historical readers
+remain available.
+
+The [migration planning section](/concepts/how-it-works/agents/#proposed-simplification-and-planning-gate)
+links to the current PRD and delivery gates. Telemetry is optional contextual
+measurement, not a per-worker log-replay requirement for the future routine
+execution path. Removing current readiness checks requires accepted replacement
+checks and a representative no-cloud pilot after owner plan approval.
+
+Treat missing usage as `UNKNOWN`, not zero. Record capture scope and limitations
+beside any measurements. There is no established token, cost, or latency saving.
+Passing a source validator or log analyzer does not establish native runtime
+end-to-end acceptance. A successful `ask_user` event may record an Autopilot
+answer; neither it nor an unattended environment flag proves independent human
+approval or native Autopilot selection.
 
 <span id="how-debug-logs-are-enabled"></span>
 
@@ -29,8 +54,10 @@ The candidate uses native session events at:
 ~/.copilot/session-state/<sessionId>/events.jsonl
 ```
 
-The candidate package declares these analysis commands. Run them from the
-candidate APEX checkout, not apex-docs, after selecting the actual session path:
+The earlier candidate package declares these analysis commands. They are retained
+as candidate examples, not verified target behavior or pilot instructions. Their
+context is that candidate APEX checkout, not apex-docs, with an explicitly selected
+session path:
 
 ```bash
 npm run profile:debug-log -- ~/.copilot/session-state/<sessionId>/events.jsonl --json
@@ -75,20 +102,21 @@ model label, or recently modified directory does not establish session scope.
 
 ## Running the prompt
 
-The historical heading remains for existing links. The candidate entry is a
-skill, not the archived Local prompt. Its declared prerequisites are the
+The historical heading remains for existing links. The earlier candidate entry
+is a skill, not the archived Local prompt. That revision declares the
 built-in `agent` owner and `MAI-Code-1.1-Flash`, with `ask_user`, execution, and
-read access. These are manual-entry requirements, separate from the proposed
-unpinned production-agent policy. Stop if the prerequisites cannot be verified;
-the skill cannot select a model or broaden permissions.
+read access, as manual-entry prerequisites. These are historical declarations,
+not model or role requirements for the revised target. They are not evidence of
+native acceptance. A skill cannot select a model or broaden permissions.
 
-In Copilot Chat, invoke:
+The earlier candidate's proposed Copilot Chat invocation was:
 
 ```text
 /apex-debug-log-export
 ```
 
-The proposed skill will:
+That candidate describes these steps, which this planning update does not certify
+as exercised native behavior:
 
 1. List native sessions that match the workspace identity.
 2. Ask for explicit session IDs and capture choices in one form.
