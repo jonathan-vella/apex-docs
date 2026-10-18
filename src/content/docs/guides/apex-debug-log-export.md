@@ -37,10 +37,13 @@ remain available.
 
 The [migration planning section](/concepts/how-it-works/agents/#proposed-simplification-and-planning-gate)
 links to the current PRD and delivery gates. Telemetry is optional contextual
-measurement, not a per-worker log-replay requirement for the future routine
-execution path. Removing current readiness checks requires accepted replacement
-checks and a representative no-cloud pilot. Execution authorization permits that
-work, but does not establish its acceptance.
+measurement. The owner-reported current body migration removes worker-ready
+handshakes, nonce exchanges, mandatory verifier commands, and log preflight from
+active bodies and shared caller guidance. Retained event readers and old
+verifiers are historical diagnostics, not routine execution prerequisites.
+That source change does not certify the representative no-cloud pilot or
+replacement permission boundaries. Independent production review receipts,
+`record-review` attribution, and freshness validation are still required.
 
 APEX `.github/hooks/` runtime hooks were intentionally deleted. No runtime hooks
 are currently provided in the migration checkout, and hook audit logging is no
@@ -77,7 +80,8 @@ npm run smoke:verify -- ~/.copilot/session-state/<sessionId>/events.jsonl --stri
 npm run validate:review-ceiling -- --budget ~/.copilot/session-state/<sessionId>/events.jsonl --strict
 ```
 
-These commands inspect captured events. A passing result covers only the checks
+These historical commands inspect captured events; they are not required worker
+preflight in the current body migration. A passing result covers only the checks
 and evidence present in that capture, not missing acceptance scenarios or authority.
 
 ## Legacy Local debug logs

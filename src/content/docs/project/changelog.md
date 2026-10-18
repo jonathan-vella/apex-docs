@@ -48,9 +48,28 @@ It does not automatically describe the newest product commit.
     Successful `ask_user` or form responses and `APEX_UNATTENDED=1` are not genuine
     human approval or proof of native Autopilot selection. Consequential changes
     and deployment approval need an independent owner boundary.
-  - Per-worker handshake and log replay would leave the future routine execution
-    path only after pilot and replacement-check acceptance. Hook retirement does
-    not waive readiness, review, or Azure requirements.
+  - The owner subsequently reported migration of all current main and leaf
+    bodies in the source worktree. That work was not committed when this docs
+    update began, and source validation and runtime certification were incomplete.
+    The body migration retains names, direct main-agent selection, native
+    questions, and domain outputs. It does not implement the whole proposed
+    role consolidation.
+  - Directly selected Requirements, Architect, Design, and Governance retain
+    their own material questions. Delegated main workers return structured
+    `USER_INPUT_REQUIRED` requests to the interactive parent; leaves never ask
+    users or delegate.
+  - Active bodies and shared caller guidance no longer require worker-ready
+    handshakes, nonce exchanges, `WORKER_EXECUTE`, mandatory verifiers, or log
+    preflight. Old readers remain diagnostic and historical. Independent
+    production review receipts, `record-review` attribution, and freshness checks
+    remain unchanged.
+  - The migration omits active UI `handoffs:` metadata. Native task results or
+    explicit selection carry the workflow forward; `00-handoff.md` remains
+    durable evidence. In the owner's October 18 Copilot-target probe, the
+    explicitly selected Probe Source returned `SOURCE_READY_20261018` with no
+    handoff controls. Read/search also appeared despite `tools: []`, so native
+    restriction enforcement is not established. This was not a fleet handoff
+    certification.
   - Tested Azure security, live governance, SKU and AVM contracts, cost provenance,
     durable decisions, atomic writes, and historical compatibility remain required.
     One independent technical review path is proposed; the owner must decide any

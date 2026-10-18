@@ -330,9 +330,17 @@ Before starting a complex workflow, open relevant files so Copilot has context:
 
 ### Chaining agents
 
-You can chain agents manually by using handoff buttons in the chat, or run
-the Orchestrator for automatic orchestration. Manual chaining gives you more
-control over each step.
+Select the named main agents directly, or use `01-Orchestrator` to coordinate
+approved native task dispatch. Active migration definitions omit UI `handoffs:`
+metadata. Keep `00-handoff.md` and use explicit selection or the native task
+result instead of waiting for buttons.
+
+Directly selected Requirements, Architect, Design, and Governance can ask missing
+material questions through their native question tools. Delegated main workers
+return `USER_INPUT_REQUIRED` to the interactive parent. Leaves never ask users or
+delegate. Same-task continuation depends on the actual native handle; one-shot
+tasks do not imply a universal continuation API. See the
+[current source and runtime limits](/concepts/how-it-works/agents/#current-agent-body-migration).
 
 **Bicep track**:
 

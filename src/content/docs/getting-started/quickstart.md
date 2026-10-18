@@ -112,12 +112,21 @@ does not prove that it can access your tenant or subscription.
 
 ## Step 7: understand agent handoffs
 
-APEX's main workflow agents are human-selected. The Orchestrator helps you find the
-next step; it does not run the main agents as a chain of subagent calls.
+In the current source migration, select a main workflow agent directly or use
+`01-Orchestrator` to coordinate approved step dispatch. Requirements, Architect,
+Design, and Governance retain native questions when directly selected. You do
+not need Orchestrator merely to answer their missing material questions.
 
-Use the handoff button or select the named agent in Copilot Chat. Read the proposed
-scope and output before approving a transition. Enabling a subagent setting does
-not authorize main-agent delegation or remove approval gates.
+Use the native task result or explicitly select the named next agent in Copilot
+Chat. Active definitions deliberately omit `handoffs:` metadata; do not wait for
+a handoff button. Keep `00-handoff.md` as the durable record of scope and inputs.
+Read it before approving a transition. A delegated main worker returns
+`USER_INPUT_REQUIRED` to its interactive parent rather than asking you directly.
+
+The [body migration and runtime evidence](/concepts/how-it-works/agents/#current-agent-body-migration)
+are distinct. The reported source migration is not certified runtime behavior
+or enforcement of declared tools. Removed worker-ready and log-preflight rituals
+are not setup prerequisites. Reviews and approval gates still apply.
 
 ## Step 8: start the orchestrator
 
@@ -141,6 +150,8 @@ Do not deploy anything.
 
 The Orchestrator should identify the next main agent and the evidence it needs.
 You can also select `02-Requirements` directly when you are starting requirements.
+It should ask about missing material inputs through its available native question
+tool, rather than insist that you select Orchestrator first.
 If the agent list is missing, check that you opened your template-derived repository
 and that VS Code loaded its customization files.
 

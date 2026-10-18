@@ -1,6 +1,6 @@
 ---
 title: "Agent architecture"
-description: "Distinguish the existing agent workflow from the proposed VS Code runtime simplification and its approval boundaries."
+description: "Use direct agent questions and native tasks without confusing source migration with runtime acceptance."
 ---
 
 :::caution[Execution authorized, runtime acceptance unverified]
@@ -16,6 +16,82 @@ authorized. The earlier candidate at
 [`a315279`](https://github.com/jonathan-vella/apex/tree/a315279aa5d09bfc7657c14536c1776cadcd6069)
 is historical implementation evidence, not the approved target or a shipped contract.
 :::
+
+## Current agent-body migration
+
+On October 18, the migration owner reported that all current main and leaf
+agent bodies had been migrated in the source worktree. That work was not yet
+committed when this documentation update began. Validation and runtime
+certification were incomplete. The behavior described here is the reported
+source contract, not a released runtime guarantee. The site's generated Explorer
+still uses its separate `apex-source.json` pin.
+
+The body migration retains the named agents and domain workflow. It is separate
+from the broader proposal to consolidate roles, retire the roster, or establish
+an independent deployment approval boundary.
+
+### Direct questions and delegated input
+
+Main agents retain their names, user-selectable entries, and explicit native
+`ask_user` tools. Select `02-Requirements`, `03-Architect`, `04-Design`, or
+`04g-Governance` directly to work through missing material questions. They must
+not force you through Orchestrator merely to ask about requirements, architecture
+choices, design intent, or governance scope.
+
+| Invocation | Who handles missing input |
+|---|---|
+| Directly selected main agent | The agent asks through its available native question tool. |
+| Delegated main worker | Returns `USER_INPUT_REQUIRED` to its interactive parent without calling user tools. |
+| Leaf helper | The helper returns its role-specific failure or blocked result. It never asks the user or delegates. |
+
+A delegated input request includes `request_id`, `phase`, `message`, and
+`requestedSchema.properties`, and identifies the missing inputs. The interactive
+parent presents the question and returns the answer to the owning task.
+An unavailable question tool or unanswered material question is not permission
+to guess, approve, or advance. Autopilot may answer routine questions; that answer
+does not establish independent owner authority.
+
+### Handoffs without UI controls
+
+The migration deliberately omits active `handoffs:` metadata. Continue through
+the native task or run result when delegation is supported, or explicitly select
+the named next agent. APEX does not require a handoff button. The durable
+`00-handoff.md` artifact still records scope, current inputs, unresolved findings,
+and the next owner. It is not UI metadata or approval by itself.
+
+In the owner's October 18 Copilot-target test, the owner explicitly selected
+Probe Source in the picker and received `SOURCE_READY_20261018`. No handoff
+controls appeared. The transcript also showed Read/search despite `tools: []`.
+That test does not establish native tool-restriction enforcement or credential
+isolation. It does not certify every production agent or handoff.
+
+The [GitHub configuration reference](https://docs.github.com/en/copilot/reference/custom-agents-configuration)
+says `handoffs` is ignored by Copilot cloud agent on GitHub.com. That is a
+cloud-specific statement, not proof that every VS Code target ignores the field.
+APEX's no-metadata design and the observed Copilot result are separate facts.
+
+### Native task lifecycle
+
+Use the task and result contract actually available in the selected Copilot
+session. A synchronous or one-shot task returns its result. A native asynchronous
+task may support same-task continuation through its returned handle; retain that
+handle only for the same work. Do not assume every task can resume, replace a
+failed one-shot call with an invented continuation API, or advertise one tool
+name as a universal IDE interface.
+
+The body migration removes worker-ready handshakes, nonce exchanges,
+`WORKER_EXECUTE`, mandatory verifier commands, and log preflight from active
+bodies and shared caller guidance. Old verifiers and event readers remain for
+historical compatibility and diagnostics, not execution prerequisites.
+This does not remove independent production review receipts, `record-review`
+attribution, or freshness checks. Required reviews and owner approvals still
+gate the domain workflow.
+
+VS Code's [agent-harness guide](https://code.visualstudio.com/docs/agents/agent-harnesses)
+distinguishes the Copilot target from Local and Cloud. Ask and Agent are built-in
+Copilot roles; Plan and Autopilot are modes. Changing a model or role does not
+change the session's target. Tool availability and customization support must be
+checked in that target, not inferred from the shared SDK.
 
 ## Proposed simplification and planning gate
 
@@ -52,10 +128,10 @@ Azure requirements survive this retirement. Git Lefthook, pre-commit checks,
 secret scanning, and CI are separate tooling, not retired by this decision.
 See the [retirement record](/guides/hooks/).
 
-The proposal removes per-worker readiness handshakes and log replay from the
-future routine execution path only after the owner accepts the pilot and its
-replacement checks. Current production readiness rules still apply. Neither a
-compulsory two-turn handshake nor universal task statelessness defines the target.
+The current body migration removes the earlier per-worker readiness rituals
+from the active execution contract. That source change does not establish pilot
+acceptance or verified replacement permission boundaries. Neither a compulsory
+two-turn handshake nor universal task statelessness defines the target.
 
 The redesign must retain tested Azure security, live governance, SKU and AVM
 contracts, cost provenance, durable project decisions, atomic writes, and
@@ -72,16 +148,17 @@ acceptance. Optional usage measurements must record missing data as `UNKNOWN`,
 not zero; no token, cost, or latency savings are established.
 
 October 18 prerequisite observations reported by the migration owner are narrower
-than pilot acceptance. A native background task returned `INPUT_REQUIRED`, and
-same-task `write_agent` continuation worked on its retained worker ID. A skill
+than pilot acceptance. An earlier native background task returned `INPUT_REQUIRED`,
+and same-task `write_agent` continuation worked on its retained worker ID. That
+historical output is not the current delegated-main `USER_INPUT_REQUIRED` contract. A skill
 loaded in the parent, and pricing MCP metadata discovery succeeded without a
 cloud query. Native `ask_user` in Autopilot returned `user not available`, not
 human signoff. The owner-scope question was also unavailable; no cloud writes
 followed. The existing GitHub `copilot`, `dev`, `prod`, and `staging` environments
 had no `protection_rules`; `pages` had only a branch policy. These observations
-do not establish a deployment approval boundary. The full pilot, source phases,
-and fleet migration remain unverified. This docs update did not reproduce those
-runtime checks.
+do not establish a deployment approval boundary. Source body migration is now
+reported in progress, but the full pilot, source validation, and fleet runtime
+certification remain unverified. This docs update did not reproduce those runtime checks.
 
 Use the approved feature branch's
 [PRD](https://github.com/jonathan-vella/apex/blob/feat/copilot-harness-migration/tools/plans/copilot-harness-migration/prd.md),
@@ -102,14 +179,15 @@ progression, including the representative no-cloud pilot. It does not mark any
 packet accepted. The full production simplification still needs accepted pilot,
 replacement-check, source-phase, and final release evidence before cutover.
 
-The sections below explain existing workflow concepts and the earlier candidate
-where identified. They do not require the proposed simplified runtime to retain
-the existing roster.
+The sections below explain retained workflow concepts and identify historical
+candidate details. The broader consolidation proposal does not make roster
+retirement part of this body migration.
 
 ## Agent anatomy
 
 An `.agent.md` file has metadata and an instruction body. Metadata declares the
-name, description, tools, invocation rules, and handoff targets. The body
+name, description, tools, and invocation rules. Active migration definitions
+omit `handoffs:`. The body
 defines the task, expected evidence, constraints, and stop conditions.
 
 Read the earlier candidate's
@@ -124,11 +202,11 @@ authorize every possible operation. The task and its approval boundaries still a
 
 ### Handoffs
 
-Existing main agents produce artifacts under `agent-output/{project}/`. A handoff identifies
-the next main agent and its inputs. In the earlier candidate, you select
-`01-Orchestrator` and approve the scope; it dispatches allowlisted step workers
-rather than requiring manual agent selection at every handoff. Direct selection
-of an individual step agent remains supported. Neither route removes human gates.
+Main agents produce artifacts under `agent-output/{project}/`. A handoff identifies
+the next main agent and its inputs. Select `01-Orchestrator` to coordinate
+approved step dispatch, or select an individual step agent directly.
+Native task results and explicit user selection replace reliance on UI handoff
+controls. Neither route removes review or approval gates.
 
 <span id="local-and-agent-host-boundaries"></span>
 
@@ -145,11 +223,11 @@ Active agent definitions omit model and reasoning-effort pins so the operator
 and runtime control selection, including Auto and HydraFusion. Model metadata is
 diagnostic, not evidence of worker readiness or approval.
 
-The earlier [worker-readiness contract](https://github.com/jonathan-vella/apex/blob/a315279aa5d09bfc7657c14536c1776cadcd6069/.github/skills/apex-workflow-engine/references/worker-readiness.md)
+The historical [worker-readiness contract](https://github.com/jonathan-vella/apex/blob/a315279aa5d09bfc7657c14536c1776cadcd6069/.github/skills/apex-workflow-engine/references/worker-readiness.md)
 describes direct dispatch and a diagnostic handshake, while other instructions
 in that candidate still require a pre-dispatch handshake. Neither conflicting
-candidate path establishes accepted native behavior. The revised target above
-replaces this design only after approval and pilot acceptance.
+candidate path establishes accepted native behavior. Those rituals are absent
+from the current body migration. Retained readers do not reinstate them.
 
 A skill inherits the selected agent's context and tool permissions; it does not
 switch agents or grant access. An unattended environment flag cannot select or
@@ -189,7 +267,9 @@ artifacts. Do not treat the earlier answer as permanently immutable.
 
 The owner resolves choices such as SKU selection, budget trade-offs, review
 findings, and governance constraints. Record actual decisions, not inferred
-acceptance. Use the product's
+acceptance. Directly selected Architect, Design, and Governance agents ask
+material questions themselves. Delegated workers return the structured request
+to their parent instead. Use the product's
 [candidate decision-key contract](https://github.com/jonathan-vella/apex/blob/a315279aa5d09bfc7657c14536c1776cadcd6069/tools/apex-recall/docs/decision-keys.md)
 for supported keys.
 
@@ -200,8 +280,9 @@ from a historical example.
 ## Subagents
 
 Helpers perform bounded tasks such as pricing, code validation, preview, or
-policy precheck. Their parent must permit that delegation. They return evidence
-to the owner and do not take over the main workflow.
+policy precheck. Their parent must permit that delegation. Leaves never ask user
+questions or delegate. Their role-specific file, text, and output-status
+contracts remain intact; native task handling is not a replacement schema.
 
 `10-Challenger` remains available for optional manual review and repair. The
 earlier candidate assigns automatic reviews to built-in `rubber-duck`, not the legacy
@@ -211,8 +292,8 @@ earlier candidate assigns automatic reviews to built-in `rubber-duck`, not the l
 
 Use the [existing review matrix](/concepts/workflow/#adversarial-review-matrix)
 until the owner approves a replacement.
-The earlier candidate declares that automatic independent workflow reviews invoke built-in `rubber-duck`
-reviewer synchronously via the one-shot review contract (`APEX_REVIEW`) and
+Independent production workflow reviews retain the built-in `rubber-duck`
+one-shot review contract (`APEX_REVIEW`) and
 persist validated findings with `record-review.mjs` and
 `validate-challenger-findings.mjs --verify-cache`. `10-Challenger` remains an
 optional manual review and repair workflow rather than a mandatory automatic
@@ -231,6 +312,8 @@ Handoffs preserve task ownership and evidence through files. They do not guarant
 that every earlier detail is in the next agent's context. Name the required
 artifacts and unresolved issues explicitly, and use
 [state recovery](/guides/session-debugging/) when reads or writes fail.
+Do not treat a native task's completion, a question response, or `00-handoff.md`
+as permission for the next step.
 
 ## Creating a custom agent
 
@@ -248,9 +331,11 @@ Do not infer effective selection or permission from a catalog label.
 ### Step 2: create the agent file
 
 Use an existing agent of the same type as a starting point, then review every
-metadata field. Keep `01-Orchestrator` human-selected. Step agents permit only
-the proposed approved Orchestrator dispatch, and leaves cannot delegate or ask
-the user. Use an empty helper allowlist when no delegation is needed.
+metadata field. Keep `01-Orchestrator` human-selected. Preserve direct selection
+and native questions for main agents, with the delegated-worker input return
+described above. Leaves cannot delegate or ask the user. Omit UI handoff
+metadata. Tool declarations require runtime verification; they are not proof of
+credential isolation.
 
 ### Step 3: write the agent body
 

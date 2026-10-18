@@ -9,8 +9,8 @@ description: "Follow the existing APEX workflow and distinguish its gates from t
 
 APEX helps you turn requirements into an Azure infrastructure plan, Bicep or
 Terraform code, and deployment evidence. The step walkthrough below explains the
-existing workflow. The proposed simplification does not require every existing
-step or leaf agent to remain a separate runtime role.
+retained domain workflow. The current body migration keeps named main and leaf
+agents. The broader role-consolidation proposal is separate.
 
 :::caution[Authorized execution is not runtime acceptance]
 The owner has authorized approved migration execution and evidence-based packet
@@ -26,6 +26,13 @@ The earlier [`a315279`](https://github.com/jonathan-vella/apex/tree/a315279aa5d0
 candidate is historical, not the approved target. The Explorer keeps its separate
 generated source pin.
 :::
+
+The owner-reported October 18 body migration is in progress, not a final
+source or runtime certification. Main agents retain direct selection and native
+questions. Active definitions omit UI `handoffs:` metadata and no longer require
+worker-ready handshakes, nonce exchanges, verifier commands, or log preflight.
+See the [current body contract](/concepts/how-it-works/agents/#current-agent-body-migration)
+for native task handling, observed limitations, and preserved review requirements.
 
 Start with the [quickstart](/getting-started/quickstart/) if you have not created
 a repository from the Accelerator template.
@@ -81,13 +88,15 @@ replace cross-project approval storage.
 ### Requirements capture and revision
 
 Select `02-Requirements` to establish workload goals, constraints, budget, region,
-and IaC choice. Resolve gaps before treating the requirements as approved.
+and IaC choice. It asks missing material questions directly through its native
+question tool; you do not need to route those questions through Orchestrator.
+Resolve gaps before treating the requirements as approved.
 Later changes must return to the affected step rather than leave downstream
 artifacts describing different requirements.
 
 ### Review finalization and recovery
 
-The earlier candidate assigns automatic workflow reviews to built-in `rubber-duck` synchronously through
+Independent production workflow reviews retain built-in `rubber-duck` through
 the one-shot review contract (`APEX_REVIEW`) and persists attributed findings via
 `record-review.mjs` (`challenge-findings-*.json`). Technical returns stay with
 the same Orchestrator; `10-Challenger` remains available for optional manual
@@ -113,24 +122,33 @@ CodeGen rather than expecting the deployment agent to substitute a service or SK
 
 ### The orchestrator pattern
 
-In the existing workflow, select `01-Orchestrator` to coordinate the steps.
-The earlier candidate's
+Select `01-Orchestrator` to coordinate approved steps, or select a main step
+agent directly. Architect, Design, and Governance can ask their own missing
+material questions. A delegated main worker instead returns `USER_INPUT_REQUIRED`
+with `request_id`, `phase`, `message`, `requestedSchema.properties`, and its
+missing inputs to the interactive parent. Workers do not call user tools.
+
+The historical
 [worker-readiness contract](https://github.com/jonathan-vella/apex/blob/a315279aa5d09bfc7657c14536c1776cadcd6069/.github/skills/apex-workflow-engine/references/worker-readiness.md)
 contains conflicting direct-dispatch and pre-dispatch handshake requirements.
-It is not an accepted native contract or the target architecture. The proposal
-removes per-worker handshake and log replay from the future routine execution
-path only after pilot and replacement-check acceptance. Current production
-readiness rules remain unchanged, and tasks are not assumed universally stateless.
+It is not the current migrated body contract. Active bodies and shared caller
+guidance no longer require those rituals. Old verifiers remain diagnostic and
+historical. Native tasks use the available result contract; same-task continuation
+is possible only when the actual returned handle supports it. One-shot calls
+do not imply a universal continuation API.
 
-Current interactive gates present `00-handoff.md` and require human approval
+Interactive gates present `00-handoff.md` and require human approval
 before advancing. Required approvals cover the actual action and current scope;
 unresolved authority stops the run. Preserve `apex-recall` checkpoints and fresh
 review evidence. The proposed routine Autopilot scope above does not make
 ordinary question responses independent owner approval.
+No UI handoff control is required or promised. Use the native task result or
+explicitly select the named next agent. The handoff file remains durable evidence,
+not frontmatter or approval.
 
 <span id="agent-delegation-graph"></span>
 
-The earlier candidate's `01-Orchestrator` dispatches allowlisted main step workers; step workers invoke
+The migrated body contract lets `01-Orchestrator` dispatch approved main step workers; step workers invoke
 only their declared leaf subagents (`rubber-duck`, `cost-estimate-subagent`, and
 validate/preview subagents). Direct user selection of individual step agents
 remains supported; note that sending an idle cross-chat message may clear
@@ -140,10 +158,9 @@ selected-agent metadata, so resume directly in the selected Orchestrator chat.
 
 ### Primary orchestrator
 
-The existing roster below describes step ownership. The earlier candidate lets
-`01-Orchestrator` dispatch allowlisted step workers after the required approval.
-The proposed simplified runtime may consolidate those roles; this plan does not
-change the live roster.
+The roster below describes retained step ownership. `01-Orchestrator` coordinates
+approved step dispatch. Direct main-agent selection remains supported.
+This body migration does not retire the roster or certify every dispatch path.
 
 ### Core agents (by workflow step)
 

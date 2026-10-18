@@ -12,7 +12,9 @@ for the normal sequence and the linked step pages for exact outputs.
 A human selects a main agent. That agent reads current project evidence, performs
 its task, and produces artifacts. Required reviews and approvals determine whether
 the next step can proceed. Helpers can perform permitted bounded tasks, but the
-main-agent sequence is not an autonomous subagent chain.
+main-agent sequence remains approval-gated. The
+[current body migration](/concepts/how-it-works/agents/#current-agent-body-migration)
+retains named roles while changing runtime task handling, not domain artifacts.
 
 | Record                                      | Purpose                                                           | What it does not prove                                             |
 | ------------------------------------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------ |
@@ -60,7 +62,8 @@ See the [retirement record](/guides/hooks/). Git Lefthook, pre-commit security
 checks, and underlying Azure requirements are not retired.
 Each remaining mechanism covers specific rules, not all correctness or safety.
 A Challenger review evaluates the requested artifact scope and remains a separate
-human-selected step.
+review path. Direct `10-Challenger` selection remains available for manual work;
+required independent production review receipts and freshness checks remain separate.
 
 ## Explicit lab risk acceptance
 
@@ -113,14 +116,18 @@ Normal review is the default. Complexity does not silently enable deep review.
 ### Step 1: requirements
 
 `02-Requirements` records the workload, constraints, and initial SKU manifest.
-Review the requirements with `10-Challenger`, resolve required findings, and obtain
+When directly selected, it asks about missing workload requirements through its
+native question tool. A delegated worker returns `USER_INPUT_REQUIRED` to its
+interactive parent instead. Complete the required independent review, resolve findings, and obtain
 approval before architecture. Return here when an upstream requirement changes.
 
 <span id="step-2--architecture"></span>
 
 ### Step 2: architecture
 
-`03-Architect` evaluates service choices and costs. The architecture assessment
+`03-Architect` evaluates service choices and costs. Direct selection supports
+native questions about missing choices or constraints; it does not require
+Orchestrator as a question relay. The architecture assessment
 and cost estimate receive independent reviews. Deep architecture review is opt-in
 and does not replace the cost-estimate review. Preserve pricing assumptions and
 their source rather than substituting remembered prices.
@@ -130,7 +137,8 @@ their source rather than substituting remembered prices.
 ### Step 3: design, optional
 
 `04-Design` creates diagrams and decision records when they help explain the
-architecture. Design review is optional. The next required concern is governance,
+architecture. Directly selected Design asks material questions about design intent
+itself. Design review is optional. The next required concern is governance,
 whether or not this step runs.
 
 <span id="step-35--governance"></span>
@@ -139,6 +147,9 @@ whether or not this step runs.
 
 `04g-Governance` discovers effective policy, including inherited assignments, and
 produces both Markdown and JSON constraints. Reconcile conflicts before planning.
+Directly selected Governance asks about missing target scope or policy decisions
+through its native question tool. A delegated worker returns the question to its
+interactive parent without calling user tools.
 If resolution changes the architecture, return to Architect and renew the affected
 approval. An inaccessible scope is not an empty policy result.
 
@@ -191,7 +202,10 @@ record does not authorize those changes automatically.
 ## End-to-end run timeline
 
 The current sequence is Requirements, Architecture, optional Design, Governance,
-Plan, CodeGen, Deploy, and As-built. The owner selects each main-agent handoff.
+Plan, CodeGen, Deploy, and As-built. The owner can select a main agent directly or
+use Orchestrator to coordinate approved step dispatch. Native task results and
+explicit selection replace UI handoff controls in the body migration.
+`00-handoff.md` remains a durable artifact, not a UI declaration or approval.
 The [step table](/concepts/workflow/#core-agents-by-workflow-step) names the agents,
 and the [review matrix](/concepts/workflow/#adversarial-review-matrix) defines the
 default reviews.
@@ -199,13 +213,15 @@ default reviews.
 <details>
 <summary>Historical workflow illustration</summary>
 
-This imported illustration predates the current human-selected main-agent contract.
+This imported illustration predates the current agent-body migration.
 It remains available for old links and historical comparison, not as execution guidance.
 
 ![Historical workflow illustration with agent, helper, artifact, and context lanes](../../../assets/diagrams/workflow-deep-dive/e2e-orchestration.png)
 
-The current sequence and ownership are described in the text above. Do not use the
-old delegation lanes to infer runtime behavior.
+The retained domain sequence and ownership are described in the text above.
+Do not use the old delegation lanes to infer native tools, continuation support,
+or runtime certification. The body migration removes readiness handshakes and log
+preflight, but preserves review receipts, freshness checks, and approval gates.
 
 </details>
 
