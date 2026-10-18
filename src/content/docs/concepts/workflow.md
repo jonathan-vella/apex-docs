@@ -111,8 +111,23 @@ capability, it returns `REVIEW_REQUIRED`. The same Orchestrator automatically
 dispatches that independent review, captures current review metadata, and records
 the actual parent-invoked result under the existing integrity checks and review
 budgets. It does not ask the owner to select `10-Challenger` as a routine detour.
-This candidate is not runtime-tested on `cp-harness01`; its source revision is
-pending.
+The October 18 owner-supplied `cp-harness-01` retry reached this sibling reviewer
+dispatch. Recording then failed because the reviewer ran a shell command that
+the execution safety check blocked. No review sidecar or approval resulted.
+This confirms dispatch for that retry, not a completed review.
+
+The follow-up source repair removes shell-based draft finalization. The reviewer
+reads inputs and returns its independent findings as JSON. The existing recorder
+derives finding IDs and severity counts, then checks the schema, attribution,
+original metadata, and current input bytes. The reviewer still owns the findings
+and verdict. Failed commands remain blocking, even if the reviewer later returns
+valid JSON. Do not rehash or salvage the failed attempt, reset its budget, or
+treat the repair as permission to launch another project review.
+
+Requirements review also follows the current workflow stage. It checks business
+intent, measurable outcomes, contradictions, and security constraints. Documented
+later-stage design tasks are not defects solely because they remain open.
+Recommendations must not invent user targets or weaken the security baseline.
 
 Only genuinely missing parent reviewer capability or failed or invalid execution
 evidence requires a stop and human recovery. `10-Challenger` remains available

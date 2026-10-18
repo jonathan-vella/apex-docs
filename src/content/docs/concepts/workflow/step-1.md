@@ -42,6 +42,12 @@ a sibling task and records its actual result. Selecting `10-Challenger` manually
 is not the normal route. Missing reviewer capability or failed or invalid review
 evidence stops progress for human recovery.
 
+The reviewer returns JSON directly, without shell commands or scratch files.
+The recorder derives IDs and severity counts from the actual findings and
+validates the result. A shell safety block still invalidates that interaction.
+The October 18 `cp-harness-01` retry reached automatic sibling dispatch but failed
+recording for that reason. It did not produce a valid review or approval.
+
 Resolve required findings and obtain owner approval before Step 2. See
 [review finalization and recovery](/concepts/workflow/#review-finalization-and-recovery)
 for the review and evidence limits.
@@ -49,10 +55,11 @@ for the review and evidence limits.
 ## Guided discovery candidate
 
 :::caution[Source candidate, not runtime acceptance]
-The October 18 Requirements correction described here is an implementation
-candidate supplied by the source owner. Its source revision is pending. It has
-not been runtime-tested on `cp-harness01`, and does not establish that the reported
-regression is fixed in that session. Existing project answers and history remain
+The guided discovery source is `977a90fa`. An owner-supplied `cp-harness-01` resume
+transcript reports answer reuse without repeated questions and reaches automatic
+review dispatch. It does not exercise a fresh guided intake, and review recording
+failed. Full discovery and approval are not established. The follow-up
+shell-free review repair also needs an integrated retry. Earlier history remains
 unchanged.
 :::
 
