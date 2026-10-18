@@ -51,6 +51,22 @@ An unavailable question tool or unanswered material question is not permission
 to guess, approve, or advance. Autopilot may answer routine questions; that answer
 does not establish independent owner authority.
 
+The October 18 Requirements correction is a source candidate, not a runtime-tested
+result on `cp-harness01`; its source revision is pending. The parent supplies the
+complete captured-answer ledger on every new or continued Requirements task,
+including known answers and explicit unknowns. Sending only the latest form
+response loses the discovery context. See
+[guided discovery](/concepts/workflow/step-1/#guided-discovery-candidate) for staged
+forms and the boundary between workload questions and downstream design details.
+
+If a delegated owner lacks nested task capability for a mandatory review, it
+returns `REVIEW_REQUIRED`. The candidate explicitly permits Orchestrator to run
+native `rubber-duck` automatically as a sibling reviewer under the existing
+one-shot review contract, attribution, freshness checks, and review budgets.
+This does not complete review or grant approval. See
+[review finalization and recovery](/concepts/workflow/#review-finalization-and-recovery)
+for evidence recording and failure handling.
+
 ### Handoffs without UI controls
 
 The migration deliberately omits active `handoffs:` metadata. Continue through

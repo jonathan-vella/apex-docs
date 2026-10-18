@@ -34,9 +34,64 @@ Output: agent-output/{project}/01-requirements.md
 
 ## Review
 
-One `comprehensive` review by `10-Challenger` is mandatory. Select the main
-reviewer through its handoff, not a subagent call. Resolve required findings and
-approve the requirements before Step 2.
+One independent `comprehensive` review is mandatory before approval. The source
+candidate uses native `rubber-duck` through the existing one-shot review contract.
+If the delegated Requirements worker cannot launch that review, it returns
+`REVIEW_REQUIRED`. Orchestrator automatically runs the same independent review as
+a sibling task and records its actual result. Selecting `10-Challenger` manually
+is not the normal route. Missing reviewer capability or failed or invalid review
+evidence stops progress for human recovery.
+
+Resolve required findings and obtain owner approval before Step 2. See
+[review finalization and recovery](/concepts/workflow/#review-finalization-and-recovery)
+for the review and evidence limits.
+
+## Guided discovery candidate
+
+:::caution[Source candidate, not runtime acceptance]
+The October 18 Requirements correction described here is an implementation
+candidate supplied by the source owner. Its source revision is pending. It has
+not been runtime-tested on `cp-harness01`, and does not establish that the reported
+regression is fixed in that session. Existing project answers and history remain
+unchanged.
+:::
+
+The candidate groups discovery into `business`, `migration`, `workload`, and
+`access` stages. It offers guided choices for industry, business category,
+workload type, concrete goals, and timeline ranges. Business category and
+employee count are not interchangeable. A custom or freeform answer belongs in the
+same native question field, not a second `*_other` field.
+
+Only Migration or Modernization work asks for migration details. Greenfield
+work skips those questions. Later questions guide non-functional requirements,
+user scale, budget, availability, and recovery needs. Private-access choices
+include "Not sure" so the design can establish a secure path without requiring
+the owner to supply network implementation details.
+
+Monitoring questions establish responsibility scope, not named accountable
+contacts or identity principals. Capture any known constraints. Exact runtime
+choices, resource IDs, and tag bindings can remain open for Architecture,
+Governance, or IaC Planner when the workload intent is clear. Those steps must
+resolve each unknown before the gate that consumes it. An unknown is neither an
+approval nor permission to invent a value or relax private-data access and
+private DNS requirements.
+
+Orchestrator passes the complete captured-answer ledger, including known answers
+and explicit unknowns, to every new or continued Requirements worker task. It
+does not send only the latest form response. The worker asks for missing inputs
+without discarding earlier answers.
+
+The read-only form helper runs from the APEX repository root against an existing
+captured-answer JSON file:
+
+```bash
+node tools/scripts/requirements-discovery.mjs --stage business --answers captured-answers.json
+```
+
+Use `business`, `migration`, `workload`, or `access` for `--stage`. The helper
+returns JSON and does not write project state. A complete stage means no required
+fields are missing for that stage. It does not complete Step 1, supply answers,
+make decisions, satisfy review, or approve a handoff.
 
 ## Hand-off
 

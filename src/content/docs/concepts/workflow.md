@@ -90,19 +90,36 @@ replace cross-project approval storage.
 Select `02-Requirements` to establish workload goals, constraints, budget, region,
 and IaC choice. It asks missing material questions directly through its native
 question tool; you do not need to route those questions through Orchestrator.
-Resolve gaps before treating the requirements as approved.
+Capture known constraints and distinguish workload intent from implementation
+details. The [guided discovery candidate](/concepts/workflow/step-1/#guided-discovery-candidate)
+adds menus, Greenfield branching, and answer preservation. Exact runtime choices,
+IDs, and tag bindings can remain explicit unknowns for the downstream step that
+owns them when intent is clear. That step must resolve them before its consuming
+gate. Deferral is not approval or permission to guess.
 Later changes must return to the affected step rather than leave downstream
 artifacts describing different requirements.
 
 ### Review finalization and recovery
 
 Independent production workflow reviews retain built-in `rubber-duck` through
-the one-shot review contract (`APEX_REVIEW`) and persists attributed findings via
-`record-review.mjs` (`challenge-findings-*.json`). Technical returns stay with
-the same Orchestrator; `10-Challenger` remains available for optional manual
-review or repair. Read findings, resolve the required changes, and record the
-actual outcome. Review filenames and old approval text do not prove that the
-current inputs were reviewed.
+the one-shot review contract (`APEX_REVIEW`). The review owner records attributed
+findings through `record-review.mjs` (`challenge-findings-*.json`).
+
+The October 18 source candidate explicitly permits Orchestrator to invoke
+`rubber-duck` as a sibling reviewer. If a delegated worker lacks nested task
+capability, it returns `REVIEW_REQUIRED`. The same Orchestrator automatically
+dispatches that independent review, captures current review metadata, and records
+the actual parent-invoked result under the existing integrity checks and review
+budgets. It does not ask the owner to select `10-Challenger` as a routine detour.
+This candidate is not runtime-tested on `cp-harness01`; its source revision is
+pending.
+
+Only genuinely missing parent reviewer capability or failed or invalid execution
+evidence requires a stop and human recovery. `10-Challenger` remains available
+for that recovery or optional manual review. Read findings, resolve the required
+changes, and obtain the separate owner approval. Review filenames and old
+approval text do not prove that the current inputs were reviewed. Neither stage
+completion nor this dispatch correction completes a mandatory review.
 
 If state or index updates fail, follow
 [session recovery](/guides/session-debugging/) instead of resetting JSON fields.
@@ -127,6 +144,12 @@ agent directly. Architect, Design, and Governance can ask their own missing
 material questions. A delegated main worker instead returns `USER_INPUT_REQUIRED`
 with `request_id`, `phase`, `message`, `requestedSchema.properties`, and its
 missing inputs to the interactive parent. Workers do not call user tools.
+
+For Requirements, the parent sends the complete captured-answer ledger with
+every new task or supported continuation, not just the latest response. Preserve
+known answers and explicit unknowns across calls. The parent owns question
+presentation and review dispatch when the delegated worker cannot invoke the
+required reviewer.
 
 The historical
 [worker-readiness contract](https://github.com/jonathan-vella/apex/blob/a315279aa5d09bfc7657c14536c1776cadcd6069/.github/skills/apex-workflow-engine/references/worker-readiness.md)
