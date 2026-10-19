@@ -116,6 +116,18 @@ dispatch. Recording then failed because the reviewer ran a shell command that
 the execution safety check blocked. No review sidecar or approval resulted.
 This confirms dispatch for that retry, not a completed review.
 
+On October 19, model-backed tests in Copilot CLI 1.0.98 confirmed custom-agent
+selection, delegated answer continuation, and an actual parent/sibling review
+dispatch on a disposable fixture. That reviewer returned prose and reported a
+configured output-format conflict. The unchanged recorder rejected it, and no
+valid review receipt resulted. This is a CLI observation, not evidence of the
+same behaviour in the supported VS Code client.
+
+Do not convert prose into a findings file, override the reviewer's role, change
+reviewers, or reset attempts to make this result pass. Test the remaining
+compatibility question in the supported VS Code runtime before changing the
+production review architecture.
+
 The follow-up source repair removes shell-based draft finalization. The reviewer
 reads inputs and returns its independent findings as JSON. The existing recorder
 derives finding IDs and severity counts, then checks the schema, attribution,

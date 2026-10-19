@@ -42,7 +42,7 @@ a sibling task and records its actual result. Selecting `10-Challenger` manually
 is not the normal route. Missing reviewer capability or failed or invalid review
 evidence stops progress for human recovery.
 
-The reviewer returns JSON directly, without shell commands or scratch files.
+The review contract requires JSON directly, without shell commands or scratch files.
 The recorder derives IDs and severity counts from the actual findings and
 validates the result. A shell safety block still invalidates that interaction.
 The October 18 `cp-harness-01` retry reached automatic sibling dispatch but failed
@@ -51,6 +51,14 @@ recording for that reason. It did not produce a valid review or approval.
 Resolve required findings and obtain owner approval before Step 2. See
 [review finalization and recovery](/concepts/workflow/#review-finalization-and-recovery)
 for the review and evidence limits.
+
+The delegated question wrapper is also a native tool contract, not general JSON
+Schema. `requestedSchema` contains only `properties`. Root `type`, `required`,
+and `additionalProperties` do not belong there; unresolved names go in
+the delegated envelope's `needed_inputs`. Direct tool calls contain only
+`message` and `requestedSchema`. The parent permits one schema-only correction for the same
+request, then stops on another malformed response without repeating settled
+questions.
 
 ## Guided discovery candidate
 
@@ -62,6 +70,13 @@ failed. Full discovery and approval are not established. The follow-up
 shell-free review repair also needs an integrated retry. Earlier history remains
 unchanged.
 :::
+
+October 19 model-backed CLI probes found and rejected an unsupported form wrapper.
+After the producer/parent guidance correction, a fresh CLI session using the same
+prompt returned a valid wrapper. Exact-session continuation also preserved custom
+answers and moved to workload questions without repeating the business intake.
+These bounded observations do not establish full discovery or review recording
+in the supported VS Code client.
 
 The candidate groups discovery into `business`, `migration`, `workload`, and
 `access` stages. It offers guided choices for industry, business category,
