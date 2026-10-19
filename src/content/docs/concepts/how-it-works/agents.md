@@ -15,6 +15,12 @@ unestablished, so no cloud action may proceed on that basis. Cleanup is not
 authorized. The earlier candidate at
 [`a315279`](https://github.com/jonathan-vella/apex/tree/a315279aa5d09bfc7657c14536c1776cadcd6069)
 is historical implementation evidence, not the approved target or a shipped contract.
+
+The owner's later October 19 CLI fixture returned typed reviewer JSON, published
+a receipt, and passed strict cache validation. The current VS Code conversation
+still invoked the old file-output role twice and refused the read-only request.
+Fresh-context native acceptance remains blocked. See the
+[reported review evidence](/concepts/workflow/#review-finalization-and-recovery).
 :::
 
 ## Current agent-body migration
@@ -327,8 +333,11 @@ Built-in `rubber-duck` retains its critic-prose role. It is not a mandatory
 JSON-producing dependency or an automatic fallback. Historical file-output
 receipts and historical readers remain compatible without rewriting their bytes,
 identities, or attempts. The candidate follows baseline `4b688a52`; its final
-source head and native runtime evidence are pending. The earlier CLI prose-output
-failure does not certify this new path. See
+source head is pending, and native fresh-context acceptance remains blocked.
+The earlier CLI prose-output failure remains historical. A later owner-authorized
+CLI fixture passed structured recording and strict cache validation, but the
+current VS Code conversation still invoked the old role. Neither result
+establishes native fresh-context acceptance. See
 [review finalization and recovery](/concepts/workflow/#review-finalization-and-recovery).
 
 Architecture and cost-estimate reviews are independent. Deep review

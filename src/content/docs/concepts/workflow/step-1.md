@@ -38,7 +38,8 @@ One independent `comprehensive` review is mandatory before approval. The source
 candidate uses the shared read-only `challenger-review-subagent` through the
 existing one-shot review contract and an actual synchronous native `APEX_REVIEW`
 task. The owner approved this adaptation on October 19 after source baseline
-`4b688a52`; its final source head and native runtime evidence are pending.
+`4b688a52`; its final source head is pending, and native fresh-context acceptance
+remains blocked.
 If the delegated Requirements worker cannot launch that review, it returns
 `REVIEW_REQUIRED`. Orchestrator automatically runs the same independent review as
 a sibling task and records its actual result. Selecting `10-Challenger` manually
@@ -75,8 +76,12 @@ The guided discovery source is `977a90fa`. An owner-supplied `cp-harness-01` res
 transcript reports answer reuse without repeated questions and reaches automatic
 review dispatch. It does not exercise a fresh guided intake, and review recording
 failed. Full discovery and approval are not established. The follow-up
-shared structured-review cutover also needs native runtime evidence. Earlier
-history remains unchanged.
+shared structured-review cutover still lacks native fresh-context acceptance.
+The owner's later CLI fixture passed structured review recording and strict cache
+validation, but did not exercise full discovery. The current VS Code conversation still
+invoked the old file-output role, and native fresh-context acceptance remains
+blocked. See the [reported review evidence](/concepts/workflow/#review-finalization-and-recovery).
+Earlier history remains unchanged.
 :::
 
 October 19 model-backed CLI probes found and rejected an unsupported form wrapper.

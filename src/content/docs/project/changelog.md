@@ -28,9 +28,15 @@ It does not automatically describe the newest product commit.
   reviewer, not a mandatory JSON producer or automatic fallback. Historical
   file-output receipts and readers remain compatible without rewriting evidence
   or resetting attempts. Review budgets, lenses, gates, security, and approvals
-  are unchanged. The final source revision after baseline `4b688a52` and native
-  runtime evidence are pending. The CLI 1.0.98 prose-output failure remains
-  historical evidence, not certification of this path. See the
+  are unchanged. The final source revision after baseline `4b688a52` remains
+  pending, and native fresh-context acceptance remains blocked. The CLI 1.0.98
+  prose-output failure remains historical evidence, not certification of this
+  path. Later that day, the owner reported a fresh CLI fixture with typed JSON,
+  a published structured-leaf receipt, and strict cache validation with no errors
+  or warnings. The current
+  VS Code conversation instead invoked the old file-output role twice and refused
+  the read-only request without artifact reads or writes. Fresh-context native
+  acceptance remains blocked. See the
   [review contract](/concepts/workflow/#review-finalization-and-recovery).
 
 - Owner-authorized migration execution on October 18 in

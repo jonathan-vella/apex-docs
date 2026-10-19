@@ -25,6 +25,11 @@ withdrawn. No runtime pilot or deployment acceptance is established.
 The earlier [`a315279`](https://github.com/jonathan-vella/apex/tree/a315279aa5d09bfc7657c14536c1776cadcd6069)
 candidate is historical, not the approved target. The Explorer keeps its separate
 generated source pin.
+
+Later October 19 verification reports a successful CLI structured-review fixture,
+but the current VS Code conversation invoked the old file-output role twice.
+Fresh-context native acceptance remains blocked. See
+[review evidence below](#review-finalization-and-recovery).
 :::
 
 The owner-reported October 18 body migration is in progress, not a final
@@ -106,8 +111,9 @@ On October 19, the owner approved adapting the existing
 Automatic producers, authorized `01-Orchestrator` calls, and optional manual
 `10-Challenger` reviews use the same leaf and the existing
 `one-shot-review.md` contract. This is the approved candidate after source
-baseline `4b688a52`. The final source revision and native runtime evidence are
-pending. The site's generated source and guidance-review pins remain unchanged.
+baseline `4b688a52`. The final source revision is pending, and native fresh-context
+acceptance remains blocked. The site's generated source and guidance-review pins
+remain unchanged.
 
 The interactive review owner captures current review metadata before invoking
 the actual synchronous native task with `APEX_REVIEW`. The leaf reads the
@@ -158,8 +164,31 @@ rewrite a failed attempt to make it pass. Failed commands remain blocking even
 if later output is JSON. Do not reset counters or treat the cutover as permission
 to launch another project review.
 
+In later owner-supplied verification on October 19, the current VS Code
+conversation invoked the old file-output role twice. The owner explicitly
+authorized the second attempt after a reported refresh. Both refused the
+read-only request without reading or writing artifacts. Neither exercised the
+new structured role, and fresh-context native acceptance remains blocked.
+
+The owner then authorized one fresh CLI fixture test. Its parent invoked the
+actual `challenger-review-subagent`, which returned typed JSON. The new recorder
+published the structured-leaf receipt, and strict `--verify-cache` validation
+reported no errors or warnings. The reported CLI session was
+`1a7ac903-df65-4910-ab0e-776f00b4051f`, with worker
+`d25e954f-4c0e-47f7-82c7-9f8ccf6878a1`. Both reported runtime `gpt-6.1-sol`,
+no overrides, and complete usage records. This is observed model telemetry, not
+a model pin or a requirement for later reviews.
+
+That CLI fixture verifies its own dispatch, structured output, recording, and
+strict validation. It does not establish supported VS Code behavior, full
+Requirements discovery, or native fresh-context acceptance. The final source
+revision is still pending. The earlier CLI prose-output failure remains unchanged.
+
 Historical file-output receipts and historical `rubber-duck` readers remain
 compatible. Keep their original bytes, identities, findings, and attempt history.
+Historical event extractors and receipt readers provide read-only compatibility;
+legacy schemas without `reviewer` remain supported. The new recorder publishes
+structured-leaf receipts only. Do not record new built-in reviewer receipts.
 Do not relabel historical evidence as a new structured-leaf receipt or rehash it
 under the new contract. The cutover changes neither the review matrix nor its
 lenses, step gates, budgets, security requirements, or separate owner approvals.
