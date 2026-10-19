@@ -34,12 +34,13 @@ Output: agent-output/{project}/01-requirements.md
 
 ## Review
 
-One independent `comprehensive` review is mandatory before approval. The source
-candidate uses the shared read-only `challenger-review-subagent` through the
+One independent `comprehensive` review is mandatory before approval. The workflow
+uses the shared read-only `challenger-review-subagent` through the
 existing one-shot review contract and an actual synchronous native `APEX_REVIEW`
-task. The owner approved this adaptation on October 19 after source baseline
-`4b688a52`; its final source head is pending, and native fresh-context acceptance
-remains blocked.
+task. After reloading VS Code (`7735cb43-97f0-4d6e-9a31-8edd63dcc75b`), Step 1
+and all downstream mandatory gates completed structured `challenger-review-subagent`
+reviews and passed strict `--verify-cache` validation during the `cp-harness-01`
+end-to-end run.
 If the delegated Requirements worker cannot launch that review, it returns
 `REVIEW_REQUIRED`. Orchestrator automatically runs the same independent review as
 a sibling task and records its actual result. Selecting `10-Challenger` manually
@@ -71,16 +72,12 @@ questions.
 
 ## Guided discovery candidate
 
-:::caution[Source candidate, not runtime acceptance]
-The guided discovery source is `977a90fa`. An owner-supplied `cp-harness-01` resume
-transcript reports answer reuse without repeated questions and reaches automatic
-review dispatch. It does not exercise a fresh guided intake, and review recording
-failed. Full discovery and approval are not established. The follow-up
-shared structured-review cutover still lacks native fresh-context acceptance.
-The owner's later CLI fixture passed structured review recording and strict cache
-validation, but did not exercise full discovery. The current VS Code conversation still
-invoked the old file-output role, and native fresh-context acceptance remains
-blocked. See the [reported review evidence](/concepts/workflow/#review-finalization-and-recovery).
+:::note[Reloaded VS Code acceptance verified]
+The guided discovery source (`977a90fa`) and shared structured-review cutover
+were verified on October 19 in a reloaded VS Code Agent Host session
+(`7735cb43-97f0-4d6e-9a31-8edd63dcc75b`) during the full `cp-harness-01`
+end-to-end run (`Steps 1 → 2 → 3.5 → 4 → 5 → 6 → 7 → Post-Lessons`). See the
+[reported review evidence](/concepts/workflow/#review-finalization-and-recovery).
 Earlier history remains unchanged.
 :::
 

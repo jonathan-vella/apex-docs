@@ -27,16 +27,15 @@ It does not automatically describe the newest product commit.
   the shared one-shot contract. Built-in `rubber-duck` remains a critic-prose
   reviewer, not a mandatory JSON producer or automatic fallback. Historical
   file-output receipts and readers remain compatible without rewriting evidence
-  or resetting attempts. Review budgets, lenses, gates, security, and approvals
-  are unchanged. The final source revision after baseline `4b688a52` remains
-  pending, and native fresh-context acceptance remains blocked. The CLI 1.0.98
-  prose-output failure remains historical evidence, not certification of this
-  path. Later that day, the owner reported a fresh CLI fixture with typed JSON,
-  a published structured-leaf receipt, and strict cache validation with no errors
-  or warnings. The current
-  VS Code conversation instead invoked the old file-output role twice and refused
-  the read-only request without artifact reads or writes. Fresh-context native
-  acceptance remains blocked. See the
+  or resetting attempts.   Review budgets, lenses, gates, security, and approvals
+  are unchanged. After reloading the VS Code window so updated agent definitions
+  attached from disk (`7735cb43-97f0-4d6e-9a31-8edd63dcc75b`), the owner-authorized
+  `cp-harness-01` end-to-end run completed `Steps 1 → 2 → 3.5 → 4 → 5 → 6 → 7 → Post-Lessons`
+  with five synchronous `challenger-review-subagent` dispatches, strict
+  `record-review.mjs` and `--verify-cache` validation, live Azure deployment to
+  `rg-cp-harness-01-dev` (`swedencentral`, 32 resources), Step 7 as-built
+  documentation (`$127.69/month`, `0.00%` drift), and `09-lessons-learned.{json,md}`
+  (`LL-001`–`LL-004` applied). See the
   [review contract](/concepts/workflow/#review-finalization-and-recovery).
 
 - Owner-authorized migration execution on October 18 in

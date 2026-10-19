@@ -12,23 +12,18 @@ Terraform code, and deployment evidence. The step walkthrough below explains the
 retained domain workflow. The current body migration keeps named main and leaf
 agents. The broader role-consolidation proposal is separate.
 
-:::caution[Authorized execution is not runtime acceptance]
-The owner has authorized approved migration execution and evidence-based packet
-progression in [APEX PR #779](https://github.com/jonathan-vella/apex/pull/779).
-This supersedes the earlier `PLAN_THEN_APPROVE` hold, but does not accept the
-proposed lead, skills, source implementation, or runtime pilot. Real-Azure
-deployment and E2E are authorized in principle only. The exact tenant,
-subscription, resource boundary, budget, and action scope are not established;
-cloud execution remains blocked until they are. Cleanup is not authorized.
-Prior READY, synthetic shutdown, and leading-prompt approval evidence remains
-withdrawn. No runtime pilot or deployment acceptance is established.
-The earlier [`a315279`](https://github.com/jonathan-vella/apex/tree/a315279aa5d09bfc7657c14536c1776cadcd6069)
-candidate is historical, not the approved target. The Explorer keeps its separate
-generated source pin.
+:::note[Reloaded VS Code session and real-Azure E2E verified]
+The owner authorized migration execution and evidence-based packet
+progression in [APEX PR #779](https://github.com/jonathan-vella/apex/pull/779),
+superseding the earlier `PLAN_THEN_APPROVE` hold. The earlier
+[`a315279`](https://github.com/jonathan-vella/apex/tree/a315279aa5d09bfc7657c14536c1776cadcd6069)
+candidate remains historical. The Explorer keeps its separate generated source pin.
 
-Later October 19 verification reports a successful CLI structured-review fixture,
-but the current VS Code conversation invoked the old file-output role twice.
-Fresh-context native acceptance remains blocked. See
+On October 19, after reloading the VS Code window (`7735cb43-97f0-4d6e-9a31-8edd63dcc75b`),
+the owner-authorized `cp-harness-01` run completed `Steps 1 → 2 → 3.5 → 4 → 5 → 6 → 7 → Post-Lessons`
+with five structured `challenger-review-subagent` receipts, strict `--verify-cache`
+validation, live Bicep deployment to `rg-cp-harness-01-dev` (`swedencentral`, 32 resources),
+Step 7 as-built documentation, and lessons-learned capture (`LL-001`–`LL-004` applied). See
 [review evidence below](#review-finalization-and-recovery).
 :::
 
@@ -110,10 +105,11 @@ On October 19, the owner approved adapting the existing
 `challenger-review-subagent` into one shared read-only structured JSON leaf.
 Automatic producers, authorized `01-Orchestrator` calls, and optional manual
 `10-Challenger` reviews use the same leaf and the existing
-`one-shot-review.md` contract. This is the approved candidate after source
-baseline `4b688a52`. The final source revision is pending, and native fresh-context
-acceptance remains blocked. The site's generated source and guidance-review pins
-remain unchanged.
+`one-shot-review.md` contract. After reloading VS Code so updated agent
+definitions attached from disk (`7735cb43-97f0-4d6e-9a31-8edd63dcc75b`), all
+five mandatory `cp-harness-01` reviews completed through this contract and passed
+strict `--verify-cache` validation. The site's generated source and guidance-review
+pins remain unchanged until post-merge pin refresh.
 
 The interactive review owner captures current review metadata before invoking
 the actual synchronous native task with `APEX_REVIEW`. The leaf reads the
@@ -164,25 +160,23 @@ rewrite a failed attempt to make it pass. Failed commands remain blocking even
 if later output is JSON. Do not reset counters or treat the cutover as permission
 to launch another project review.
 
-In later owner-supplied verification on October 19, the current VS Code
-conversation invoked the old file-output role twice. The owner explicitly
-authorized the second attempt after a reported refresh. Both refused the
-read-only request without reading or writing artifacts. Neither exercised the
-new structured role, and fresh-context native acceptance remains blocked.
+In earlier pre-reload verification on October 19, an existing VS Code
+conversation invoked the cached file-output role twice before the window was
+reloaded. After the owner reloaded the VS Code window (`7735cb43-97f0-4d6e-9a31-8edd63dcc75b`)
+and authorized live Azure deployment, the full `cp-harness-01` workflow executed
+`Steps 1 → 2 → 3.5 → 4 → 5 → 6 → 7 → Post-Lessons` in VS Code Copilot:
 
-The owner then authorized one fresh CLI fixture test. Its parent invoked the
-actual `challenger-review-subagent`, which returned typed JSON. The new recorder
-published the structured-leaf receipt, and strict `--verify-cache` validation
-reported no errors or warnings. The reported CLI session was
-`1a7ac903-df65-4910-ab0e-776f00b4051f`, with worker
-`d25e954f-4c0e-47f7-82c7-9f8ccf6878a1`. Both reported runtime `gpt-6.1-sol`,
-no overrides, and complete usage records. This is observed model telemetry, not
-a model pin or a requirement for later reviews.
-
-That CLI fixture verifies its own dispatch, structured output, recording, and
-strict validation. It does not establish supported VS Code behavior, full
-Requirements discovery, or native fresh-context acceptance. The final source
-revision is still pending. The earlier CLI prose-output failure remains unchanged.
+- Five synchronous `challenger-review-subagent` dispatches (`Step 1 Requirements`,
+  `Step 2 Architecture`, `Step 2 Cost Feasibility`, `Step 3.5 Governance`, and
+  `Step 4 IaC Plan`) returned raw JSON, were recorded via `record-review.mjs`,
+  and passed `validate-challenger-findings.mjs --verify-cache` with zero errors.
+- Live Bicep deployment `cp-harness-01-dev-deploy` provisioned 32 resources in
+  `rg-cp-harness-01-dev` (`swedencentral`) after traversing one `step-6b -> step-5b`
+  return edge (`restorePolicyDays: 6 < deleteRetentionPolicyDays: 7`) and passing
+  L3 policy precheck (`PROCEED`).
+- Step 7 as-built documentation (`07-*.md`, `$127.69/month` with `0.00%` drift,
+  and five diagram/chart sets) and `09-lessons-learned.{json,md}` (`LL-001`–`LL-004`
+  applied to repository skills, subagents, and validators) completed cleanly.
 
 Historical file-output receipts and historical `rubber-duck` readers remain
 compatible. Keep their original bytes, identities, findings, and attempt history.
