@@ -123,6 +123,14 @@ provenance validation still follow. New receipts must identify the actual
 structured leaf and hash both its definition and the shared one-shot contract.
 Capturing metadata or receiving valid-looking JSON alone does not complete review.
 
+Current manual batch payloads use `lenses`. The old `batch_lenses` alias belongs
+only to historical inputs.
+
+For deep review, set `prior_findings` to `null` on the first pass. On later
+passes, provide a compact array of actual findings. Retain each finding's ID,
+severity, claim, and source receipt. Do not supply strings or parent-invented
+resolutions. Passing prior findings does not resolve them or rewrite their history.
+
 If a delegated producer lacks nested task capability, it returns
 `REVIEW_REQUIRED`. Its authorized Orchestrator invokes the same leaf as a sibling
 task and records the actual result under the existing review budgets and checks.
