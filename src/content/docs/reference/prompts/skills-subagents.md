@@ -298,6 +298,23 @@ and returns a structured change summary.
 Queries Azure Resource Manager MCP for retail SKU pricing. Compares regions
 and returns a structured cost breakdown.
 
+### challenger-review-subagent
+
+The owner-approved October 19 candidate adapts this existing agent into the shared
+read-only structured JSON leaf. Automatic producers, authorized Orchestrator
+calls, and optional manual `10-Challenger` reviews use the same leaf and
+`one-shot-review.md` contract through a synchronous native `APEX_REVIEW` task.
+The leaf reads bounded inputs and returns schema-conforming findings and its
+verdict. It does not write files, run shell commands, ask questions, or delegate.
+
+The interactive owner captures metadata before the task, records the actual
+attributed output through `record-review.mjs`, then runs strict schema,
+freshness, and provenance validation. New receipts identify the actual structured
+leaf and hash its definition and the shared contract. Built-in `rubber-duck`
+retains its critic-prose role, not a required JSON-producing role or fallback.
+Final source and native runtime evidence remain pending. See
+[review finalization and recovery](/concepts/workflow/#review-finalization-and-recovery).
+
 ## When validation fails
 
 Return the failure to the step that owns the artifact. A Deploy agent does not

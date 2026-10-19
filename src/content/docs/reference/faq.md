@@ -118,9 +118,14 @@ permissions, lifecycle, and tooling configuration when your team needs them.
 
 ### Why does orchestrator not delegate to the next main agent?
 
-That is intentional. The current main-agent workflow requires human selection,
-including selection of `10-Challenger`. Do not add wildcard delegation permissions
-to restore obsolete behavior.
+Check the selected agent's permissions and the actual native task result.
+The body-migration candidate permits `01-Orchestrator` to dispatch approved main
+workers; direct main-agent selection remains supported. The owner-approved
+shared-review candidate permits automatic producers and authorized Orchestrator
+calls to use `challenger-review-subagent`. It does not require manual
+`10-Challenger` selection. Missing capability or invalid evidence stops progress,
+without an automatic fallback. Do not add wildcard delegation permissions.
+See the [candidate contract and runtime limits](/concepts/how-it-works/agents/#current-agent-body-migration).
 
 ### What if an agent produces incorrect output?
 

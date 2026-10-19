@@ -50,9 +50,14 @@ The planner halts and asks the user to refresh governance if those preconditions
 
 ## Review
 
-One `comprehensive` review is the default. Select `10-Challenger` through its
-handoff and resolve required findings. Deep review requires explicit owner opt-in;
-complexity alone does not enable it.
+One `comprehensive` review is the default. Under the owner-approved shared
+structured-review candidate, the producer or its authorized Orchestrator invokes
+`challenger-review-subagent` and records the actual attributed JSON output.
+`10-Challenger` is optional for a manually selected review, not a required handoff
+or automatic fallback. Resolve required findings. Deep review requires explicit
+owner opt-in; complexity alone does not enable it. See
+[review finalization and recovery](/concepts/workflow/#review-finalization-and-recovery)
+for the pending runtime evidence and unchanged review-integrity requirements.
 
 :::note[Approval gate]
 The user must approve the implementation plan before code generation.

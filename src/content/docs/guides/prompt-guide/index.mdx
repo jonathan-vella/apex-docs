@@ -25,9 +25,13 @@ changes or bypass a required review.
 ### Agents
 
 Use the [current roster](/concepts/workflow/#core-agents-by-workflow-step).
-Orchestrator recommends handoffs; the owner selects main agents.
+The body-migration candidate lets Orchestrator dispatch approved main workers;
+the owner can also select main agents directly.
 One planner handles both tracks. CodeGen and Deploy have separate Bicep and
-Terraform agents. Challenger is also human-selected.
+Terraform agents. `10-Challenger` is human-selected for optional manual review.
+The shared-review candidate uses the read-only `challenger-review-subagent` for
+automatic and optional manual reviews. See the
+[review contract and pending runtime evidence](/concepts/workflow/#review-finalization-and-recovery).
 
 ### Skills
 

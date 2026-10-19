@@ -39,8 +39,13 @@ Capture our recovery, identity, data residency, budget, and operating requiremen
 Ask for missing facts before choosing services. We use Terraform.
 ```
 
-The step produces requirements and an initial SKU manifest. Select Challenger for
-the required review, then resolve findings and approve the requirements.
+The step produces requirements and an initial SKU manifest. In the owner-approved
+shared structured-review candidate, the producer or its authorized Orchestrator
+invokes `challenger-review-subagent` for the required review. Manual
+`10-Challenger` selection is optional, not a prerequisite. Resolve findings and
+obtain separate owner approval. See
+[review finalization and recovery](/concepts/workflow/#review-finalization-and-recovery)
+for recording, validation, and pending native runtime evidence.
 
 <span id="step-2-architecture--️-oracle"></span>
 
@@ -194,7 +199,11 @@ Do not restart services or change configuration without approval.
 
 ### Challenger
 
-Select `10-Challenger`:
+Select `10-Challenger` for an optional manual review. In the shared-review
+candidate, it coordinates the same read-only `challenger-review-subagent` used by
+automatic producers. It captures metadata, invokes the synchronous native task,
+and records and validates the actual attributed JSON output. It does not replace
+the leaf's independent findings or approve deployment.
 
 ```text
 Review the patient-portal implementation plan and its contracts.

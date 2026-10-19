@@ -101,20 +101,40 @@ artifacts describing different requirements.
 
 ### Review finalization and recovery
 
-Independent production workflow reviews retain built-in `rubber-duck` through
-the one-shot review contract (`APEX_REVIEW`). The review owner records attributed
-findings through `record-review.mjs` (`challenge-findings-*.json`).
+On October 19, the owner approved adapting the existing
+`challenger-review-subagent` into one shared read-only structured JSON leaf.
+Automatic producers, authorized `01-Orchestrator` calls, and optional manual
+`10-Challenger` reviews use the same leaf and the existing
+`one-shot-review.md` contract. This is the approved candidate after source
+baseline `4b688a52`. The final source revision and native runtime evidence are
+pending. The site's generated source and guidance-review pins remain unchanged.
 
-The October 18 source candidate explicitly permits Orchestrator to invoke
-`rubber-duck` as a sibling reviewer. If a delegated worker lacks nested task
-capability, it returns `REVIEW_REQUIRED`. The same Orchestrator automatically
-dispatches that independent review, captures current review metadata, and records
-the actual parent-invoked result under the existing integrity checks and review
-budgets. It does not ask the owner to select `10-Challenger` as a routine detour.
-The October 18 owner-supplied `cp-harness-01` retry reached this sibling reviewer
-dispatch. Recording then failed because the reviewer ran a shell command that
+The interactive review owner captures current review metadata before invoking
+the actual synchronous native task with `APEX_REVIEW`. The leaf reads the
+bounded inputs and returns schema-conforming JSON findings and its verdict. It
+does not write files, run shell commands, ask questions, or delegate. This reuses
+the existing agent identity, not a new agent. Active definitions have no model
+pins, and callers leave model, effort, and context overrides unset.
+
+The review owner records the actual attributed task output centrally through
+`record-review.mjs`, producing `challenge-findings-*.json`. The recorder derives
+finding IDs and severity counts. Strict schema, freshness, attribution, and
+provenance validation still follow. New receipts must identify the actual
+structured leaf and hash both its definition and the shared one-shot contract.
+Capturing metadata or receiving valid-looking JSON alone does not complete review.
+
+If a delegated producer lacks nested task capability, it returns
+`REVIEW_REQUIRED`. Its authorized Orchestrator invokes the same leaf as a sibling
+task and records the actual result under the existing review budgets and checks.
+Selecting `10-Challenger` is optional, not a required detour or automatic fallback.
+Built-in `rubber-duck` retains its critic-prose role. It is neither a mandatory
+JSON-producing dependency nor an automatic fallback.
+
+The October 18 owner-supplied `cp-harness-01` retry reached an earlier sibling
+reviewer dispatch. Recording then failed because the reviewer ran a shell command that
 the execution safety check blocked. No review sidecar or approval resulted.
-This confirms dispatch for that retry, not a completed review.
+That earlier path confirms dispatch for that retry, not a completed review of
+the new shared-leaf candidate.
 
 On October 19, model-backed tests in Copilot CLI 1.0.98 confirmed custom-agent
 selection, delegated answer continuation, and an actual parent/sibling review
@@ -123,28 +143,30 @@ configured output-format conflict. The unchanged recorder rejected it, and no
 valid review receipt resulted. This is a CLI observation, not evidence of the
 same behaviour in the supported VS Code client.
 
-Do not convert prose into a findings file, override the reviewer's role, change
-reviewers, or reset attempts to make this result pass. Test the remaining
-compatibility question in the supported VS Code runtime before changing the
-production review architecture.
+That failure remains historical evidence. It neither validates nor disproves
+the new native structured-leaf path. Do not parse critic prose into findings,
+override the built-in reviewer's role, substitute an inline self-review, or
+rewrite a failed attempt to make it pass. Failed commands remain blocking even
+if later output is JSON. Do not reset counters or treat the cutover as permission
+to launch another project review.
 
-The follow-up source repair removes shell-based draft finalization. The reviewer
-reads inputs and returns its independent findings as JSON. The existing recorder
-derives finding IDs and severity counts, then checks the schema, attribution,
-original metadata, and current input bytes. The reviewer still owns the findings
-and verdict. Failed commands remain blocking, even if the reviewer later returns
-valid JSON. Do not rehash or salvage the failed attempt, reset its budget, or
-treat the repair as permission to launch another project review.
+Historical file-output receipts and historical `rubber-duck` readers remain
+compatible. Keep their original bytes, identities, findings, and attempt history.
+Do not relabel historical evidence as a new structured-leaf receipt or rehash it
+under the new contract. The cutover changes neither the review matrix nor its
+lenses, step gates, budgets, security requirements, or separate owner approvals.
+It grants no implicit apply permission.
 
 Requirements review also follows the current workflow stage. It checks business
 intent, measurable outcomes, contradictions, and security constraints. Documented
 later-stage design tasks are not defects solely because they remain open.
 Recommendations must not invent user targets or weaken the security baseline.
 
-Only genuinely missing parent reviewer capability or failed or invalid execution
-evidence requires a stop and human recovery. `10-Challenger` remains available
-for that recovery or optional manual review. Read findings, resolve the required
-changes, and obtain the separate owner approval. Review filenames and old
+Missing reviewer capability or failed or invalid execution evidence stops
+progress for human recovery, without an automatic reviewer substitution.
+`10-Challenger` remains an optional interactive coordinator for a separately
+selected manual review, not a required recovery hop. Read findings, resolve the
+required changes, and obtain the separate owner approval. Review filenames and old
 approval text do not prove that the current inputs were reviewed. Neither stage
 completion nor this dispatch correction completes a mandatory review.
 
@@ -199,7 +221,8 @@ not frontmatter or approval.
 <span id="agent-delegation-graph"></span>
 
 The migrated body contract lets `01-Orchestrator` dispatch approved main step workers; step workers invoke
-only their declared leaf subagents (`rubber-duck`, `cost-estimate-subagent`, and
+only their declared leaf subagents (`challenger-review-subagent` in the approved
+structured-review candidate, `cost-estimate-subagent`, and
 validate/preview subagents). Direct user selection of individual step agents
 remains supported; note that sending an idle cross-chat message may clear
 selected-agent metadata, so resume directly in the selected Orchestrator chat.

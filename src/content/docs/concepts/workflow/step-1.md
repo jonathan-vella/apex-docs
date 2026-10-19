@@ -35,16 +35,24 @@ Output: agent-output/{project}/01-requirements.md
 ## Review
 
 One independent `comprehensive` review is mandatory before approval. The source
-candidate uses native `rubber-duck` through the existing one-shot review contract.
+candidate uses the shared read-only `challenger-review-subagent` through the
+existing one-shot review contract and an actual synchronous native `APEX_REVIEW`
+task. The owner approved this adaptation on October 19 after source baseline
+`4b688a52`; its final source head and native runtime evidence are pending.
 If the delegated Requirements worker cannot launch that review, it returns
 `REVIEW_REQUIRED`. Orchestrator automatically runs the same independent review as
 a sibling task and records its actual result. Selecting `10-Challenger` manually
 is not the normal route. Missing reviewer capability or failed or invalid review
-evidence stops progress for human recovery.
+evidence stops progress for human recovery, without an automatic fallback.
 
-The review contract requires JSON directly, without shell commands or scratch files.
-The recorder derives IDs and severity counts from the actual findings and
-validates the result. A shell safety block still invalidates that interaction.
+The leaf returns schema-conforming JSON. It cannot write files, run shell commands,
+ask questions, or delegate. The interactive owner captures metadata before the
+task, records its actual attributed output centrally through `record-review.mjs`,
+then validates schema, freshness, and provenance. New receipts identify the actual
+leaf and hash both its definition and the shared `one-shot-review.md` contract.
+The recorder derives IDs and severity counts from the findings.
+Built-in `rubber-duck` is not a required JSON producer or fallback.
+A shell safety block still invalidates that interaction.
 The October 18 `cp-harness-01` retry reached automatic sibling dispatch but failed
 recording for that reason. It did not produce a valid review or approval.
 
@@ -67,8 +75,8 @@ The guided discovery source is `977a90fa`. An owner-supplied `cp-harness-01` res
 transcript reports answer reuse without repeated questions and reaches automatic
 review dispatch. It does not exercise a fresh guided intake, and review recording
 failed. Full discovery and approval are not established. The follow-up
-shell-free review repair also needs an integrated retry. Earlier history remains
-unchanged.
+shared structured-review cutover also needs native runtime evidence. Earlier
+history remains unchanged.
 :::
 
 October 19 model-backed CLI probes found and rejected an unsupported form wrapper.

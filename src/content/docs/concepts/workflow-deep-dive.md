@@ -61,9 +61,14 @@ do not restore or replace them. Native permission boundaries still need verifica
 See the [retirement record](/guides/hooks/). Git Lefthook, pre-commit security
 checks, and underlying Azure requirements are not retired.
 Each remaining mechanism covers specific rules, not all correctness or safety.
-A Challenger review evaluates the requested artifact scope and remains a separate
-review path. Direct `10-Challenger` selection remains available for manual work;
-required independent production review receipts and freshness checks remain separate.
+Independent review evaluates the requested artifact scope separately from these
+checks. In the owner-approved shared-review candidate, automatic producers and
+optional manual `10-Challenger` reviews use the same read-only
+`challenger-review-subagent`. The interactive owner captures metadata and records
+the actual attributed synchronous task output centrally. Required receipts,
+strict freshness, schema, provenance, and separate owner approvals remain.
+The final source revision and native runtime evidence are pending. See
+[review finalization and recovery](/concepts/workflow/#review-finalization-and-recovery).
 
 ## Explicit lab risk acceptance
 

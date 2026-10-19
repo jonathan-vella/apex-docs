@@ -50,6 +50,16 @@ verifier, and log-preflight rituals from active bodies and shared caller guidanc
 Historical diagnostic readers remain. Production independent review receipts,
 `record-review` attribution, and freshness validation still apply.
 
+For independent review, the owner-approved October 19 candidate adapts the
+existing `challenger-review-subagent` into one read-only structured JSON leaf.
+Automatic producers, authorized Orchestrator calls, and optional manual
+`10-Challenger` reviews use the same synchronous native `APEX_REVIEW` task
+contract. The interactive owner captures metadata and records the actual
+attributed output centrally, then validates schema, freshness, and provenance.
+Review budgets, lenses, step gates, security requirements, and owner approvals
+are unchanged. Final source and native runtime evidence remain pending. See
+[review finalization and recovery](/concepts/workflow/#review-finalization-and-recovery).
+
 ### IaC routing
 
 Requirements records the chosen Bicep or Terraform track. Step 4 uses the shared

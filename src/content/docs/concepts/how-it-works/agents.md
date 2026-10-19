@@ -61,8 +61,9 @@ forms and the boundary between workload questions and downstream design details.
 
 If a delegated owner lacks nested task capability for a mandatory review, it
 returns `REVIEW_REQUIRED`. The candidate explicitly permits Orchestrator to run
-native `rubber-duck` automatically as a sibling reviewer under the existing
-one-shot review contract, attribution, freshness checks, and review budgets.
+the shared `challenger-review-subagent` automatically as a sibling reviewer
+under the owner-approved October 19 structured-review candidate. It uses the
+same one-shot contract, attribution, freshness checks, and review budgets.
 This does not complete review or grant approval. See
 [review finalization and recovery](/concepts/workflow/#review-finalization-and-recovery)
 for evidence recording and failure handling.
@@ -297,30 +298,49 @@ from a historical example.
 
 Helpers perform bounded tasks such as pricing, code validation, preview, or
 policy precheck. Their parent must permit that delegation. Leaves never ask user
-questions or delegate. Their role-specific file, text, and output-status
-contracts remain intact; native task handling is not a replacement schema.
+questions or delegate. Each helper must follow its role-specific input and output
+contract; native task handling is not a replacement schema.
 
-`10-Challenger` remains available for optional manual review and repair. The
-earlier candidate assigns automatic reviews to built-in `rubber-duck`, not the legacy
-`challenger-review-subagent`.
+The owner-approved October 19 candidate adapts the existing
+`challenger-review-subagent` into the shared read-only structured JSON leaf for
+automatic and optional manual reviews. Its interactive owner invokes a
+synchronous native task and records the actual attributed output. The leaf does
+not write, run shell commands, ask questions, or delegate. No new agent or model
+pin is introduced, and callers leave model, effort, and context overrides unset.
+`10-Challenger` remains an optional interactive review and repair coordinator.
+It is not the leaf or a required automatic-review detour.
 
 ## The challenger pattern
 
-Use the [existing review matrix](/concepts/workflow/#adversarial-review-matrix)
-until the owner approves a replacement.
-Independent production workflow reviews retain the built-in `rubber-duck`
-one-shot review contract (`APEX_REVIEW`) and
-persist validated findings with `record-review.mjs` and
-`validate-challenger-findings.mjs --verify-cache`. `10-Challenger` remains an
-optional manual review and repair workflow rather than a mandatory automatic
-handoff hop. Architecture and cost-estimate reviews are independent. Deep review
+The [existing review matrix](/concepts/workflow/#adversarial-review-matrix)
+is unchanged by the shared-leaf cutover. Automatic producers, authorized
+Orchestrator calls, and optional `10-Challenger` reviews use the same
+`challenger-review-subagent` and existing `one-shot-review.md` contract
+with `APEX_REVIEW`. The owner captures metadata before the native task, records
+its actual output through `record-review.mjs`, then runs strict schema,
+freshness, attribution, and provenance checks, including
+`validate-challenger-findings.mjs --verify-cache`. New receipts require the
+structured leaf's actual identity and hashes of both its definition and the
+shared contract.
+
+Built-in `rubber-duck` retains its critic-prose role. It is not a mandatory
+JSON-producing dependency or an automatic fallback. Historical file-output
+receipts and historical readers remain compatible without rewriting their bytes,
+identities, or attempts. The candidate follows baseline `4b688a52`; its final
+source head and native runtime evidence are pending. The earlier CLI prose-output
+failure does not certify this new path. See
+[review finalization and recovery](/concepts/workflow/#review-finalization-and-recovery).
+
+Architecture and cost-estimate reviews are independent. Deep review
 is opt-in (`decisions.review_depth = "deep"`), preserving separate canonical
 pass files. Design and CodeGen reviews are optional; Deploy has no Challenger
 review.
 
 Inspect the findings and resolve required changes against the reviewed inputs.
-When a reviewer is unavailable, stop and use the human handoff. Missing, empty,
-or stale review output cannot be replaced with a success-shaped summary.
+When a reviewer is unavailable, stop for human recovery without an automatic
+fallback or a mandatory manual Challenger hop. Missing, empty, or stale review
+output cannot be replaced with a success-shaped summary, parsed prose, or inline
+self-review. Do not reset attempts or infer approval to apply changes.
 
 ## Handoffs and delegation
 

@@ -17,6 +17,22 @@ It does not automatically describe the newest product commit.
 
 ## October 2026
 
+- On October 19, the owner approved adapting the existing
+  `challenger-review-subagent` into one shared read-only structured JSON leaf for
+  automatic producers, authorized Orchestrator calls, and optional manual
+  `10-Challenger` reviews. The interactive owner captures metadata, invokes an
+  actual synchronous native `APEX_REVIEW` task, records the attributed output
+  centrally through `record-review.mjs`, and validates schema, freshness, and
+  provenance. New receipts identify the actual leaf and hash its definition and
+  the shared one-shot contract. Built-in `rubber-duck` remains a critic-prose
+  reviewer, not a mandatory JSON producer or automatic fallback. Historical
+  file-output receipts and readers remain compatible without rewriting evidence
+  or resetting attempts. Review budgets, lenses, gates, security, and approvals
+  are unchanged. The final source revision after baseline `4b688a52` and native
+  runtime evidence are pending. The CLI 1.0.98 prose-output failure remains
+  historical evidence, not certification of this path. See the
+  [review contract](/concepts/workflow/#review-finalization-and-recovery).
+
 - Owner-authorized migration execution on October 18 in
   [#779](https://github.com/jonathan-vella/apex/pull/779) supersedes the earlier
   `PLAN_THEN_APPROVE` hold and permits evidence-based packet progression. It does
