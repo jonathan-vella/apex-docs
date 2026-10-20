@@ -262,7 +262,7 @@ External: [KQL Reference](https://learn.microsoft.com/azure/data-explorer/kusto/
 ### MCP (Model Context Protocol)
 
 Protocol for extending AI assistants with external tools and data sources. This project
-declares its configured servers in `.vscode/mcp.json`. Available tools depend on
+declares its configured servers in `.mcp.json`. Available tools depend on
 the selected client, agent, and authentication.
 
 See: [MCP Integration](../../concepts/how-it-works/mcp-integration/)

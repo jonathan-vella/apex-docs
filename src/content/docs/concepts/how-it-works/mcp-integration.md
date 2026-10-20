@@ -5,7 +5,7 @@ description: "MCP servers for Azure operations, pricing, and repository context"
 
 The Model Context Protocol (MCP) lets APEX agents discover and invoke external
 tools through a common interface. The workspace declares its servers in
-`.vscode/mcp.json`. Azure MCP runs as a workspace stdio process, not an additional
+`.mcp.json`. Azure MCP runs as a workspace stdio process, not an additional
 Azure MCP extension pack.
 
 ## Architecture
@@ -37,13 +37,14 @@ The workspace configuration is:
 
 ```json
 {
-  "servers": {
+  "mcpServers": {
     "azure-resource-manager-mcp": {
       "type": "http",
       "url": "https://mcp.management.azure.com",
       "headers": {
         "x-mcp-toolset": "CostManagement"
-      }
+      },
+      "tools": ["*"]
     }
   }
 }
@@ -89,7 +90,7 @@ for current tool schemas and supported scopes.
 ## Azure MCP server
 
 At the site's source pin, Azure MCP runs as a workspace stdio server through
-`npx -y @azure/mcp@2.0.5 server start` in `.vscode/mcp.json`. This avoids installing an Azure extension
+`npx -y @azure/mcp@3.0.0 server start` in `.mcp.json`. This avoids installing an Azure extension
 pack and its unrelated transitive extensions.
 
 Agents use it for governance discovery, Azure service inspection, Microsoft
@@ -165,7 +166,7 @@ other credentials.
 | Cost tools are missing | Compare `x-mcp-toolset` with the pinned `CostManagement` configuration |
 | Azure scope is denied | Sign in with an identity that has the required read permissions |
 | Retail query returns many rows or `status: 400` | Use a `filter` with service, region and `productName` or `meterName` |
-| Configuration is rejected | Run `npm run lint:mcp-config` and compare `.vscode/mcp.json` |
+| Configuration is rejected | Run `npm run lint:mcp-config` and compare `.mcp.json` |
 
 Final estimates should still be reviewed against the
 [Azure Pricing Calculator](https://azure.microsoft.com/pricing/calculator/)
