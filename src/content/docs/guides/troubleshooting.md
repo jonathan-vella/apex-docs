@@ -132,7 +132,7 @@ workflow. Do not delete mandatory sections to satisfy a prose cleanup.
 
 ### 8. MCP server not responding
 
-Check `.vscode/mcp.json`, the client's registered servers, authentication, and the
+Check `.mcp.json`, the client's registered servers, authentication, and the
 specific tool's error. Restart the failed server through the client's MCP controls
 when appropriate.
 

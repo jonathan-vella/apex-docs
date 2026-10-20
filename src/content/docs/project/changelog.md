@@ -17,6 +17,11 @@ It does not automatically describe the newest product commit.
 
 ## October 2026
 
+- Workspace MCP configuration moved from deprecated Local-harness `.vscode/mcp.json` (`servers`) to portable
+  workspace-root `.mcp.json` (`mcpServers` with `tools: ["*"]`) so the VS Code Copilot harness loads the workspace
+  servers directly without prompting the Agent Customizations migration banner
+  ([#791](https://github.com/jonathan-vella/apex/pull/791)).
+
 - On October 19, the owner approved adapting the existing
   `challenger-review-subagent` into one shared read-only structured JSON leaf for
   automatic producers, authorized Orchestrator calls, and optional manual
