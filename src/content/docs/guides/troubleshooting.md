@@ -146,6 +146,12 @@ Read the first failed build step. Confirm Docker is available and WSL integratio
 is enabled. Check proxy, registry, disk, and port errors before rebuilding.
 Do not disable TLS verification to get past a package-download failure.
 
+If setup fails at an `npm` or Python install, check the package sources line in the
+startup output and see
+[package sources](/getting-started/dev-containers/#package-sources). If a customized
+container stopped building after an update, see the
+[migration steps](/getting-started/dev-containers/#migrate-a-customized-container).
+
 Use [container setup](/getting-started/dev-containers/) for the supported environment.
 A successful native Windows dev preview does not establish Linux build compatibility.
 

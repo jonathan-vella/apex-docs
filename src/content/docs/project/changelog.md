@@ -17,6 +17,26 @@ It does not automatically describe the newest product commit.
 
 ## October 2026
 
+- The development container moved from Ubuntu to the Azure Linux 4 preview image, pinned by digest. This is a breaking
+  change for custom container steps. Azure CLI runs in an isolated environment; GitHub CLI, Terraform, Bicep and `azd`
+  are checksum-verified standalone binaries; `dos2unix` and the preinstalled Az PowerShell module bundle were removed.
+  CI builds the image natively on amd64 and arm64 on GitHub-hosted Linux runners; Codespaces and Docker Desktop on
+  Windows or macOS are not covered
+  ([#793](https://github.com/jonathan-vella/apex/pull/793)). Projects created from the Accelerator receive it through
+  the upstream sync pull request. See
+  [dev container setup](/getting-started/dev-containers/#base-image-and-tool-installation).
+
+- Dev container package sources now default to the public registries. Microsoft maintainers opt in to the Microsoft
+  proxy, and anyone can use their own registry, through host variables. The container prints each source at start and
+  warns on a partial Microsoft opt-in. A migration guide covers customized Ubuntu containers
+  ([#797](https://github.com/jonathan-vella/apex/pull/797),
+  [#798](https://github.com/jonathan-vella/apex/pull/798)). Hosted CI has no authenticated package feed yet; that gap is
+  a recorded exception tracked in [#794](https://github.com/jonathan-vella/apex/issues/794). See
+  [package sources](/getting-started/dev-containers/#package-sources).
+
+- The dev container base validation guide now describes the Azure Linux 4 candidate, the workflow's real dispatch
+  inputs, and that the workflow does not create pull requests.
+
 - Workspace MCP configuration moved from deprecated Local-harness `.vscode/mcp.json` (`servers`) to portable
   workspace-root `.mcp.json` (`mcpServers` with `tools: ["*"]`) so the VS Code Copilot harness loads the workspace
   servers directly without prompting the Agent Customizations migration banner
@@ -166,7 +186,9 @@ It does not automatically describe the newest product commit.
   The utility prompts and the Luna subagents keep their models
   ([#758](https://github.com/jonathan-vella/apex/pull/758), open at the time of writing).
 
-- Pending product change, reviewed on October 10: explicit signed risk acceptance for non-production lab Plans.
+- Explicit signed risk acceptance for non-production lab Plans was merged on October 10
+  ([#747](https://github.com/jonathan-vella/apex/pull/747), [#748](https://github.com/jonathan-vella/apex/pull/748),
+  [#750](https://github.com/jonathan-vella/apex/pull/750)); this site's pinned source predates it.
   Original findings and review verdicts remain unchanged. Kit permission can permit Plan approval and CodeGen;
   deployment needs separate adopter authority and human approval. Runtime completion, resume and downstream entry
   fail closed when evidence is missing, expired, revoked or changed; CI only warns. Step order is now checked, with a

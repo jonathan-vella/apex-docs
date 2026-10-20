@@ -148,6 +148,87 @@ Use the configuration in your template-derived repository as the setup authority
 APEX main can contain changes that the template has not yet incorporated. Do not
 install a duplicate Azure MCP extension merely because an older guide recommends it.
 
+## Base image and tool installation
+
+APEX main replaced the Ubuntu development container with the Azure Linux 4 preview
+image, pinned by digest ([apex#793](https://github.com/jonathan-vella/apex/pull/793),
+a breaking change). A project created from the Accelerator receives it through the
+upstream sync pull request, so your project may still have the previous Ubuntu
+container. Check which one you have:
+
+```bash
+head -n 1 .devcontainer/Dockerfile
+```
+
+An `azurelinux` image is the new container; an `ubuntu` image is the previous one.
+
+What changed:
+
+- The image is a preview. Its package manager is `dnf`, not `apt`.
+- Azure CLI is installed in an isolated Python environment by a local Feature.
+- GitHub CLI, Terraform, Bicep, and `azd` are checksum-verified standalone binaries.
+- `dos2unix` and the preinstalled Az PowerShell module bundle were removed.
+  PowerShell and the pinned script analyzer remain.
+
+The product's CI builds the image natively on amd64 and arm64 on GitHub-hosted
+Linux runners. CI does not cover Codespaces or Docker Desktop on Windows or macOS,
+including the WSL2 setup this page describes. Rebuild, then check the startup output
+and the tools in [step 5](#step-5-verify-setup) in your own environment.
+
+## Package sources
+
+This section applies once your project has the updated container configuration.
+Earlier configurations set npm, pip, and uv to a Microsoft package proxy for every
+user. Whether that proxy is reachable from your network is not verified here, so check
+the package sources first if an npm or Python install fails during setup.
+
+The updated container uses the public registries by default (`registry.npmjs.org` for
+npm, `pypi.org` for pip and uv). Microsoft maintainers opt in to the Microsoft proxy,
+and anyone can point the container at their own registry or mirror. Set these on the
+**host** before VS Code starts, then rebuild the container:
+
+| Host variable | Microsoft proxy value | Default |
+| --- | --- | --- |
+| `APEX_NPM_REGISTRY_HOST_PATH` | `packagefeedproxy.microsoft.io/npm/` | `registry.npmjs.org/` |
+| `APEX_PIP_INDEX_HOST_PATH` | `packagefeedproxy.microsoft.io/pypi/simple/` | `pypi.org/simple/` |
+
+Values are a host and path without `https://`; the prefix is fixed in the container
+configuration. Dev Containers reads them from the host VS Code process, the same way it
+reads `GH_TOKEN`, so the terminal caution above applies here too.
+
+At every start the container prints the npm, pip, and uv sources separately as
+`Microsoft CFS`, `public`, `custom`, or `unset`, and warns when only part of a Microsoft
+opt-in is set. It never prints a URL, because a custom one can carry credentials.
+
+The minimum release age and Microsoft-proxy-only rules in the product repository are
+Microsoft's supply-chain policy for its own maintainers. If you use a different
+registry, apply your organization's own controls, such as a minimum release age or an
+allowlisted mirror. Do not disable TLS verification to get past a download failure.
+
+## Migrate a customized container
+
+Use this if you changed the Ubuntu container or receive `.devcontainer/` through the
+upstream sync.
+
+1. Replace `apt-get install` steps with `dnf install -y`. Package names differ, so
+   check each with `dnf search`.
+2. Features that call `apt` or `dpkg` do not work on this base. Use a local Feature or
+   a binary installer instead.
+3. To add a tool, pin its version and add a checksum to the container's
+   `download-checksums.json`, or write a local Feature. Do not add unverified downloads.
+4. Rebuild and run the verification in [step 5](#step-5-verify-setup).
+
+The sync overwrites `.devcontainer/` and removes files that no longer exist upstream
+unless their path is excluded. To protect local changes, review the exclusion list in
+your repository's sync workflow first; see
+[Update an existing APEX project](/guides/updating-apex/).
+
+To stay on Ubuntu, restore `.devcontainer/` from the product commit before the migration
+(`c1755e12`) through a reviewed change. That configuration is not tested against current
+tooling. The product's
+[migration notes](https://github.com/jonathan-vella/apex/blob/main/.devcontainer/README.md#migrating-a-customized-ubuntu-dev-container)
+list what a coherent rollback includes.
+
 ## Troubleshooting
 
 ### Container won't start
@@ -167,6 +248,14 @@ On Windows, keep the checkout under the WSL Linux filesystem rather than `/mnt/c
 Review Docker's resource allocation and available disk before rebuilding caches.
 macOS performance and architecture support were not verified for this guide.
 
+### Package install fails during setup
+
+Read the first failing `npm` or Python install. Check the package sources line in the
+startup output. A source your network cannot reach fails the setup, and an older
+configuration points at a Microsoft proxy by default. See
+[Package sources](#package-sources) to set the host variables, then rebuild. Do not
+disable TLS verification.
+
 ### Extensions not loading
 
 Confirm that you are in the container window, inspect extension installation
@@ -179,4 +268,5 @@ container setup.
 - [VS Code Dev Containers](https://code.visualstudio.com/docs/devcontainers/containers)
 - [Quickstart](/getting-started/quickstart/)
 - [Troubleshooting](/guides/troubleshooting/)
+- [Product dev container guide](https://github.com/jonathan-vella/apex/blob/main/.devcontainer/README.md)
 - [Pinned Accelerator configuration](https://github.com/jonathan-vella/apex-accelerator/blob/a77442889129b26a2a89c0d5faa5f1d35a84965c/.devcontainer/devcontainer.json)
