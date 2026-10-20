@@ -73,9 +73,9 @@ The final source revision and native runtime evidence are pending. See
 ## Explicit lab risk acceptance
 
 This capability requires an APEX runtime with `risk-authorization-v1` and `apex-recall check-gate`.
-It is a pending product change, not a capability established by this site's older pinned source.
+It was merged into APEX main on October 10, after this site's pinned source, so it is not established by that source.
 The [current-source maintainer contract](https://github.com/jonathan-vella/apex/blob/main/tools/apex-recall/docs/risk-authorizations.md)
-defines the signed records and operator setup after that change ships.
+defines the signed records and operator setup.
 
 An authorized owner can accept a specific unremediated Plan risk for a non-production lab when remediation is
 not feasible. Acceptance leaves the original findings, severity, review verdict and hashes unchanged. The gate

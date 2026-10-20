@@ -83,6 +83,10 @@ Read the diff for changes to:
 - State schemas and recovery commands.
 - Security defaults, governance evidence, SKU decisions and validation freshness.
 - Container dependencies, lifecycle scripts, MCP configuration and authentication.
+- The container base image and package-source defaults. A base-image change (such as
+  Ubuntu to Azure Linux) can break custom container steps; see
+  [dev container setup](/getting-started/dev-containers/#base-image-and-tool-installation)
+  and its [migration steps](/getting-started/dev-containers/#migrate-a-customized-container).
 - Workflow permissions and repository initialization behavior.
 
 Compare these with the [workflow overview](/concepts/workflow/) and your project's
