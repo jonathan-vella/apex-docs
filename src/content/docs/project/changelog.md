@@ -30,8 +30,9 @@ It does not automatically describe the newest product commit.
   proxy, and anyone can use their own registry, through host variables. The container prints each source at start and
   warns on a partial Microsoft opt-in. A migration guide covers customized Ubuntu containers
   ([#797](https://github.com/jonathan-vella/apex/pull/797),
-  [#798](https://github.com/jonathan-vella/apex/pull/798)). Hosted CI has no authenticated package feed yet; that gap is
-  a recorded exception tracked in [#794](https://github.com/jonathan-vella/apex/issues/794). See
+  [#798](https://github.com/jonathan-vella/apex/pull/798)). Hosted CI has no authenticated package feed and none is
+  planned; that gap is a standing exception recorded in
+  [#794](https://github.com/jonathan-vella/apex/issues/794), closed as not planned. See
   [package sources](/getting-started/dev-containers/#package-sources).
 
 - The dev container base validation guide now describes the Azure Linux 4 candidate, the workflow's real dispatch
