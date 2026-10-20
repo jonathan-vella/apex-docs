@@ -121,11 +121,14 @@ closest to users. Azure CDN / Azure Front Door accelerate static asset delivery.
 
 ### Challenger
 
-Adversarial review agent that challenges requirements, architecture assessments, and
-implementation plans. Finds untested assumptions, governance gaps, WAF blind spots,
-and architectural weaknesses. Returns structured JSON findings with severity ratings.
-The owner selects `10-Challenger` for required reviews. It is not an automatically
-invoked Orchestrator subagent.
+`10-Challenger` is the optional interactive coordinator for manual adversarial
+review and repair. It is not an automatically invoked Orchestrator subagent.
+The owner-approved shared-review candidate uses the existing read-only
+`challenger-review-subagent` to return structured JSON findings for both automatic
+producers and optional manual reviews. The interactive owner records and validates
+the actual attributed task output. The final source revision and native runtime
+evidence remain pending. See
+[review finalization and recovery](/concepts/workflow/#review-finalization-and-recovery).
 
 See: [.github/agents/10-challenger.agent.md](https://github.com/jonathan-vella/apex/blob/main/.github/agents/10-challenger.agent.md)
 
@@ -393,8 +396,10 @@ See: [.github/skills/](https://github.com/jonathan-vella/apex/tree/main/.github/
 ### Subagent
 
 A helper called by an allowed parent for a bounded task such as validation, pricing,
-or preview. The pinned Explorer lists the inventory. Challenger is a human-selected
-main agent, not one of these helpers.
+or preview. The pinned Explorer lists its source revision's inventory.
+`10-Challenger` is an optional human-selected main agent, not a helper. The
+shared-review candidate adapts `challenger-review-subagent` into the read-only
+structured JSON helper used by automatic and optional manual review owners.
 
 See: [.github/agents/\_subagents/](https://github.com/jonathan-vella/apex/tree/main/.github/agents/_subagents)
 

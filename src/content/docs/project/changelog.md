@@ -17,6 +17,145 @@ It does not automatically describe the newest product commit.
 
 ## October 2026
 
+- On October 19, the owner approved adapting the existing
+  `challenger-review-subagent` into one shared read-only structured JSON leaf for
+  automatic producers, authorized Orchestrator calls, and optional manual
+  `10-Challenger` reviews. The interactive owner captures metadata, invokes an
+  actual synchronous native `APEX_REVIEW` task, records the attributed output
+  centrally through `record-review.mjs`, and validates schema, freshness, and
+  provenance. New receipts identify the actual leaf and hash its definition and
+  the shared one-shot contract. Built-in `rubber-duck` remains a critic-prose
+  reviewer, not a mandatory JSON producer or automatic fallback. Historical
+  file-output receipts and readers remain compatible without rewriting evidence
+  or resetting attempts.   Review budgets, lenses, gates, security, and approvals
+  are unchanged. After reloading the VS Code window so updated agent definitions
+  attached from disk (`7735cb43-97f0-4d6e-9a31-8edd63dcc75b`), the owner-authorized
+  `cp-harness-01` end-to-end run completed `Steps 1 → 2 → 3.5 → 4 → 5 → 6 → 7 → Post-Lessons`
+  with five synchronous `challenger-review-subagent` dispatches, strict
+  `record-review.mjs` and `--verify-cache` validation, live Azure deployment to
+  `rg-cp-harness-01-dev` (`swedencentral`, 32 resources), Step 7 as-built
+  documentation (`$127.69/month`, `0.00%` drift), and `09-lessons-learned.{json,md}`
+  (`LL-001`–`LL-004` applied). See the
+  [review contract](/concepts/workflow/#review-finalization-and-recovery).
+
+- Owner-authorized migration execution on October 18 in
+  [#779](https://github.com/jonathan-vella/apex/pull/779) supersedes the earlier
+  `PLAN_THEN_APPROVE` hold and permits evidence-based packet progression. It does
+  not accept the proposed lead, skills, source implementation, or runtime pilot.
+  The earlier
+  [`a315279`](https://github.com/jonathan-vella/apex/tree/a315279aa5d09bfc7657c14536c1776cadcd6069)
+  candidate is historical, not an approved or shipped contract. Main reverted
+  the earlier [#767](https://github.com/jonathan-vella/apex/pull/767) cutover.
+  Real-Azure deployment and E2E are authorized in principle only. The exact tenant,
+  subscription, resource boundary, budget, and action scope are not established,
+  so cloud execution remains blocked. Cleanup is not authorized. No merge or site
+  publication is authorized by this documentation update.
+  - The owner intentionally deleted APEX `.github/hooks/` runtime hooks. No runtime
+    hooks are currently provided in the migration checkout. Do not restore or
+    replace them. The old regex command guard and other hook protections are gone;
+    native tool restrictions are not proven equivalent. Native permission
+    boundaries must be verified. Git Lefthook, pre-commit checks, secret scanning,
+    CI, and azd lifecycle hooks are separate and remain outside this retirement.
+  - The target supports only the Copilot session target, Copilot SDK/Agent Host,
+    inside VS Code. Other product runtimes are out of scope; historical archives
+    and readers remain available.
+  - The proposed shape is an optional short APEX engineering lead or native Agent,
+    on-demand domain skills, a native bounded independent reviewer, and a separately
+    permissioned deploy operator with Bicep and Terraform adapters. The existing
+    roster is not a mandatory target.
+  - Native Autopilot would handle routine engineering, tests, bounded repair,
+    approved feature-branch commits and pushes, PR and issue updates, and scoped
+    review fixes without repeated confirmations. It may answer blocking questions.
+    Successful `ask_user` or form responses and `APEX_UNATTENDED=1` are not genuine
+    human approval or proof of native Autopilot selection. Consequential changes
+    and deployment approval need an independent owner boundary.
+  - The owner subsequently reported migration of all current main and leaf
+    bodies in the source worktree. That work was not committed when this docs
+    update began, and source validation and runtime certification were incomplete.
+    The body migration retains names, direct main-agent selection, native
+    questions, and domain outputs. It does not implement the whole proposed
+    role consolidation.
+  - Directly selected Requirements, Architect, Design, and Governance retain
+    their own material questions. Delegated main workers return structured
+    `USER_INPUT_REQUIRED` requests to the interactive parent; leaves never ask
+    users or delegate.
+  - Active bodies and shared caller guidance no longer require worker-ready
+    handshakes, nonce exchanges, `WORKER_EXECUTE`, mandatory verifiers, or log
+    preflight. Old readers remain diagnostic and historical. Independent
+    production review receipts, `record-review` attribution, and freshness checks
+    remain unchanged.
+  - The migration omits active UI `handoffs:` metadata. Native task results or
+    explicit selection carry the workflow forward; `00-handoff.md` remains
+    durable evidence. In the owner's October 18 Copilot-target probe, the
+    explicitly selected Probe Source returned `SOURCE_READY_20261018` with no
+    handoff controls. Read/search also appeared despite `tools: []`, so native
+    restriction enforcement is not established. This was not a fleet handoff
+    certification.
+  - Tested Azure security, live governance, SKU and AVM contracts, cost provenance,
+    durable decisions, atomic writes, and historical compatibility remain required.
+    One independent technical review path is proposed; the owner must decide any
+    change to the currently separate architecture cost-feasibility review. Deep
+    review remains opt-in. Review history and unresolved findings stay intact.
+  - Telemetry is optional and contextual. Missing usage is `UNKNOWN`, not zero.
+    There are no established token, cost, or latency savings. Source and
+    documentation checks are not native runtime end-to-end acceptance.
+  - Prior READY evidence, including synthetic shutdown and leading approval prompts,
+    is withdrawn. No runtime pilot or deployment acceptance is established.
+  See the [planning section](/concepts/how-it-works/agents/#proposed-simplification-and-planning-gate)
+  for the PRD, backlog, roadmap, and delivery gates.
+
+- Lessons from the nordic-foods run changed the session tooling and several validators
+  ([#764](https://github.com/jonathan-vella/apex/pull/764), open at the time of writing).
+  Five changes can break existing projects:
+  - **Reopening a step marks later steps stale.** `start-step --force` sets dependent
+    steps to the new `stale` status and `plan_status` to `SUPERSEDED`. Treat unknown
+    statuses as unfinished, complete each stale step again in order, and get a new
+    Plan approval. See
+    [Reopen a completed step](/guides/session-debugging/#reopen-a-completed-step).
+  - **Step 2 cannot complete with leftovers.** `complete-step` and
+    `transition --complete` exit 2 (`step2_residue`) while a `*.tmp.md` file or a
+    `FAILED` cost estimate is in the project folder. Move failed or superseded cost files
+    to `_meta/`, delete scratch files, and rerun.
+  - **Reviews cannot freeze mutable files.** `sku-manifest.json`, `00-handoff.md`,
+    `README.md`, recall state and `*-decisions.json` are rejected as supporting inputs,
+    and existing reviews that declare them fail. Generate a new review without them and
+    quote what you read, such as the manifest revision, in the review text.
+  - **A `phase` parameter may not have a default.** Remove the default and pass the phase
+    explicitly, then refresh the contract hashes.
+  - **Raw resources need an exceptions row.** When the plan has a
+    `### Raw Resource Exceptions` section, add one row per resource without an AVM
+    module, then refresh the contract hashes.
+
+  New and changed commands and checks: `review-audit --attempt-input`,
+  `validate:iac-contract --stage` with `blocks`, contract fields `phase`, `consumes` and
+  `target`, policy `status`, and `sync:draft-contract-hashes`. See the
+  [validation reference](/reference/validation-reference/).
+
+- The cost-estimate subagent now prices only through the Azure MCP `pricing_get` tool and no longer uses any Azure
+  Resource Manager MCP tool; its deployed-cost mode is removed. The ARM MCP server keeps only the `CostManagement`
+  toolset for the cost-optimization skill. The Architect prices candidate comparisons one decision per call, with exact
+  meter hints, after a bundled call exhausted the 20-request budget in a live run. The public Retail Prices API
+  fallback accepts `pricing_get` empty results
+  ([#764](https://github.com/jonathan-vella/apex/pull/764), open at the time of writing). Estimates priced earlier
+  through ARM MCP need a refresh to carry the new source label.
+
+- Azure MCP moves from 2.0.5 to 3.0.0 ([#759](https://github.com/jonathan-vella/apex/pull/759), open at the time of
+  writing). Version 3.0.0 rejects unknown tool parameters, so three skill examples were corrected. It lists
+  `extension_azqr` only when azqr 3.0.0 or later is installed, so the dev container now installs a pinned, checksum-verified
+  azqr. References to an Azure MCP `azd` tool, which never existed, were removed.
+
+- Terraform planning and CodeGen use the Azure MCP `azureterraform` commands for module versions, READMEs and
+  provider docs, with the Registry API as fallback
+  ([#760](https://github.com/jonathan-vella/apex/pull/760), open at the time of writing).
+
+- The committed governance baseline is now an offline-generated ALZ Corp default instead of a tenant snapshot, and
+  Governance offers it as clearly labelled assumed governance next to live discovery
+  ([#762](https://github.com/jonathan-vella/apex/pull/762), open at the time of writing). Policy discovery also
+  evaluates the diagnostic-settings initiatives' conditional effects.
+
+- The Azure deprecation fetcher moved to the live Azure Updates feed, and the AVM index was refreshed
+  ([#761](https://github.com/jonathan-vella/apex/pull/761), open at the time of writing).
+
 - Requirements, Architecture, IaC Planner, Challenger and Context Optimizer moved from GPT-6.1 Sol
   to Claude Sonnet 5.5, still at high effort. Their bodies now follow the Claude body contract.
   The utility prompts and the Luna subagents keep their models

@@ -7,6 +7,14 @@ This page describes selected commands from the pinned APEX product. Run them in
 that checkout, not apex-docs. The current `package.json`, hook configuration,
 and CI files determine exact coverage.
 
+The owner retired APEX `.github/hooks/` runtime hooks in the October 18 migration.
+Do not restore them or introduce replacement hooks to satisfy an older validation
+recipe. `validate:hooks` and `test:hooks` below are historical pinned commands,
+not current setup requirements. Source-caller retirement belongs to the product
+change and is not verified by this docs update. Git Lefthook, pre-commit checks,
+secret scanning, other validators, and CI remain separate. See the
+[retirement record](/guides/hooks/) for the lost protection and permission limits.
+
 For this documentation site, use `npm run build`, `npm run check:links`,
 `npm test`, and `npm run test:browser`. The build uses the Linux toolchain and
 prepared pinned product metadata. The link checker validates routes and fragments.
@@ -20,7 +28,7 @@ Use `npm run check:external-links` separately for external destinations.
   point.
 - CI uses its configured suites and path filters. A passed local hook does not
   establish that all CI or runtime checks passed.
-- All hooks are defined in [`lefthook.yml`](https://github.com/jonathan-vella/apex/blob/main/lefthook.yml).
+- Git commit and push hooks are defined in [`lefthook.yml`](https://github.com/jonathan-vella/apex/blob/main/lefthook.yml).
 
 :::
 
@@ -87,7 +95,7 @@ flowchart LR
 
 ## Lefthook hooks
 
-All hooks are defined in `lefthook.yml` at the repository root.
+The Git hooks listed here are defined in `lefthook.yml` at the repository root.
 
 ### Pre-commit hooks
 
@@ -158,6 +166,8 @@ All scripts are in the `tools/scripts/` directory. Run via `npm run <command>`.
 | npm Command              | Script                       | Purpose                                                   |
 | ------------------------ | ---------------------------- | --------------------------------------------------------- |
 | `validate:session-state` | `validate-session-state.mjs` | Schema validation + deprecated lock/claim field detection |
+| `validate:challenger-presence` | `validate-challenger-presence.mjs` | Required review findings exist for each review-mandated step; for projects with Step 2 complete, no `*.tmp.md` or `FAILED` cost files remain at the top level |
+| `validate:challenger-findings` | `validate-challenger-findings.mjs` | Review findings schema and freshness; rejects mutable parent-owned files (`sku-manifest.json`, `00-handoff.md`, `README.md`, recall state, `*-decisions.json`) as supporting inputs |
 
 ### Quality and cross-reference validators
 
@@ -174,8 +184,8 @@ All scripts are in the `tools/scripts/` directory. Run via `npm run <command>`.
 | npm Command       | Script                       | Purpose                           |
 | ----------------- | ---------------------------- | --------------------------------- |
 | `validate:vscode` | `validate-vscode-config.mjs` | VS Code settings completeness     |
-| `validate:hooks`  | `validate-hooks.mjs`         | Hook script structure and syntax  |
-| `test:hooks`      | `test-hooks.sh`              | Hook integration tests (bats)     |
+| `validate:hooks`  | `validate-hooks.mjs`         | Historical runtime-hook check; not a setup requirement after retirement |
+| `test:hooks`      | `test-hooks.sh`              | Historical runtime-hook tests; do not recreate deleted hooks to run them |
 | `lint:mcp-config` | `validate-mcp-config.mjs`    | MCP server configuration validity |
 
 ### Code and format linters
@@ -227,10 +237,32 @@ artifacts (Steps 4–6), not by lefthook or CI. They have no committed inputs on
 | `validate:iac-handoff`               | 06b/06t CodeGen                     | `05-iac-handoff.json` + tree hash  |
 | `validate:environment-manifest`      | 05-IaC Planner                      | `04-environment-manifest.json`     |
 | `validate:policy-property-map`       | 05-IaC Planner                      | `04-policy-property-map.json`      |
+| `sync:draft-contract-hashes`         | 05-IaC Planner                      | Refreshes `plan_ref` and `l1m_ref` digests of an unapproved draft contract; keeps formatting; `--write` replaces the file atomically |
+
+#### Contract validator rules
+
+- `validate:iac-contract --readiness --stage deploy|post-deploy|go-live` (default
+  `deploy`) fails an unresolved required capability only when its optional `blocks`
+  list includes that stage or an earlier one. Without `blocks` a capability blocks
+  every stage.
+- A `phase` or `deployment_phase` parameter may not declare a `default`.
+- Resources may declare `phase`, `consumes` (resources reached over a private path)
+  and, on private endpoints, `target`. A `depends_on` into a later phase fails, and a
+  consumer must `depends_on` a private endpoint that targets what it consumes.
+  Contracts without these fields are not checked.
+- `validate:iac-contract-consistency` requires every resource without an AVM module
+  entry to appear in the plan's `### Raw Resource Exceptions` section when that
+  section exists.
+- `validate:policy-property-map` accepts `status` per policy: `satisfied`, `pending`,
+  `not-applicable` (needs `not_applicable_reason`) and `unsatisfiable` (fails).
 
 ## CI workflows
 
 All workflows are in `.github/workflows/`.
+
+This table describes the pinned product configuration, not proof that migration
+callers have been retired. Its historical runtime-hook checks do not authorize
+hook restoration or disabling unrelated CI.
 
 | Workflow                  | File                            | Trigger                      | Purpose                                                                                            |
 | ------------------------- | ------------------------------- | ---------------------------- | -------------------------------------------------------------------------------------------------- |
@@ -265,7 +297,7 @@ npm run lint:python:fix            # Fix Python lint issues
 :::tip[Further Reading]
 
 - [Contributing](../../project/contributing/). branch naming and commit conventions
-- [Agent Hooks](../../guides/hooks/). VS Code agent hooks (lifecycle automation)
+- [Agent Hooks](../../guides/hooks/). runtime-hook retirement and historical context
 - [Workflow Validation](../../guides/e2e-testing/). focused checks and manual acceptance
 
   :::

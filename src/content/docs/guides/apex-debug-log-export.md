@@ -1,100 +1,149 @@
 ---
-title: "Debug Log Export"
-description: "Export Copilot custom-agent debug logs for APEX review"
+title: "Debug log export"
+description: "Review the earlier native log-export candidate and distinguish authorized VS Code migration work from accepted runtime evidence."
 sidebar:
   order: 9
 ---
 
-The `/apex-debug-log-export` prompt bundles Copilot debug logs from an APEX chat
-session into `.apex-logs/`. Use it when you need to share enough evidence to
-review agent behavior, tool calls, skill loading, token use, or context bloat.
+The earlier `/apex-debug-log-export` candidate describes a bundle of selected
+native Copilot SDK events under `.apex-logs/`. It does not upload the archive.
+This page preserves that candidate procedure for review, not as accepted target
+behavior. The owner has authorized migration execution and evidence-based packet
+progression, but has not accepted the proposed lead, skills, or runtime pilot.
+Inspect any archive before sharing it with an authorized recipient.
 
-The prompt creates the archive locally. It never uploads the bundle for you; you
-review and upload the archive manually.
+:::caution[Candidate procedure, not accepted runtime evidence]
+The earlier implementation in [APEX PR #779](https://github.com/jonathan-vella/apex/pull/779)
+at [`a315279`](https://github.com/jonathan-vella/apex/tree/a315279aa5d09bfc7657c14536c1776cadcd6069)
+is not the approved target. Its
+[entry skill](https://github.com/jonathan-vella/apex/blob/a315279aa5d09bfc7657c14536c1776cadcd6069/.github/skills/apex-debug-log-export/SKILL.md)
+and [export procedure](https://github.com/jonathan-vella/apex/blob/a315279aa5d09bfc7657c14536c1776cadcd6069/.github/skills/apex-context-management/references/debug-log-export.md)
+are not released. Owner execution authorization on October 18 supersedes the
+earlier `PLAN_THEN_APPROVE` hold; it does not certify these commands or any runtime
+result. Real-Azure deployment and E2E are authorized in principle only, with no
+exact tenant, subscription, resource boundary, budget, or action scope established.
+That scope must be established before cloud execution. Cleanup is not authorized.
+Prior READY and synthetic shutdown evidence remains withdrawn; no runtime pilot
+or deployment acceptance is established. Log analysis does not verify live
+pricing, genuine human approval, deployment, or cleanup.
+:::
 
-## How debug logs are enabled
+## Optional measurement and runtime scope
 
-The dev container enables Copilot Chat debug-file logging through
-`.devcontainer/devcontainer.json`:
+The proposed target supports only the Copilot session target, Copilot SDK/Agent
+Host, inside VS Code. A native event format or SDK command example does not offer
+CLI, Local, cloud-agent, or other IDE product runtime support. Historical readers
+remain available.
+
+The [migration planning section](/concepts/how-it-works/agents/#proposed-simplification-and-planning-gate)
+links to the current PRD and delivery gates. Telemetry is optional contextual
+measurement. The owner-reported current body migration removes worker-ready
+handshakes, nonce exchanges, mandatory verifier commands, and log preflight from
+active bodies and shared caller guidance. Retained event readers and old
+verifiers are historical diagnostics, not routine execution prerequisites.
+That source change does not certify the representative no-cloud pilot or
+replacement permission boundaries. Independent production review receipts,
+`record-review` attribution, and freshness validation are still required.
+
+APEX `.github/hooks/` runtime hooks were intentionally deleted. No runtime hooks
+are currently provided in the migration checkout, and hook audit logging is no
+longer available. Do not recreate hooks to collect telemetry or restore the old
+regex guard. Native session events do not replace that protection. Verify native
+permission boundaries separately; underlying Azure requirements still apply.
+Git Lefthook and pre-commit security checks are unrelated to this retirement.
+
+Treat missing usage as `UNKNOWN`, not zero. Record capture scope and limitations
+beside any measurements. There is no established token, cost, or latency saving.
+Passing a source validator or log analyzer does not establish native runtime
+end-to-end acceptance. A successful `ask_user` event may record an Autopilot
+answer; neither it nor an unattended environment flag proves independent human
+approval or native Autopilot selection.
+
+<span id="how-debug-logs-are-enabled"></span>
+
+## Native Copilot SDK session logs
+
+The candidate uses native session events at:
 
 ```text
-github.copilot.chat.agentDebugLog.fileLogging.enabled: true
+~/.copilot/session-state/<sessionId>/events.jsonl
 ```
 
-After you start a chat, VS Code creates a debug-log directory under:
+The earlier candidate package declares these analysis commands. They are retained
+as candidate examples, not verified target behavior or pilot instructions. Their
+context is that candidate APEX checkout, not apex-docs, with an explicitly selected
+session path:
+
+```bash
+npm run profile:debug-log -- ~/.copilot/session-state/<sessionId>/events.jsonl --json
+npm run smoke:verify -- ~/.copilot/session-state/<sessionId>/events.jsonl --strict
+npm run validate:review-ceiling -- --budget ~/.copilot/session-state/<sessionId>/events.jsonl --strict
+```
+
+These historical commands inspect captured events; they are not required worker
+preflight in the current body migration. A passing result covers only the checks
+and evidence present in that capture, not missing acceptance scenarios or authority.
+
+## Legacy Local debug logs
+
+Historical Local exports used this path and often included `main.jsonl`:
 
 ```text
 ~/.vscode-server/data/User/workspaceStorage/<wsId>/GitHub.copilot-chat/debug-logs/<sessionId>/
 ```
 
-In the Local VS Code procedure, the active session directory is exposed as `$VSCODE_TARGET_SESSION_LOG`.
-The export prompt uses that value to locate the workspace debug-log root, then
-asks which session should be bundled.
-
-For Agent Host, use the separate manual `apex-host-debug-log-export` entry and
-confirmed Host paths. Do not substitute Local environment variables. See
-[repository prompts](/reference/prompts/repository-prompts/).
-
-:::tip[Capturing a full APEX run]
-Use `/clear` between workflow steps to start each step with a fresh chat
-context. When the run is ready to export, invoke `/apex-debug-log-export` and
-select the older-session option so the bundle includes the related sessions.
-:::
-
-Outside the dev container, enable
-`github.copilot.chat.agentDebugLog.fileLogging.enabled` in VS Code settings and
-restart VS Code.
+The old Local adapter used `$VSCODE_TARGET_SESSION_LOG`; the separate
+`apex-host-debug-log-export` entry belonged to the older Host procedure.
+Neither is the candidate native entry point. Do not use Local variables,
+`workspaceStorage`, or an assumed newest session to select native SDK logs.
+The legacy file-logging setting is not a prerequisite for this native procedure.
 
 ## What the bundle contains
 
-Each session directory can include these debug artifacts:
-
-| File                     | Contents                                      |
-| ------------------------ | --------------------------------------------- |
-| `main.jsonl`             | Turn records, tools, files loaded, and timing |
-| `system_prompt_*.json`   | System prompt material sent for each turn     |
-| `tools_*.json`           | Tool schemas available during the session     |
-| `models.json`            | Model selection details                       |
-| `categorization-*.jsonl` | Intent-classification signals                 |
-| `title-*.jsonl`          | Chat-session title generation                 |
-
-The most useful file for APEX agent review is `main.jsonl`. It shows when
-`.github/agents/*.agent.md` files were loaded, which skills were read, which
-tools were called, and what `apex-recall` returned.
+The proposed native archive contains selected redacted event copies and a
+`MANIFEST.json` with source session IDs, capture options, file sizes, and hashes.
+Raw events are excluded by default. Workspace text logs under `logs/copilot/`
+and a transcript inside a selected session require explicit opt-in.
+Source logs remain unchanged.
 
 ## How custom-agent lines are filtered
 
-The prompt derives a filter from repository state instead of relying on a static
-list. The filter includes:
+Historical Local exports used `*.custom-agents.jsonl` filters over `main.jsonl`
+based on agent paths, registry names, skills, instructions, and `apex-recall`.
+That filename is not the candidate native archive contract.
 
-- Agent file paths from `.github/agents/*.agent.md`.
-- Agent registry keys from `tools/registry/agent-registry.json`.
-- Indirect signals such as `.github/skills/`, `.github/instructions/`,
-  `apex-recall`, and agent chat-participant mentions.
-
-For each captured `main.jsonl`, the prompt writes a corresponding
-`*.custom-agents.jsonl` containing only matching lines. The filtered file is the
-fastest place to inspect custom-agent activity.
+Native discovery matches `session.start.data.context.gitRoot` or exact `cwd`
+to the workspace. The user then selects explicit session IDs. A title match,
+model label, or recently modified directory does not establish session scope.
 
 ## Running the prompt
 
-In Copilot Chat, type:
+The historical heading remains for existing links. The earlier candidate entry
+is a skill, not the archived Local prompt. That revision declares the
+built-in `agent` owner and `MAI-Code-1.1-Flash`, with `ask_user`, execution, and
+read access, as manual-entry prerequisites. These are historical declarations,
+not model or role requirements for the revised target. They are not evidence of
+native acceptance. A skill cannot select a model or broaden permissions.
+
+The earlier candidate's proposed Copilot Chat invocation was:
 
 ```text
 /apex-debug-log-export
 ```
 
-The prompt will:
+That candidate describes these steps, which this documentation update does not certify
+as exercised native behavior:
 
-1. Enumerate Copilot debug-log sessions for the workspace.
-2. Ask which session to bundle and whether to include optional sources.
-3. Filter `main.jsonl` down to custom-agent activity.
-4. Redact common token and connection-string patterns from filtered output.
-5. Write a `MANIFEST.json` with file names and sizes.
-6. Compress the bundle under `.apex-logs/` as a `.tar.gz` file.
-7. Print the archive path and manual upload checklist.
+1. List native sessions that match the workspace identity.
+2. Ask for explicit session IDs and capture choices in one form.
+3. Default to best-effort redaction, with raw events and workspace logs excluded.
+4. Include optional sources only after consent.
+5. Write the manifest and archive under `.apex-logs/`.
+6. Report the archive path and sharing limits without uploading it.
 
-The `.apex-logs/` directory is ignored by git on first run.
+Decline is not consent. Cancellation, an empty selection, unknown workspace
+identity, or malformed events must not produce a success claim.
+The proposed exporter ignores `.apex-logs/` in Git.
 
 ## Moving the archive to OneDrive
 
@@ -122,17 +171,17 @@ the copied file before uploading it to an explicitly authorized destination.
 ## Before uploading
 
 :::caution[Review sensitive content]
-The bundle preserves the raw `main.jsonl` for auditability. Review the archive
-before upload if the chat included subscription IDs, connection strings, keys,
-or other sensitive values. Filtered custom-agent files are redacted for common
-secret patterns, but raw session files are not modified.
+Best-effort redaction is not a safe-to-share guarantee. Raw native events require
+explicit opt-in and may contain prompts, code, or secrets. Historical Local
+archives may contain an unmodified raw `main.jsonl`. Inspect every archive before
+sharing it, including its manifest and any optional files.
 :::
 
 ## Related
 
-- [Dev Container Hygiene](../devcontainer-hygiene/). reduce context bloat
+- [Dev container hygiene](../devcontainer-hygiene/). Reduce context bloat
   before running agents
-- [Session Debugging](../session-debugging/). diagnose workflow state and
+- [Session debugging](../session-debugging/). Diagnose workflow state and
   resume issues
-- [Repository Slash Prompts](/reference/prompts/repository-prompts/). understand
-  the built-in slash prompts
+- [Repository slash prompts](/reference/prompts/repository-prompts/). Understand
+  historical prompt entries and their limits.

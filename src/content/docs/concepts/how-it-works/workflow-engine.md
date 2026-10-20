@@ -10,6 +10,9 @@ description: "Understand step dependencies, human approvals, state recovery, and
 The [workflow graph](https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/skills/apex-workflow-engine/templates/workflow-graph.json)
 defines the main steps, dependencies, output contracts, review defaults, and
 return paths. It describes valid progression, not an autonomous scheduler.
+The domain graph and its artifact contracts survive the
+[current agent-body migration](/concepts/how-it-works/agents/#current-agent-body-migration).
+Removing UI handoff metadata does not remove graph edges or their approval gates.
 
 Use [Run the workflow](/concepts/workflow/) for the reader-facing sequence.
 Product changes to the graph, agent definitions, or skills require their own
@@ -29,6 +32,34 @@ review. See the [review matrix](/concepts/workflow/#adversarial-review-matrix).
 If a gate fails, return to the owning step and resolve its evidence. A retained
 artifact can still be stale after an upstream decision changes.
 
+### Native tasks and questions
+
+Select a main agent directly when you want it to ask and resolve material
+questions. Requirements, Architect, Design, and Governance retain their native
+question tools. A delegated main worker returns `USER_INPUT_REQUIRED`, including
+`request_id`, `phase`, `message`, `requestedSchema.properties`, and missing
+inputs, to its interactive parent instead. Leaves never ask users or delegate.
+
+Use the native task result and lifecycle available in that session. Continue an
+asynchronous task only through a handle that actually supports same-task
+continuation. A one-shot task returns its result; it does not promise a resumable
+worker. Neither model selection nor a static tool list proves permission isolation.
+
+The source migration removes worker-ready, nonce, `WORKER_EXECUTE`, mandatory
+verifier, and log-preflight rituals from active bodies and shared caller guidance.
+Historical diagnostic readers remain. Production independent review receipts,
+`record-review` attribution, and freshness validation still apply.
+
+For independent review, the owner-approved October 19 candidate adapts the
+existing `challenger-review-subagent` into one read-only structured JSON leaf.
+Automatic producers, authorized Orchestrator calls, and optional manual
+`10-Challenger` reviews use the same synchronous native `APEX_REVIEW` task
+contract. The interactive owner captures metadata and records the actual
+attributed output centrally, then validates schema, freshness, and provenance.
+Review budgets, lenses, step gates, security requirements, and owner approvals
+are unchanged. Final source and native runtime evidence remain pending. See
+[review finalization and recovery](/concepts/workflow/#review-finalization-and-recovery).
+
 ### IaC routing
 
 Requirements records the chosen Bicep or Terraform track. Step 4 uses the shared
@@ -46,12 +77,20 @@ The [public state contract](https://github.com/jonathan-vella/apex/blob/a656e66d
 defines conflicts, idempotent retries, and authorized recovery. These mechanisms
 do not lock arbitrary editors or guarantee a multi-file transaction.
 
+Reopening a completed step with `start-step --force` marks the steps that depend on
+it as `stale` and sets `plan_status` to `SUPERSEDED` when a Plan approval rested on
+it. A stale step must be completed again in order before the next step can start.
+See [Reopen a completed step](/guides/session-debugging/#reopen-a-completed-step).
+
 ### Session break protocol
 
 Before starting a new chat, retain the handoff, current decisions, relevant
 artifacts, and unresolved findings. Select the appropriate main agent in the
 new session and inspect current evidence. Do not assume the old conversation
 contains everything needed to resume safely.
+Retain `00-handoff.md` even though active definitions omit `handoffs:` metadata.
+Use a native task result or explicitly select the next named agent, not an assumed
+handoff button. A question answer does not independently authorize the transition.
 
 For damaged state, follow [session recovery](/guides/session-debugging/).
 
@@ -93,7 +132,9 @@ or reviewer. Skills and runtime artifact summaries serve different purposes.
 
 ### Copilot hooks
 
-Agent hooks run at configured lifecycle events. The product's `tool-guardian`
-and `subagent-validation` hooks cover specific checks; they are not a general
-permission system. See [agent hooks](/guides/hooks/) for their configuration and
-limitations.
+The owner intentionally deleted APEX `.github/hooks/` runtime hooks in the
+October 18 migration. `tool-guardian` and `subagent-validation` are historical,
+not active protections or setup requirements. Do not restore or replace them.
+Native tool restrictions do not establish equivalent protection; verify their
+permission boundaries separately. Git Lefthook and CI remain separate.
+See the [runtime-hook retirement record](/guides/hooks/).

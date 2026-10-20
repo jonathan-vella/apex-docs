@@ -116,7 +116,7 @@ Use apex-azure-quotas to check whether Standard_D4s_v5 is available in swedencen
 ### apex-azure-cost-optimization
 
 Finds savings from actual cost and utilization data. It queries and forecasts costs
-through the Azure Resource Manager MCP tools, prices alternatives through retail prices,
+through the Azure Resource Manager MCP tools, prices alternatives through Azure MCP `pricing_get`,
 and writes reports to `agent-output/{project}/`. It falls back to the REST APIs only when an
 MCP tool is unavailable, and storage findings start from Azure Advisor recommendations.
 
@@ -295,8 +295,25 @@ and returns a structured change summary.
 
 ### cost-estimate-subagent
 
-Queries Azure Resource Manager MCP for retail SKU pricing. Compares regions
+Queries Azure MCP `pricing_get` for retail SKU pricing, one decision per call for candidate comparisons. Compares regions
 and returns a structured cost breakdown.
+
+### challenger-review-subagent
+
+The owner-approved October 19 candidate adapts this existing agent into the shared
+read-only structured JSON leaf. Automatic producers, authorized Orchestrator
+calls, and optional manual `10-Challenger` reviews use the same leaf and
+`one-shot-review.md` contract through a synchronous native `APEX_REVIEW` task.
+The leaf reads bounded inputs and returns schema-conforming findings and its
+verdict. It does not write files, run shell commands, ask questions, or delegate.
+
+The interactive owner captures metadata before the task, records the actual
+attributed output through `record-review.mjs`, then runs strict schema,
+freshness, and provenance validation. New receipts identify the actual structured
+leaf and hash its definition and the shared contract. Built-in `rubber-duck`
+retains its critic-prose role, not a required JSON-producing role or fallback.
+Final source and native runtime evidence remain pending. See
+[review finalization and recovery](/concepts/workflow/#review-finalization-and-recovery).
 
 ## When validation fails
 
@@ -330,9 +347,17 @@ Before starting a complex workflow, open relevant files so Copilot has context:
 
 ### Chaining agents
 
-You can chain agents manually by using handoff buttons in the chat, or run
-the Orchestrator for automatic orchestration. Manual chaining gives you more
-control over each step.
+Select the named main agents directly, or use `01-Orchestrator` to coordinate
+approved native task dispatch. Active migration definitions omit UI `handoffs:`
+metadata. Keep `00-handoff.md` and use explicit selection or the native task
+result instead of waiting for buttons.
+
+Directly selected Requirements, Architect, Design, and Governance can ask missing
+material questions through their native question tools. Delegated main workers
+return `USER_INPUT_REQUIRED` to the interactive parent. Leaves never ask users or
+delegate. Same-task continuation depends on the actual native handle; one-shot
+tasks do not imply a universal continuation API. See the
+[current source and runtime limits](/concepts/how-it-works/agents/#current-agent-body-migration).
 
 **Bicep track**:
 

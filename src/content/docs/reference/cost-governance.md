@@ -43,21 +43,20 @@ Use parameterised budgets that scale by environment:
 Set the budget amount via `.bicepparam` or `terraform.tfvars`,
 never hardcode it in the template.
 
-## Azure resource manager MCP tools
+<span id="azure-resource-manager-mcp-tools"></span>
 
-The **cost-estimate-subagent** uses the hosted Azure Resource Manager MCP server
-during architecture review and as-built documentation:
+## Azure MCP pricing tool
+
+The **cost-estimate-subagent** uses only the Azure MCP `pricing` tool during architecture review and
+as-built documentation:
 
 | Tool | Purpose |
 | --- | --- |
-| `get_retail_prices` | Query public retail catalog rows |
-| `query_costs` | Query actual costs for an authorized scope |
-| `query_aks_costs` | Break down deployed AKS costs |
-| `forecast_costs` | Forecast costs for a deployed scope |
-| `get_benefit_recommendations` | Retrieve reservation and savings-plan recommendations |
+| `pricing_get` | Query public retail catalog rows, with optional savings-plan data |
 
-The subagent calculates estimates from returned meter units and explicit usage.
-It cannot call ARM deployment, resource mutation, or budget creation tools.
+The subagent calculates estimates from returned meter units and explicit usage. It has no Azure Resource Manager
+MCP, deployment, resource mutation, or budget creation tools. Actual-cost and forecast queries belong to the
+`apex-azure-cost-optimization` skill, which uses the ARM MCP `CostManagement` toolset.
 
 The **Microsoft Learn documentation tools** (exposed through the Azure MCP
 `documentation` router, e.g. `mcp_azure-mcp_documentation` with

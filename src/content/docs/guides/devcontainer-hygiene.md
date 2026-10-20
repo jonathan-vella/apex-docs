@@ -103,6 +103,12 @@ Right-click in the Copilot Chat view and select **Diagnostics**. The diagnostics
 view lists every active agent, skill, instruction, prompt, and hook, including
 where each one came from.
 
+An older source pin or client listing may still show historical hooks. The owner
+retired APEX `.github/hooks/` runtime hooks in the October 18 migration; do not
+restore them to match that listing. Do not disable Git Lefthook, pre-commit
+security checks, CI, MCP servers, or other tooling as a blanket cleanup. Verify
+the scope of each component. See the [retirement record](/guides/hooks/).
+
 Use this when you need to confirm that workspace mitigations are active or when
 a new extension appears to be adding unexpected context.
 
