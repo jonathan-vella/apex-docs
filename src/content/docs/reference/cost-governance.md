@@ -43,6 +43,8 @@ Use parameterised budgets that scale by environment:
 Set the budget amount via `.bicepparam` or `terraform.tfvars`,
 never hardcode it in the template.
 
+<span id="azure-resource-manager-mcp-tools"></span>
+
 ## Azure MCP pricing tool
 
 The **cost-estimate-subagent** uses only the Azure MCP `pricing` tool during architecture review and
