@@ -131,7 +131,7 @@ setup automation.
 
 Rancher Desktop, Colima, and Podman have their own compatibility and configuration
 requirements. This documentation does not claim a validated APEX setup on those
-runtimes or on ARM. Follow their documentation and verify the project lifecycle
+runtimes. Follow their documentation and verify the project lifecycle
 scripts before adopting an alternative.
 
 ## What's included
