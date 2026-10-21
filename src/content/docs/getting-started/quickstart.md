@@ -7,8 +7,10 @@ Start from the [APEX Accelerator template](https://github.com/jonathan-vella/ape
 not the documentation repository. You will create a repository, open its development
 container, and ask the Requirements agent to capture your workload.
 
-This guide targets x86-64 Windows with WSL2 and VS Code Dev Containers.
-It does not deploy Azure resources.
+This walkthrough uses x86-64 Windows with WSL2 and VS Code Dev Containers.
+Docker Desktop dev containers are validated on x86-64 and ARM64, including
+Windows with WSL2, and Linux hosts are supported. It does not deploy Azure
+resources.
 
 If you already have a project, use [Updating APEX](/guides/updating-apex/) to
 compare its configuration with this guidance before following new instructions.
