@@ -20,8 +20,9 @@ It does not automatically describe the newest product commit.
 - The development container moved from Ubuntu to the Azure Linux 4 preview image, pinned by digest. This is a breaking
   change for custom container steps. Azure CLI runs in an isolated environment; GitHub CLI, Terraform, Bicep and `azd`
   are checksum-verified standalone binaries; `dos2unix` and the preinstalled Az PowerShell module bundle were removed.
-  CI builds the image natively on amd64 and arm64 on GitHub-hosted Linux runners; Codespaces and Docker Desktop on
-  Windows or macOS are not covered
+  CI builds the image natively on amd64 and arm64 on GitHub-hosted Linux runners.
+  The project owner has also manually tested and validated Docker Desktop dev containers on x86-64 and ARM64,
+  including Windows with WSL2. Linux hosts are supported. Codespaces has not been separately validated
   ([#793](https://github.com/jonathan-vella/apex/pull/793)). Projects created from the Accelerator receive it through
   the upstream sync pull request. See
   [dev container setup](/getting-started/dev-containers/#base-image-and-tool-installation).
