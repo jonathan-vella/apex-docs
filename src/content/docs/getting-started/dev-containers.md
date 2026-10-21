@@ -20,9 +20,10 @@ integration. Keep the repository in the WSL Linux filesystem.
 
 ### Docker options
 
-Use a Docker-compatible engine supported by your organization. This guide describes
-Docker Desktop on WSL2. Other runtimes and architectures are not verified by this
-guide.
+Use a Docker-compatible engine supported by your organization. The project owner has
+manually tested and validated Docker Desktop dev containers on x86-64 and ARM64,
+including Windows with WSL2. Linux hosts are supported. The steps below describe
+Docker Desktop on WSL2.
 
 ### Hardware
 
@@ -171,8 +172,9 @@ What changed:
   PowerShell and the pinned script analyzer remain.
 
 The product's CI builds the image natively on amd64 and arm64 on GitHub-hosted
-Linux runners. CI does not cover Codespaces or Docker Desktop on Windows or macOS,
-including the WSL2 setup this page describes. Rebuild, then check the startup output
+Linux runners. This automated build coverage is separate from the project owner's
+manual Docker Desktop validation on x86-64 and ARM64, including Windows with WSL2.
+Codespaces has not been separately validated. Rebuild, then check the startup output
 and the tools in [step 5](#step-5-verify-setup) in your own environment.
 
 ## Package sources
