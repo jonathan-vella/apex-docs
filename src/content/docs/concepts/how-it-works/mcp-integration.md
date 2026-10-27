@@ -19,7 +19,9 @@ its own authentication and authorization requirements.
 Registering a server does not authorize every agent to use every tool.
 Inspect the current configuration and the selected agent's declarations together.
 
+<span id="azure-resource-manager-mcp"></span>
 <span id="pricing-and-cost-tools"></span>
+<span id="cost-tools"></span>
 
 ## Cost analysis and retail pricing
 
