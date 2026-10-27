@@ -10,82 +10,39 @@ Azure MCP extension pack.
 
 ## Architecture
 
-The selected agent calls tools permitted by its definition. Hosted ARM MCP provides
-actual-cost, forecast and benefit queries. Workspace Azure MCP provides Azure service tools,
-including retail pricing. GitHub MCP provides repository context. Each integration has its own
-authentication and authorization requirements.
+The selected agent calls tools permitted by its definition. Workspace Azure MCP provides Azure
+service tools, including retail pricing. GitHub MCP provides repository context. Actual historical
+cost and forecast analysis in `apex-azure-cost-optimization` uses the authenticated Azure Cost
+Management REST API (`az rest`) rather than a separate hosted ARM MCP server. Each integration has
+its own authentication and authorization requirements.
 
 Registering a server does not authorize every agent to use every tool.
 Inspect the current configuration and the selected agent's declarations together.
 
-## Azure Resource Manager MCP
-
-APEX uses Microsoft's hosted
-[Azure Resource Manager MCP server](https://github.com/Azure/Azure-Resource-Manager-MCP)
-for Azure cost management. Retail pricing no longer uses it; see
-[Azure MCP pricing](#azure-mcp-pricing).
-
-| Property | Value |
-| --- | --- |
-| Transport | HTTP |
-| Endpoint | `https://mcp.management.azure.com` |
-| Toolsets | `CostManagement` |
-| Authentication | Signed-in VS Code Azure identity |
-| APEX scope | Read-only cost tools |
-
-The workspace configuration is:
-
-```json
-{
-  "mcpServers": {
-    "azure-resource-manager-mcp": {
-      "type": "http",
-      "url": "https://mcp.management.azure.com",
-      "headers": {
-        "x-mcp-toolset": "CostManagement"
-      },
-      "tools": ["*"]
-    }
-  }
-}
-```
-
-Follow the hosted server's current client-support documentation. Open
-[the installation link](https://aka.ms/JoinARMMCP)
-when VS Code requires interactive registration, then sign in with the Azure
-identity whose permissions should apply.
-
+<span id="azure-resource-manager-mcp"></span>
 <span id="pricing-and-cost-tools"></span>
+<span id="cost-tools"></span>
 
-### Cost tools
+## Cost analysis and retail pricing
 
-The `apex-azure-cost-optimization` skill, run by a main agent, uses these read-only tools:
+The `apex-azure-cost-optimization` skill, run by a main agent, queries actual historical spend and
+cost forecasts directly through the authenticated Azure Cost Management Query and Forecast REST APIs
+(`az rest --method post` against `Microsoft.CostManagement/query` and `Microsoft.CostManagement/forecast`),
+combined with Azure Monitor metrics and Azure Resource Graph for utilization analysis.
 
-| Tool | Use |
-| --- | --- |
-| `query_costs` | Actual costs for an authorized deployed scope |
-| `query_aks_costs` | Actual AKS cost breakdown |
-| `forecast_costs` | Forecast costs for a deployed scope |
-| `list_dimensions` | Discover supported cost dimensions |
-| `list_benefit_utilization` | Inspect reservation and savings-plan utilization |
-| `get_benefit_recommendations` | Retrieve benefit recommendations |
-
-The cost-estimate subagent uses none of them. Deployment, resource mutation, and budget creation are outside
+The cost-estimate subagent prices planned resources from the retail catalog only (`azure-mcp/pricing`,
+command `pricing_get`). Deployment, resource mutation, and budget creation are outside
 APEX's permitted scope. Do not treat server registration as approval for those operations.
 
 ### Migration limitations
 
-The official servers replace the former custom Python pricing server. APEX no
-longer provides custom bulk estimates, fuzzy SKU discovery, customer discounts,
-PTU sizing, Databricks or GitHub pricing, Spot history or simulation, or orphaned
-resource detection through its pricing workflow.
+The official Azure MCP pricing tool and Cost Management REST APIs replace the former custom Python
+pricing server and hosted ARM MCP entry. APEX no longer provides custom bulk estimates, fuzzy SKU
+discovery, customer discounts, PTU sizing, Databricks or GitHub pricing, Spot history or simulation,
+or orphaned resource detection through its pricing workflow.
 
 No compatibility adapter is retained. Use official service-specific sources in
 a separate workflow when one of those capabilities is required.
-
-See Microsoft's
-[Cost Management and Pricing tools](https://github.com/Azure/Azure-Resource-Manager-MCP/blob/main/docs/CostManagementAndPricingTools.md)
-for current tool schemas and supported scopes.
 
 ## Azure MCP server
 
@@ -139,17 +96,14 @@ Run the configuration validator:
 npm run lint:mcp-config
 ```
 
-In VS Code, run **MCP: List Servers**, select
-`azure-resource-manager-mcp`, and restart it after configuration changes. In
-Chat's tool picker, verify that the `pricing` tool appears under `azure-mcp`. Cost-management tools for the
-cost-optimization skill come from the `CostManagement` toolset requested by the configuration header.
+In VS Code, run **MCP: List Servers**, select `azure-mcp`, and restart it after configuration changes. In
+Chat's tool picker, verify that the `pricing` tool appears under `azure-mcp`.
 Actual tool availability still depends on the server and client session.
 
 ## Authentication
 
 | Server | Authentication |
 | --- | --- |
-| Azure Resource Manager MCP | Signed-in VS Code Azure identity for scoped cost tools |
 | Azure MCP server | Azure CLI or managed identity; retail prices are public |
 | GitHub MCP | Client-managed GitHub authentication |
 | Public Terraform Registry and `azureterraform` lookups | No Azure credentials required |
@@ -162,8 +116,6 @@ other credentials.
 
 | Symptom | Action |
 | --- | --- |
-| ARM MCP tools are missing | Install through `https://aka.ms/JoinARMMCP`, then restart the server |
-| Cost tools are missing | Compare `x-mcp-toolset` with the pinned `CostManagement` configuration |
 | Azure scope is denied | Sign in with an identity that has the required read permissions |
 | Retail query returns many rows or `status: 400` | Use a `filter` with service, region and `productName` or `meterName` |
 | Configuration is rejected | Run `npm run lint:mcp-config` and compare `.mcp.json` |

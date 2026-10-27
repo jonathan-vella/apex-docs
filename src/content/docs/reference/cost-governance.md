@@ -54,9 +54,10 @@ as-built documentation:
 | --- | --- |
 | `pricing_get` | Query public retail catalog rows, with optional savings-plan data |
 
-The subagent calculates estimates from returned meter units and explicit usage. It has no Azure Resource Manager
-MCP, deployment, resource mutation, or budget creation tools. Actual-cost and forecast queries belong to the
-`apex-azure-cost-optimization` skill, which uses the ARM MCP `CostManagement` toolset.
+The subagent calculates estimates from returned meter units and explicit usage. It has no deployment,
+resource mutation, or budget creation tools. Actual-cost and forecast queries belong to the
+`apex-azure-cost-optimization` skill, which uses the authenticated Azure Cost Management Query and
+Forecast REST APIs (`az rest`).
 
 The **Microsoft Learn documentation tools** (exposed through the Azure MCP
 `documentation` router, e.g. `mcp_azure-mcp_documentation` with
