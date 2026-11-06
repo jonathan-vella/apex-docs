@@ -5,6 +5,10 @@ description: "Budget alerts, forecasts, and cost anomaly detection"
 
 ## Why cost governance is mandatory
 
+The deployment requirements on this page apply when implementation is separately
+authorized. A [standalone assessment](/concepts/workflow/#standalone-waf-assessment)
+reports findings and cost evidence without creating budgets or changing resources.
+
 Every IaC deployment in this project **must** include cost monitoring resources.
 This is enforced by `iac-bicep-best-practices.instructions.md`
 and `iac-terraform-best-practices.instructions.md`, which apply to
@@ -63,6 +67,52 @@ The **Microsoft Learn documentation tools** (exposed through the Azure MCP
 `documentation` router, e.g. `mcp_azure-mcp_documentation` with
 `command: "microsoft_docs_search"`) are used for looking up service-specific
 pricing documentation.
+
+## Assessment costs and proposed recurring changes
+
+The standalone cost report keeps actual spend, API forecasts and retail estimates
+separate. Architect owns authorized Cost Management Query and Forecast operations;
+the pricing subagent remains retail-only. Neither a helper command nor assessment
+acceptance grants billing access.
+
+`03-cost-management-report.md` and `contracts/03-cost-management.json` retain
+historical billing evidence, coverage and exclusions. Unavailable billing,
+utilization or pricing remains partial or Not assessed, never zero or an invented
+saving. A retail subtotal is not the workload's actual bill. See the pinned
+[assessment cost contract](https://github.com/jonathan-vella/apex/blob/8d0b5f2943a40c30cc554f5873fb2e3519511957/.github/skills/apex-azure-cost-optimization/references/assessment-cost-contract.md).
+
+The [Assessment Action Register](/concepts/workflow/#assessment-bundle-and-action-register)
+models proposed recurring changes separately:
+
+- An upgrade contributes proposed cost minus current cost on a comparable basis.
+- A new service contributes its gross recurring addition.
+- A supported saving contributes a negative amount. A negative upgrade delta is
+  already a saving and is not negated again.
+- An evidenced action with no recurring change contributes zero. Unknown or
+  unquantified impact is null, not zero.
+
+For each compatible scenario, currency and comparison basis, the summary shows
+positive additions, the magnitude of negative savings and estimated net monthly
+change. Net change is additions minus savings, not a new invoice total or a
+realized saving. An entirely unquantified scenario has no numeric total. Label a
+quantified subset when other material actions remain unknown or excluded.
+
+Do not combine currencies, incompatible periods, tax treatments or cost views.
+Keep negotiated actual baselines separate from retail reference projections.
+Record usage, regions, dates, normalization, licensing and discount assumptions.
+One-time implementation and labor costs stay separate from recurring totals.
+Conditional recommendations remain outside the base headline until a named
+scenario states their conditions.
+
+Reference a cost-report opportunity once in the register's scenario ledger.
+Do not add it again as an independent saving. Resolve overlapping shutdown,
+rightsizing, commitment and replacement benefits; mutually exclusive alternatives
+cannot share a scenario.
+
+The Node calculator derives the values that both Markdown and Excel display.
+Change source evidence or structured inputs, then regenerate and validate both
+views. Manual workbook edits do not update the source, certify implementation or
+authorize remediation, purchases, Governance or deployment.
 
 ## Repeatability rules
 
