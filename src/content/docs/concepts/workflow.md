@@ -1,6 +1,6 @@
 ---
 title: "Run the workflow"
-description: "Follow the existing APEX workflow and distinguish its gates from the proposed VS Code and Autopilot redesign."
+description: "Choose the Azure delivery workflow or a standalone WAF assessment with scoped evidence, independent reviews and owner approval."
 ---
 
 <span id="agent-and-skill-workflow"></span>
@@ -11,6 +11,9 @@ APEX helps you turn requirements into an Azure infrastructure plan, Bicep or
 Terraform code, and deployment evidence. The step walkthrough below explains the
 retained domain workflow. The current body migration keeps named main and leaf
 agents. The broader role-consolidation proposal is separate.
+
+For WAF findings without implementation, use a
+[standalone assessment](#standalone-waf-assessment).
 
 :::note[Reloaded VS Code session and real-Azure E2E verified]
 The owner authorized migration execution and evidence-based packet
@@ -82,6 +85,165 @@ records step dependencies, expected artifacts, and review defaults for that desi
 field grants permission to deploy. The proposal retains durable decisions,
 atomic writes, and historical compatibility. Native session SQL and todos do not
 replace cross-project approval storage.
+
+## Standalone WAF assessment
+
+Request a standalone assessment when you want findings about an existing workload
+without an implementation workflow. Choose either `evidence_only`, which starts
+with scoped evidence and no business interview, or `requirements_led`, which first
+captures known business objectives, critical flows, targets and constraints.
+Evidence-only runs do not manufacture a completed Requirements step.
+
+The source is a separate choice: `iac`, `azure` or `combined`. Static IaC describes
+declared intent, not verified deployed state. Before any reads, the owner authorizes
+the allowed files or Azure boundaries and read categories. Billing, utilization
+and optional policy observations need their own captured scope. The assessment
+does not grant access or broaden existing permissions.
+
+This section describes the source contract merged in
+[jonathan-vella/apex#823](https://github.com/jonathan-vella/apex/pull/823).
+Its [standalone assessment contract](https://github.com/jonathan-vella/apex/blob/8d0b5f2943a40c30cc554f5873fb2e3519511957/.github/skills/apex-workflow-engine/references/standalone-assessment.md)
+is newer than this site's generated source pin. The commands below are
+source-reviewed examples, not evidence of an Azure assessment or deployment test.
+
+### Start and resume an assessment
+
+Run product commands from your APEX project repository, not from apex-docs.
+Initialize only a genuinely new project. For an existing project, recover its
+state with `show` and `handoff` before making any lifecycle change.
+
+The interactive owner records the actual scope response in
+`agent-output/example/_meta/assessment-scope.json`. Use the source
+[`assessmentRequest` schema](https://github.com/jonathan-vella/apex/blob/8d0b5f2943a40c30cc554f5873fb2e3519511957/tools/schemas/session-state.schema.json)
+for the scenario, source, allowed scope, reporting settings and real approval
+receipt. Suggested defaults and task responses are not owner authorization.
+
+```bash
+apex-recall init example --json
+apex-recall assessment example --action start \
+  --request agent-output/example/_meta/assessment-scope.json --json
+apex-recall show example --json
+apex-recall handoff example --json
+```
+
+In the show response, `.session.assessment_run` holds the route and current phase.
+`.session.assessment_readiness` reports validation, not permission.
+`.session.assessment_cost_plan` derives the billing plan from captured reporting
+settings. Do not edit recall state directly or complete numeric delivery steps
+to create assessment approvals.
+
+Requirements-led discovery has no separate Requirements approval or new review
+cycle. Architect produces the analysis and cost report; Design renders the
+existing-state diagram. The bundle needs comprehensive WAF review and a separate
+cost-feasibility review before final owner acceptance. Missing evidence remains
+unknown or Not assessed, not a control failure, compliance claim or zero cost.
+Partial evidence still needs valid artifacts and both reviews.
+
+### Assessment bundle and Action Register
+
+Both scenarios produce the WAF report, existing-state diagram and cost report.
+New Azure and combined runs also require the Assessment Action Register. An
+IaC-only run includes it only when explicitly requested with
+`"action_register": true` in the scope request.
+
+Paths below are relative to `agent-output/example/`. The project root stays
+Markdown-only.
+
+| Output | Purpose |
+| --- | --- |
+| `01-assessment-brief.md` | Authorized scope, scenario and reporting settings |
+| `01-requirements.md` | Business context for requirements-led runs only |
+| `contracts/assessment-evidence.json` | Collection coverage and evidence locators |
+| `02-architecture-assessment.md` | WAF findings, confidence and evidence gaps |
+| `assets/03-des-diagram.{py,png,svg}` | Diagram source and inspected existing-state views |
+| `03-cost-management-report.md` and `contracts/03-cost-management.json` | Cost evidence, labelled estimates and exclusions |
+| `contracts/assessment-action-register.json` | Canonical register actions, financial bases and scenarios |
+| `04-assessment-action-register.md` and `assets/04-assessment-action-register.xlsx` | Matching generated action and financial summaries |
+| `_meta/action-register-derived.json` and `_meta/action-register-export.json` | Exact calculated values and export integrity receipt |
+| `reviews/challenge-findings-*.json`, `README.md` and `00-handoff.md` | Attributed reviews, status and resume or terminal information |
+
+The register's `04-` prefix does not mean delivery Step 4. Its workbook contains
+Action Register, Financial Summary and Basis & Evidence sheets. Actions link to
+findings and evidence, with priorities, affected resources, qualitative effort,
+dependencies and proposed target windows. Status and Comments are separate.
+Acceptance does not show that remediation has started or finished.
+
+The workbook is a generated recommendation snapshot, not a manual Excel tracker.
+Update the structured source and regenerate Markdown and Excel together. Do not
+hand-edit calculated amounts or treat workbook status edits as authoritative
+evidence. The export receipt proves integrity checks, not owner approval.
+See [proposed recurring cost changes](/reference/cost-governance/#assessment-costs-and-proposed-recurring-changes)
+for additions, savings, net change and actual-billing limits.
+
+### Offline register CLI
+
+The [register helper contract](https://github.com/jonathan-vella/apex/blob/8d0b5f2943a40c30cc554f5873fb2e3519511957/.github/skills/apex-azure-artifacts/references/assessment-action-register.md)
+defines the canonical input and export checks. Run these commands from the APEX
+repository with its tooling dependencies already installed through your approved
+feed. Replace `<current-ISO-timestamp>` with the actual current timezone-qualified
+ISO timestamp at millisecond precision, not the report's old clock.
+
+```bash
+node tools/scripts/assessment-action-register.mjs validate \
+  --root agent-output/example \
+  --input agent-output/example/contracts/assessment-action-register.json \
+  --as-of '<current-ISO-timestamp>'
+node tools/scripts/assessment-action-register.mjs calculate \
+  --root agent-output/example \
+  --input agent-output/example/contracts/assessment-action-register.json \
+  --as-of '<current-ISO-timestamp>'
+node tools/scripts/assessment-action-register.mjs render \
+  --root agent-output/example \
+  --input agent-output/example/contracts/assessment-action-register.json \
+  --as-of '<current-ISO-timestamp>'
+node tools/scripts/assessment-action-register.mjs validate-export \
+  --root agent-output/example \
+  --input agent-output/example/contracts/assessment-action-register.json \
+  --as-of '<current-ISO-timestamp>'
+```
+
+These commands use retained local evidence and need no Azure credentials or
+workbook service. `calculate` returns the derived values; `render` publishes both
+views and their integrity files locally. The Node calculator is the arithmetic
+authority. Do not invoke the Python renderer directly to bypass its checks.
+Use `render --overwrite` only after confirming that mismatched outputs are owned
+generated snapshots. An interrupted or failed export is not a delivered bundle.
+Changed source or exports need validation and current independent reviews within
+the existing allowance.
+
+### Original runs and explicit adoption
+
+New graph 3.2 runs persist `assessment-bundle-v2` and their register selection.
+An original run without `bundle_contract` remains `assessment-bundle-v1`.
+Updating APEX, resuming a run or adding register files does not opt it in.
+
+To adopt the register for an existing assessment, prepare an adoption request
+with unchanged scenario, source, scope and reporting, `"action_register": true`,
+and `review_links` to the original required review-cycle IDs. Preview it first:
+
+```bash
+apex-recall assessment example --action adopt \
+  --request agent-output/example/_meta/assessment-adoption.json --dry-run --json
+```
+
+Inspect missing outputs, frozen inputs, stale reviews, consumed calls and remaining
+allowance. A preview grants no permission. Actual adoption uses the same command
+without `--dry-run` only after its own new positive owner receipt.
+Adoption preserves prior approvals, acceptance, numeric step history and review
+provenance. Later phases return to analysis for the changed bundle; no review
+allowance resets. Exhausted allowance needs a separately authorized extension.
+Adoption permits no new Azure reads.
+
+### Acceptance is terminal
+
+The final choices are Accept assessment bundle, Revise reports, or Stop without
+accepting. Record the actual acceptance separately from reviewed bytes. An
+accepted assessment has no next deployment owner.
+
+Findings and target windows are recommendations, not remediation approval.
+Assessment acceptance does not start formal Governance, policy-feasibility
+approval, IaC planning, CodeGen or deployment. Implementation needs a separately
+requested workflow with its own prerequisites and owner approvals.
 
 ## Agent architecture
 
