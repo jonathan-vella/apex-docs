@@ -38,16 +38,54 @@ Output: agent-output/{project}/04-governance-constraints.md
 
 ## Baseline instead of live discovery
 
-When the committed baseline (`.github/data/governance-policy-baseline.json.gz`) covers the target subscription,
-04g can render from it instead of calling Azure. The repository ships an **ALZ Corp default** baseline: the policy
-that a subscription inherits under the Azure landing zone Corp management group (the `root`, `landing_zones` and
-`corp` archetypes of a pinned ALZ library release, including assignments shipped as `DoNotEnforce`). It has one
-synthetic subscription entry, so no real subscription matches it.
+The shared `.github/data/alz-corp-policy-baseline.json.gz` describes the default policies inherited through
+the pinned ALZ `root`, `landing_zones` and `corp` archetypes. It contains a synthetic subscription and
+tenant-unverified provenance. Regenerate it with `npm run generate:governance-baseline-alz`.
+The Accelerator sync permits this shared file while excluding private tenant snapshots.
 
-When the target subscription is absent, 04g asks you to choose **Run live discovery** or **Use ALZ Corp default as
-assumed governance**. The default is labelled assumed and not tenant-verified in every artifact, and the review below
-stays mandatory. Teams that run the tenant baseline workflow replace the file with their own policy state.
-Regenerate the default with `npm run generate:governance-baseline-alz`.
+The separate `.github/data/governance-policy-baseline.json.gz` belongs to the adopter.
+When it covers the actual target and meets completeness, scope, signature and freshness checks,
+Governance can offer cached rendering instead of live discovery. Collecting tenant policy does not replace
+the shared file. Test fixtures never establish a usable workflow baseline.
+
+For `corp-policy-v1`, source selection happens before
+[Architecture approval](/concepts/workflow/step-2/#choose-policy-evidence-before-architecture).
+Explicit Corp assumptions permit qualified Architecture approval without identifiers.
+They never establish target compatibility or satisfy implementation readiness.
+Missing or ineligible tenant evidence does not silently fall back to assumptions.
+
+## Private scope and evidence
+
+When you select tenant verification, the interactive owner asks for missing non-secret tenant and
+subscription identifiers, environments and explicit subscription-plus-inherited-policy read authorization.
+It reuses settled answers. You do not prepare a JSON file or provide a custom scope-file path.
+Never provide passwords, tokens or keys.
+
+For anonymous artifacts, the owner passes your actual native response to the managed capture command:
+
+```bash
+apex-recall policy-source <project> --tenant "<confirmed-tenant-guid>" \
+  --subscription "<confirmed-subscription-guid>" --authorize-policy-read \
+  --owner "<actual-owner-role>" --request-id "<actual-request-id>" --environment dev --json
+```
+
+The command records your response in an owner-only local store outside the repository.
+Project state retains an opaque scope reference and digest. The command performs no Azure reads,
+and creates the private subscription/path index without user-authored JSON.
+Its flags do not replace genuine owner authorization or the active agent's tool permissions.
+`XDG_STATE_HOME`, if configured, must be absolute and outside the repository.
+
+Governance resolves the private paths with `policy-source --show-private-scope`.
+It checks the current tenant with `policy-source --verify-tenant` before running deterministic discovery.
+A mismatch blocks the read. The agent must not switch credentials or select the active CLI subscription.
+Raw scope, snapshots, previews and diagnostics stay in the private store with owner-only permissions.
+Public artifacts contain anonymized summaries, not copied raw previews.
+
+Recall binds the exact private snapshots through the existing `checkpoint --policy-feasibility` option.
+Python and Node contract resolvers select canonical Governance JSON in that store.
+Scope changes, missing files, partial coverage, expiry and changed evidence block reuse.
+All approved subscriptions need separate coverage. One subscription's snapshot cannot represent the others.
+Reviewers need actual authorized access to the required evidence or must report that limitation.
 
 ## Review
 
