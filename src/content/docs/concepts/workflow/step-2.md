@@ -42,6 +42,18 @@ Output: agent-output/{project}/02-architecture-assessment.md
 - Architecture decisions with alternatives and trade-offs.
 - Risks, assumptions, and proposed mitigations.
 
+## Pricing inputs and evidence
+
+The parent runs preflight before dispatching retail pricing. Required usage includes each applicable storage,
+operation and transfer charge, with explicit aggregation and billing-route assumptions.
+The pricing helper captures actual source responses and validates the selected native meters and calculations.
+Recovery reuses current evidence without resetting request counts or inventing missing quantities.
+
+If you request indicative unit rates while monthly usage is unknown, the parent uses `purpose: "rate-quote"`
+with a separate output. That quote can support a discussion, but it does not provide a monthly workload total,
+update manifest prices or satisfy Architecture approval. Read the
+[retail pricing contract](/reference/cost-governance/#reproducible-retail-pricing) for evidence and reuse rules.
+
 ## Review
 
 The default is one `comprehensive` architecture review and a separate

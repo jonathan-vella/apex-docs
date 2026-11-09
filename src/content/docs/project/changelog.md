@@ -15,6 +15,14 @@ The site's generated reference data uses the revision recorded in
 [`apex-source.json`](https://github.com/jonathan-vella/apex-docs/blob/main/apex-source.json).
 It does not automatically describe the newest product commit.
 
+## Unreleased
+
+- Retail pricing captures raw source evidence and request accounting for replay instead of reconstructing
+  query results from chat. Preflight checks missing billing usage before queries, and monthly publication
+  validates exact source rates, units, tiers, timestamps and deterministic totals.
+  Explicit rate-only quotes preserve unknown monthly usage without passing the workload estimate gate.
+  See [reproducible retail pricing](/reference/cost-governance/#reproducible-retail-pricing).
+
 ## October 2026
 
 - The development container moved from Ubuntu to the Azure Linux 4 preview image, pinned by digest. This is a breaking

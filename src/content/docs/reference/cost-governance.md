@@ -64,6 +64,48 @@ The **Microsoft Learn documentation tools** (exposed through the Azure MCP
 `command: "microsoft_docs_search"`) are used for looking up service-specific
 pricing documentation.
 
+## Retail evidence and estimates
+
+### Reproducible retail pricing
+
+The pricing worker resolves which product and billing rules apply. Deterministic helpers capture the evidence,
+validate native meters and calculate the amounts. New monthly outputs use `cost-estimate-v2`.
+Each component must match its source product, SKU, billing region, currency, unit, tier and timestamp.
+A matching meter ID and an internally consistent total are not enough.
+The parent retains the original request independently of the result. Preflight freezes its raw hash and normalized
+scope; publication and current validation require that original request. A draft cannot authorize changed quantities
+by recomputing its own hashes. Assessment cost/register imports retain the original request path and hash separately.
+
+Preflight checks required usage before network calls. Examples include stored GB, operations, transfer direction
+and whether usage covers each instance or all instances together. Unknown usage is not zero.
+Logical subscription and environment attribution remain separate even when instances share one catalog query.
+
+The worker reserves each query in a durable ledger and captures the actual MCP response bytes immediately.
+Empty results and errors remain evidence. The supported capture helper can preserve an offloaded response exactly;
+the worker does not manually reconstruct large JSON responses or copy unrelated files.
+The ledger retains request identity, timestamps, hashes and failed attempts across interruptions.
+A new chat or filename does not create a fresh allowance.
+
+Azure MCP remains the primary retail source. The constrained public Retail Prices API fallback is available only
+after an eligible recorded MCP failure. It retains tier boundaries that the MCP projection may omit.
+Failed or incomplete pages never become ready evidence, and every attempted request still counts.
+
+Replaying the same request against the same current evidence requires no new pricing requests.
+Changed quantities require recalculation; changed rates, units, scope or stale evidence invalidate reuse.
+Historical output can be inspected with explicit legacy audit, but audit does not make it current.
+The supported outcome is a verified reproducible result or a precise blocker, not guaranteed API availability.
+
+### Indicative rates with unknown monthly usage
+
+When the owner requests per-unit rates rather than a monthly total, the parent sets `purpose: "rate-quote"`
+and supplies a distinct output path. The same pricing worker returns `retail-rate-quote-v1`.
+It retains native units, applicable tier bands and source evidence without assuming monthly consumption.
+TB and Tb are different units. Any conversion must state its meaning and basis.
+
+A complete rate quote has no monthly or yearly workload total and cannot update manifest prices.
+It does not satisfy Architecture's complete-estimate gate or approve spending or deployment.
+The original monthly estimate remains blocked until its required usage and applicability are resolved.
+
 ## Repeatability rules
 
 The cost governance instruction enforces **zero hardcoded values**:
