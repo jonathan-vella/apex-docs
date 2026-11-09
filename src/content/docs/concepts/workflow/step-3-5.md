@@ -86,6 +86,18 @@ Python and Node contract resolvers select canonical Governance JSON in that stor
 Scope changes, missing files, partial coverage, expiry and changed evidence block reuse.
 All approved subscriptions need separate coverage. One subscription's snapshot cannot represent the others.
 Reviewers need actual authorized access to the required evidence or must report that limitation.
+The review primary remains the public anonymized summary. Tenant-backed reviews also freeze the private index
+and every subscription snapshot as opaque supporting references, with exact hashes. Governance includes its
+canonical private JSON. A reference has the form
+`apex-private-policy://<project>/<scope_ref>/subscription-1.json`.
+Request preflight derives the required set and supplies temporary read paths for authorized reviewer dispatch.
+Those paths and identifying native logs remain private. Public findings use opaque policy references.
+Omitting evidence or changing private bytes invalidates the review; an editorial mapping cannot waive that check.
+
+Before CodeGen or deployment starts, the owner records the target phase scope from actual stage/start authorization.
+It must consume the current policy-source and read inputs, and stay within their authorized environments.
+DEV-only policy evidence cannot authorize PROD entry. The owner reuses captured approval or asks only for missing
+operation authorization. An earlier phase's scope is not approval of the next phase.
 
 ## Review
 
