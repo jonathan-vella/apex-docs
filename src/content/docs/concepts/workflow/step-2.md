@@ -24,24 +24,6 @@ found through the Azure MCP server and cited as the Microsoft Learn page. The ag
 reads `apex-azure-kubernetes` when AKS is a candidate, and `apex-azure-upgrade` when the
 workload keeps an existing Functions Consumption app or Azure Cache for Redis instance.
 
-## Invocation
-
-```text
-Select: 03-Architect in Copilot Chat
-Output: agent-output/{project}/02-architecture-assessment.md
-        agent-output/{project}/03-des-cost-estimate.md
-        agent-output/{project}/03-des-sku-comparison.md
-        agent-output/{project}/sku-manifest.{json,md} (rev 2)
-```
-
-## What gets produced
-
-- An assessment of reliability, security, cost optimization, operational excellence,
-  and performance efficiency.
-- SKU recommendations and pricing evidence recorded in the manifest.
-- Architecture decisions with alternatives and trade-offs.
-- Risks, assumptions, and proposed mitigations.
-
 ## Choose policy evidence before Architecture
 
 Delivery projects using `corp-policy-v1` select a policy source after Requirements approval.
@@ -65,6 +47,24 @@ target-verified policy evidence and their separate approvals.
 Existing projects keep their recorded contract until an explicit policy-source choice adopts this one.
 Adoption does not reset review attempts, rewrite completed steps or approve Azure operations.
 The source and guidance pins remain separate from this contract's rollout.
+
+## Invocation
+
+```text
+Select: 03-Architect in Copilot Chat
+Output: agent-output/{project}/02-architecture-assessment.md
+        agent-output/{project}/03-des-cost-estimate.md
+        agent-output/{project}/03-des-sku-comparison.md
+        agent-output/{project}/sku-manifest.{json,md} (rev 2)
+```
+
+## What gets produced
+
+- An assessment of reliability, security, cost optimization, operational excellence,
+  and performance efficiency.
+- SKU recommendations and pricing evidence recorded in the manifest.
+- Architecture decisions with alternatives and trade-offs.
+- Risks, assumptions, and proposed mitigations.
 
 ## Review
 

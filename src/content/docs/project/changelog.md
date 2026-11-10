@@ -15,7 +15,19 @@ The site's generated reference data uses the revision recorded in
 [`apex-source.json`](https://github.com/jonathan-vella/apex-docs/blob/main/apex-source.json).
 It does not automatically describe the newest product commit.
 
-## Unreleased
+## November 2026
+
+- Standalone WAF assessments support `evidence_only` and `requirements_led`
+  discovery with independently selected IaC, Azure or combined evidence.
+  New Azure and combined runs include an evidence-linked Assessment Action
+  Register in matching Excel and Markdown views. IaC-only export is an explicit
+  option. The offline CLI validates source evidence, calculates recurring
+  additions, savings and net change, and regenerates the bundle.
+  Original runs retain their output contract until explicit adoption, which
+  preserves history and consumed review allowance. Acceptance authorizes no
+  remediation, Governance or deployment
+  ([jonathan-vella/apex#823](https://github.com/jonathan-vella/apex/pull/823)).
+  See the [standalone assessment guide](/concepts/workflow/#standalone-waf-assessment).
 
 - Delivery policy intake separates the shared ALZ Corp baseline from private tenant snapshots.
   The `corp-policy-v1` contract permits Architecture approval against explicit, hash-bound Corp assumptions.
