@@ -79,7 +79,13 @@ acceptance grants billing access.
 historical billing evidence, coverage and exclusions. Unavailable billing,
 utilization or pricing remains partial or Not assessed, never zero or an invented
 saving. A retail subtotal is not the workload's actual bill. See the pinned
-[assessment cost contract](https://github.com/jonathan-vella/apex/blob/8d0b5f2943a40c30cc554f5873fb2e3519511957/.github/skills/apex-azure-cost-optimization/references/assessment-cost-contract.md).
+[assessment cost contract](https://github.com/jonathan-vella/apex/blob/3d027d41810e33c0d2f08b17ed18f7adf2f21e3a/.github/skills/apex-azure-cost-optimization/references/assessment-cost-contract.md).
+
+Retail-derived register bases retain a separate project-relative path and SHA-256
+for the original pricing request. The validator checks that request with captured
+responses, preflight binding and the request ledger. Rehashing an estimate does
+not replace the original request. A rate-only quote cannot support a monthly
+total.
 
 The [Assessment Action Register](/concepts/workflow/#assessment-bundle-and-action-register)
 models proposed recurring changes separately:

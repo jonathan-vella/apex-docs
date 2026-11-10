@@ -100,11 +100,12 @@ the allowed files or Azure boundaries and read categories. Billing, utilization
 and optional policy observations need their own captured scope. The assessment
 does not grant access or broaden existing permissions.
 
-This section describes the source contract merged in
+This section documents the standalone contract introduced in
 [jonathan-vella/apex#823](https://github.com/jonathan-vella/apex/pull/823).
-Its [standalone assessment contract](https://github.com/jonathan-vella/apex/blob/8d0b5f2943a40c30cc554f5873fb2e3519511957/.github/skills/apex-workflow-engine/references/standalone-assessment.md)
-is newer than this site's generated source pin. The commands below are
-source-reviewed examples, not evidence of an Azure assessment or deployment test.
+The APEX source links use revision
+[`3d027d41810e`](https://github.com/jonathan-vella/apex/tree/3d027d41810e33c0d2f08b17ed18f7adf2f21e3a).
+The commands below are source-reviewed examples, not evidence of an Azure
+assessment or deployment test.
 
 ### Start and resume an assessment
 
@@ -114,7 +115,7 @@ state with `show` and `handoff` before making any lifecycle change.
 
 The interactive owner records the actual scope response in
 `agent-output/example/_meta/assessment-scope.json`. Use the source
-[`assessmentRequest` schema](https://github.com/jonathan-vella/apex/blob/8d0b5f2943a40c30cc554f5873fb2e3519511957/tools/schemas/session-state.schema.json)
+[`assessmentRequest` schema](https://github.com/jonathan-vella/apex/blob/3d027d41810e33c0d2f08b17ed18f7adf2f21e3a/tools/schemas/session-state.schema.json)
 for the scenario, source, allowed scope, reporting settings and real approval
 receipt. Suggested defaults and task responses are not owner authorization.
 
@@ -177,7 +178,7 @@ for additions, savings, net change and actual-billing limits.
 
 ### Offline register CLI
 
-The [register helper contract](https://github.com/jonathan-vella/apex/blob/8d0b5f2943a40c30cc554f5873fb2e3519511957/.github/skills/apex-azure-artifacts/references/assessment-action-register.md)
+The [register helper contract](https://github.com/jonathan-vella/apex/blob/3d027d41810e33c0d2f08b17ed18f7adf2f21e3a/.github/skills/apex-azure-artifacts/references/assessment-action-register.md)
 defines the canonical input and export checks. Run these commands from the APEX
 repository with its tooling dependencies already installed through your approved
 feed. Replace `<current-ISO-timestamp>` with the actual current timezone-qualified
