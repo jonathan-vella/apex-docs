@@ -13,6 +13,12 @@ export default defineConfig({
   site: "https://apexops.pro",
   base: SITE_BASE || "/",
   trailingSlash: "always",
+  // Bundle nested js-yaml v4 so Starlight does not resolve the root v5 at runtime.
+  vite: {
+    environments: {
+      prerender: { resolve: { noExternal: ["js-yaml"] } },
+    },
+  },
   // Astro 7 changed the compressHTML default from `true` to `'jsx'` (strips
   // whitespace between inline elements using JSX rules). Pin to `true` to
   // preserve the v6 HTML-aware whitespace behavior and avoid prose regressions.

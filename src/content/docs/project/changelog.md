@@ -23,11 +23,25 @@ It does not automatically describe the newest product commit.
   revalidation, not renewed approval by restamping.
   See [documentation evidence](/reference/cost-governance/#product-documentation-is-not-raw-retail-evidence).
 
+## November 2026
+
 - Retail pricing captures raw source evidence and request accounting for replay instead of reconstructing
   query results from chat. Preflight checks missing billing usage before queries, and monthly publication
   validates exact source rates, units, tiers, timestamps and deterministic totals.
   Explicit rate-only quotes preserve unknown monthly usage without passing the workload estimate gate.
   See [reproducible retail pricing](/reference/cost-governance/#reproducible-retail-pricing).
+
+- Standalone WAF assessments support `evidence_only` and `requirements_led`
+  discovery with independently selected IaC, Azure or combined evidence.
+  New Azure and combined runs include an evidence-linked Assessment Action
+  Register in matching Excel and Markdown views. IaC-only export is an explicit
+  option. The offline CLI validates source evidence, calculates recurring
+  additions, savings and net change, and regenerates the bundle.
+  Original runs retain their output contract until explicit adoption, which
+  preserves history and consumed review allowance. Acceptance authorizes no
+  remediation, Governance or deployment
+  ([jonathan-vella/apex#823](https://github.com/jonathan-vella/apex/pull/823)).
+  See the [standalone assessment guide](/concepts/workflow/#standalone-waf-assessment).
 
 ## October 2026
 
