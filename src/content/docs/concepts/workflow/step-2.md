@@ -24,6 +24,30 @@ found through the Azure MCP server and cited as the Microsoft Learn page. The ag
 reads `apex-azure-kubernetes` when AKS is a candidate, and `apex-azure-upgrade` when the
 workload keeps an existing Functions Consumption app or Azure Cache for Redis instance.
 
+## Choose policy evidence before Architecture
+
+Delivery projects using `corp-policy-v1` select a policy source after Requirements approval.
+The interactive owner reuses a captured choice or asks you to choose target-verified evidence
+or the standard Azure Landing Zones Corp assumptions.
+
+The shared file is `.github/data/alz-corp-policy-baseline.json.gz`. It describes the pinned
+`root`, `landing_zones` and `corp` archetypes. It does not describe your tenant's custom assignments,
+parameters or exemptions. Accepting it does not require a tenant ID, subscription ID or prepared JSON file.
+
+The owner records your actual acceptance with `apex-recall policy-source --assumed-corp`.
+Recall binds the shared file hash and reports `assumed_corp_not_tenant_verified`.
+Architecture may reach approval with that qualification. Both independent reviews still apply.
+Changed or missing baseline data requires a new source decision.
+
+If you select tenant evidence, Governance collects it within your explicitly authorized scope.
+The [Governance guide](/concepts/workflow/step-3-5/#private-scope-and-evidence) explains private capture.
+Assumptions cannot satisfy IaC planning completion, CodeGen or deployment. Those actions need current,
+target-verified policy evidence and their separate approvals.
+
+Existing projects keep their recorded contract until an explicit policy-source choice adopts this one.
+Adoption does not reset review attempts, rewrite completed steps or approve Azure operations.
+The source and guidance pins remain separate from this contract's rollout.
+
 ## Invocation
 
 ```text

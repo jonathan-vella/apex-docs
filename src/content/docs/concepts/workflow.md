@@ -248,6 +248,18 @@ requested workflow with its own prerequisites and owner approvals.
 
 ## Agent architecture
 
+### Select policy evidence before Architecture
+
+Delivery projects using `corp-policy-v1` select current tenant evidence or explicitly accepted
+standard Corp assumptions after Requirements approval. The shared baseline ships separately from
+private tenant snapshots. The assumed route needs no real subscription identifiers or manually prepared JSON.
+
+Assumptions can support qualified Architecture approval. Current target-verified policies remain required
+before IaC planning completion, CodeGen and deployment. Existing projects adopt through an actual source choice;
+their approvals and review histories do not reset. See
+[Architecture policy evidence](/concepts/workflow/step-2/#choose-policy-evidence-before-architecture)
+and [private Governance capture](/concepts/workflow/step-3-5/#private-scope-and-evidence).
+
 ### Requirements capture and revision
 
 Select `02-Requirements` to establish workload goals, constraints, budget, region,

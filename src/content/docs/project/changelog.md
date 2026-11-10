@@ -29,6 +29,13 @@ It does not automatically describe the newest product commit.
   ([jonathan-vella/apex#823](https://github.com/jonathan-vella/apex/pull/823)).
   See the [standalone assessment guide](/concepts/workflow/#standalone-waf-assessment).
 
+- Delivery policy intake separates the shared ALZ Corp baseline from private tenant snapshots.
+  The `corp-policy-v1` contract permits Architecture approval against explicit, hash-bound Corp assumptions.
+  Target-verified policies remain required before planning completion, CodeGen and deployment.
+  Native scope capture replaces user-prepared JSON and keeps identifying scope and policy evidence outside
+  public project artifacts. Existing histories require explicit adoption.
+  See [policy-source selection](/concepts/workflow/step-2/#choose-policy-evidence-before-architecture).
+
 ## October 2026
 
 - The development container moved from Ubuntu to the Azure Linux 4 preview image, pinned by digest. This is a breaking
