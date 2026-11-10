@@ -21,7 +21,7 @@ execFileSync(process.execPath, ["tools/scripts/validate-explorer-graph.mjs", "--
 const graph = JSON.parse(fs.readFileSync(output, "utf8"));
 graph.sourceCommit = sha;
 for (const node of graph.nodes) {
-  if (node.links?.source) node.links.source = node.links.source.replace("/blob/main/", `/blob/${sha}/`);
+  if (node.links?.source) node.links.source = node.links.source.replace(/\/blob\/[^/]+\//, `/blob/${sha}/`);
 }
 if (
   previous &&
