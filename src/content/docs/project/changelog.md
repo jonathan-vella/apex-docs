@@ -15,7 +15,21 @@ The site's generated reference data uses the revision recorded in
 [`apex-source.json`](https://github.com/jonathan-vella/apex-docs/blob/main/apex-source.json).
 It does not automatically describe the newest product commit.
 
+## Unreleased
+
+- Billing documentation retains source/date references and original conclusions rather than automatically archiving
+  whole pages in Git. Necessary full-text captures remain private unless redistribution rights and attribution are
+  established. Owner-authorized repair preserves historical originals and review records; changed evidence requires
+  revalidation, not renewed approval by restamping.
+  See [documentation evidence](/reference/cost-governance/#product-documentation-is-not-raw-retail-evidence).
+
 ## November 2026
+
+- Retail pricing captures raw source evidence and request accounting for replay instead of reconstructing
+  query results from chat. Preflight checks missing billing usage before queries, and monthly publication
+  validates exact source rates, units, tiers, timestamps and deterministic totals.
+  Explicit rate-only quotes preserve unknown monthly usage without passing the workload estimate gate.
+  See [reproducible retail pricing](/reference/cost-governance/#reproducible-retail-pricing).
 
 - Standalone WAF assessments support `evidence_only` and `requirements_led`
   discovery with independently selected IaC, Azure or combined evidence.
