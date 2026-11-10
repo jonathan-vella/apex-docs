@@ -106,6 +106,26 @@ A complete rate quote has no monthly or yearly workload total and cannot update 
 It does not satisfy Architecture's complete-estimate gate or approve spending or deployment.
 The original monthly estimate remains blocked until its required usage and applicability are resolved.
 
+### Product documentation is not raw retail evidence
+
+Exact-byte capture applies to native retail API responses, not entire commercial pricing or product pages.
+For billing inclusions and exemptions, retain the actual source URL, retrieval timestamp and title, a short
+original billing conclusion, the exact applicability conditions and unresolved limitations.
+The parent supplies these references to the pricing worker; a full-page archive is not a pricing or review prerequisite.
+Unknown applicability remains a gap, never evidence that a charge is free. Documentation does not supply retail rates.
+
+Necessary full-text research captures stay in an authorized private location outside the repository by default.
+Git attributes preserve artifact bytes without line-ending normalization so staged retail evidence keeps its hashes.
+Public access does not establish redistribution permission. Any proposed redistribution needs the actual source,
+applicable license or permission, and attribution. A Learn documentation license does not automatically cover a
+commercial pricing page.
+
+For an existing review-bound full-page copy, obtain owner authorization to preserve the original privately and replace
+the repository copy with a clearly labelled provenance notice or original summary. Keep its original digest and any
+unknown source/date explicit. Historical review records remain unchanged; changed evidence requires affected-owner
+revalidation and independent review under existing allowances before current approval.
+Do not silently remove protected inputs, restamp old reviews, reset allowances or infer renewed approval.
+
 ## Repeatability rules
 
 The cost governance instruction enforces **zero hardcoded values**:

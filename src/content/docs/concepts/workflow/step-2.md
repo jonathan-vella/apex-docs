@@ -54,6 +54,10 @@ with a separate output. That quote can support a discussion, but it does not pro
 update manifest prices or satisfy Architecture approval. Read the
 [retail pricing contract](/reference/cost-governance/#reproducible-retail-pricing) for evidence and reuse rules.
 
+Product documentation uses source/date references, short original billing conclusions, applicability and limitations;
+the exact-byte retail API rule does not require full-page documentation copies in Git.
+See [documentation publication and historical repair](/reference/cost-governance/#product-documentation-is-not-raw-retail-evidence).
+
 ## Review
 
 The default is one `comprehensive` architecture review and a separate
