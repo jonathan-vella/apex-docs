@@ -99,6 +99,7 @@ After resolving findings and approving the architecture, select
 
 ## See also
 
+- [WAF assessment guide](/guides/waf-assessment/) for standalone existing-workload assessments (`evidence_only` and `requirements_led`).
 - [Azure WAF pillars](https://learn.microsoft.com/azure/well-architected/)
 - [Well-Architected service guides](https://learn.microsoft.com/azure/well-architected/service-guides/)
 - [Cost estimate

@@ -183,6 +183,34 @@ scope. Authentication failure is not evidence that no policy applies.
 Use `01-Orchestrator` to inspect evidence and recommend a main-agent handoff.
 It does not execute the entire main-agent sequence automatically.
 
+### Standalone WAF assessment
+
+Select `01-Orchestrator` and run `/waf-assess-existing` to assess an existing workload without running the delivery pipeline. See the [WAF assessment guide](/guides/waf-assessment/) for the full walkthrough.
+
+Evidence-only (`evidence_only`, no business interview):
+
+```text
+/waf-assess-existing
+Project: checkout-prod-audit
+Scenario: evidence_only
+Source: combined
+IaC and diagrams: infra/bicep/checkout/, docs/checkout-architecture.png
+Azure read scope: tenant 00000000-0000-0000-0000-000000000000, subscriptions sub-prod-01 and sub-shared-hub, resource groups rg-checkout-prod and rg-hub-net
+Allowed read categories: inventory, configuration, cost, policy
+```
+
+Requirements-led (`requirements_led`, evaluates against business objectives and NFR targets):
+
+```text
+/waf-assess-existing
+Project: claims-platform-waf
+Scenario: requirements_led
+Source: azure
+Azure read scope: tenant 00000000-0000-0000-0000-000000000000, subscriptions sub-claims-prod and sub-claims-data, resource groups rg-claims-app and rg-claims-sql
+Allowed read categories: inventory, configuration, cost, policy
+Business context: B2B insurance claims portal; target 99.95% SLA, RTO 1 hour, RPO 15 minutes, ISO 27001 and GDPR residency in swedencentral; current pain points are SQL latency spikes and manual failover.
+```
+
 <span id="diagnose---sentinel"></span>
 
 ### Diagnose

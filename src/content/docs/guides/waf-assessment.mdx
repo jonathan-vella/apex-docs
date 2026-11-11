@@ -1,0 +1,164 @@
+---
+title: "WAF assessment guide"
+description: "Run a standalone Azure Well-Architected Framework assessment for an existing workload using evidence-only or requirements-led discovery."
+---
+
+Use a standalone Well-Architected Framework (WAF) assessment (beta) when you want an evidence-backed review, existing-state architecture diagram, cost report, and prioritized action register for an existing workload without running the full infrastructure delivery pipeline.
+
+For the underlying state contract and CLI schemas, see [Standalone WAF assessment](/concepts/workflow/#standalone-waf-assessment).
+
+## Choose your path
+
+First decide whether you need a **standalone assessment** of an existing workload or **Step 2: Architecture** inside a delivery project, then pick the scenario that matches your available inputs:
+
+| Goal | Workflow | Scenario | Business interview? | Best when |
+| --- | --- | --- | --- | --- |
+| Assess an existing workload using only code, diagrams, or live Azure state | Standalone assessment (`workflow_mode=assessment`) | `evidence_only` | No (`01-requirements.md` is not created) | You have Bicep/Terraform, architecture diagrams, or read-only Azure access and want immediate WAF, cost, and action-register findings |
+| Assess an existing workload against explicit business targets and NFRs | Standalone assessment (`workflow_mode=assessment`) | `requirements_led` | Yes (captures business objectives, critical flows, SLA/RTO/RPO targets, and constraints first) | You want the existing architecture scored against specific availability, recovery, compliance, and budget targets |
+| Design and deploy a new or modernized workload end-to-end | Standard delivery workflow | [Step 1](/concepts/workflow/step-1/) → [Step 2](/concepts/workflow/step-2/) → Governance → IaC → Deploy | Full Step 1 discovery + SKU pins | You intend to generate Bicep or Terraform and deploy infrastructure through APEX gates |
+
+## Choose your evidence source
+
+The evidence source is independent of whether you choose `evidence_only` or `requirements_led`:
+
+| Source | What APEX inspects | Cost report basis | Action Register (`04-assessment-action-register.{md,xlsx}`) |
+| --- | --- | --- | --- |
+| `iac` | Bicep (`.bicep`, `.bicepparam`), Terraform (`.tf`, `.tfvars`), `azure.yaml`, and supplied architecture diagrams | Labelled retail estimates where usage is known; unknown usage remains an explicit gap | Optional (set `"action_register": true` in scope) |
+| `azure` | Authorized read-only Azure inventory, configurations, Cost Management, and optional policy assignments across one or more subscriptions | Actual spend (last completed month, preceding-month comparison, month-to-date) and current-month forecast when permitted | Required (`assessment-bundle-v2`) |
+| `combined` | Both static IaC/diagrams and live read-only Azure state (surfaces drift between declared IaC and deployed resources) | Actual spend and forecast supplemented by labelled estimates for proposed changes | Required (`assessment-bundle-v2`) |
+
+:::note[Static IaC vs. live Azure state]
+Static IaC represents declared intent, not verified deployed state. Any control or runtime property that cannot be verified from your authorized source is recorded as `unknown` or `Not assessed` rather than assumed compliant or failed.
+:::
+
+## Scenario 1: Evidence-only assessment (`evidence_only`)
+
+Use `evidence_only` when you want to point `01-Orchestrator` directly at existing IaC files, architecture diagrams, or live Azure subscriptions and skip the business requirements interview.
+
+### 1. Start the assessment in Copilot Chat
+
+Select `01-Orchestrator` in VS Code Copilot Chat and run `/waf-assess-existing` (or paste the prompt below):
+
+```text
+/waf-assess-existing
+Project: checkout-prod-audit
+Scenario: evidence_only
+Source: combined
+IaC and diagrams: infra/bicep/checkout/, docs/checkout-architecture.png
+Azure read scope: tenant 00000000-0000-0000-0000-000000000000, subscriptions sub-prod-01 and sub-shared-hub, resource groups rg-checkout-prod and rg-hub-net
+Allowed read categories: inventory, configuration, cost, policy
+```
+
+For an **IaC-only** assessment that needs no Azure sign-in, set `Source: iac` and omit the Azure read scope:
+
+```text
+/waf-assess-existing
+Project: checkout-iac-audit
+Scenario: evidence_only
+Source: iac
+Action register: true
+IaC and diagrams: infra/terraform/checkout/, docs/checkout-topology.drawio
+```
+
+### 2. Confirm upfront scope and read authorization
+
+Before reading any repository files or querying Azure, `01-Orchestrator` presents a single upfront scope confirmation form. Confirm:
+
+- The scenario (`evidence_only`) and evidence source (`iac`, `azure`, or `combined`).
+- The exact file paths or Azure tenant, subscription IDs, resource groups, and allowed read categories (`inventory`, `configuration`, `cost`, `policy`).
+- Whether to include the Assessment Action Register (included automatically for `azure` and `combined` runs; opt-in for `iac`).
+
+Once you approve the scope, `01-Orchestrator` records your authorization receipt in `agent-output/{project}/_meta/assessment-scope.json` via `apex-recall assessment <project> --action start` and writes `agent-output/{project}/01-assessment-brief.md`.
+
+### 3. Automatic analysis, diagram rendering, and quality reviews
+
+Within your granted scope, `01-Orchestrator` coordinates the internal specialists automatically without stopping for intermediate Step 1, Step 2, or Step 3 approval gates:
+
+1. **Evidence collection (`02-Requirements` / `03-Architect`).** Extracts structural facts from your IaC, diagrams, and/or read-only Azure queries into `contracts/assessment-evidence.json` and `_meta/01-discovered-evidence.json` with secret and tag-value redaction.
+2. **WAF and cost analysis (`03-Architect`).** Evaluates all five WAF pillars (`Security`, `Reliability`, `Performance Efficiency`, `Cost Optimization`, `Operational Excellence`), labeling each observation as `observed`, `declared`, `inferred`, `unknown`, `denied`, or `not_applicable`. Generates `02-architecture-assessment.md`, `03-cost-management-report.md`, and, when enabled, the Assessment Action Register (`04-assessment-action-register.md` and `assets/04-assessment-action-register.xlsx`).
+3. **Existing-state diagram (`04-Design`).** Renders `assets/03-des-diagram.{py,png,svg}` reflecting the observed or declared workload topology across subscriptions, resource groups, and virtual networks.
+4. **Dual independent reviews (`challenger-review-subagent`).** Runs a `comprehensive` WAF review and a separate `cost-feasibility` review (`reviews/challenge-findings-*.json`), repairing any owned findings within the review budget.
+
+### 4. Review and accept the final bundle
+
+When both independent reviews pass, `01-Orchestrator` presents one final decision:
+
+- **Accept assessment bundle.** Marks the standalone assessment complete (`terminal`).
+- **Revise reports.** Returns specific feedback to refine the analysis, diagram, cost report, or action register.
+- **Stop without accepting.** Halts the run and preserves current artifacts in `agent-output/{project}/`.
+
+---
+
+## Scenario 2: Requirements-led assessment (`requirements_led`)
+
+Use `requirements_led` when you want the existing workload evaluated against explicit business objectives, critical user flows, availability/recovery targets (SLA, RTO, RPO), compliance frameworks, and budget constraints.
+
+### 1. Start the assessment in Copilot Chat
+
+Select `01-Orchestrator` in VS Code Copilot Chat and run `/waf-assess-existing` (or paste the prompt below):
+
+```text
+/waf-assess-existing
+Project: claims-platform-waf
+Scenario: requirements_led
+Source: azure
+Azure read scope: tenant 00000000-0000-0000-0000-000000000000, subscriptions sub-claims-prod and sub-claims-data, resource groups rg-claims-app and rg-claims-sql
+Allowed read categories: inventory, configuration, cost, policy
+Business context: B2B insurance claims portal; target 99.95% SLA, RTO 1 hour, RPO 15 minutes, ISO 27001 and GDPR residency in swedencentral; current pain points are SQL latency spikes and manual failover.
+```
+
+You can also combine `requirements_led` with `Source: iac` or `Source: combined` by supplying your Bicep/Terraform and diagram paths.
+
+### 2. Complete the focused business and NFR discovery
+
+1. **Upfront scope confirmation.** Confirm the `requirements_led` scenario, evidence source, and allowed file or Azure read boundaries.
+2. **Targeted business and NFR questions (`02-Requirements`).** `02-Requirements` inspects your supplied brief and evidence first, then asks **only** for missing business objectives, critical flows, availability/DR targets, or constraints (`requirements-discovery.mjs --stage business --assessment-mode requirements_led`). It does **not** ask greenfield implementation planning questions, such as future SKU selection menus or deployment environment pipelines, and it does **not** stop for a separate Step 1 gate approval.
+3. **Requirements output.** Writes `agent-output/{project}/01-requirements.md` alongside `01-assessment-brief.md`.
+
+### 3. Automatic WAF evaluation against your targets
+
+Once discovery finishes, `01-Orchestrator` runs the rest of the pipeline automatically:
+
+1. **`03-Architect`** scores each WAF pillar against both Azure best practices and the specific SLA, RTO, RPO, compliance, and budget targets recorded in `01-requirements.md`, producing `02-architecture-assessment.md`, `03-cost-management-report.md`, and the Assessment Action Register (`04-assessment-action-register.md` and `assets/04-assessment-action-register.xlsx`).
+2. **`04-Design`** renders the existing-state architecture diagram (`assets/03-des-diagram.{py,png,svg}`).
+3. **`challenger-review-subagent`** executes the mandatory `comprehensive` WAF review and `cost-feasibility` review.
+4. **Final bundle acceptance.** Review the completed reports and select **Accept assessment bundle**, **Revise reports**, or **Stop without accepting**.
+
+---
+
+## What gets generated
+
+All outputs are written to `agent-output/{project}/`:
+
+| File | Scenario | Purpose |
+| --- | --- | --- |
+| `01-assessment-brief.md` | Both | Upfront scope, scenario (`evidence_only` or `requirements_led`), source (`iac`, `azure`, `combined`), and read boundaries |
+| `01-requirements.md` | `requirements_led` only | Captured business objectives, critical flows, NFR targets (SLA/RTO/RPO), and constraints |
+| `contracts/assessment-evidence.json` | Both | Evidence inventory, per-subscription completeness status, and provenance locators |
+| `02-architecture-assessment.md` | Both | Five-pillar WAF assessment, observed vs. recommended SKU analysis, and explicit coverage gaps |
+| `assets/03-des-diagram.{py,png,svg}` | Both | Reproducible Python diagram source and rendered PNG/SVG of the existing architecture |
+| `03-cost-management-report.md` and `contracts/03-cost-management.json` | Both | Actual Azure spend, preceding-month comparison, month-to-date, and forecast (or labelled IaC estimates) |
+| `04-assessment-action-register.md` and `assets/04-assessment-action-register.xlsx` | Required for `azure`/`combined`; optional for `iac` | Prioritized remediation actions, qualitative effort, recommended windows, and monthly additions/savings/net financial summary (three workbook sheets: `Action Register`, `Financial Summary`, `Basis & Evidence`) |
+| `reviews/challenge-findings-*.json` | Both | Independent comprehensive WAF review and cost-feasibility review evidence |
+| `README.md` and `00-handoff.md` | Both | Bundle index, current status, and resume or terminal summary |
+
+## Resuming an interrupted assessment
+
+If a chat session ends before final acceptance, select `01-Orchestrator` in a new chat and send:
+
+```text
+resume <project>
+```
+
+`01-Orchestrator` inspects `apex-recall show <project> --json` and `apex-recall handoff <project> --json` to continue from the active assessment phase (`scope`, `requirements`, `evidence`, `analysis`, `diagram`, `review`, or `acceptance`) without repeating settled questions.
+
+## Moving from an assessment to remediation IaC
+
+Accepting a standalone assessment is **terminal**. It never triggers Governance, IaC planning, CodeGen, or deployment automatically. If you later decide to implement the recommended changes with APEX, start or resume a delivery workflow project and reference the accepted `02-architecture-assessment.md` and `04-assessment-action-register.md` as input context for `01-Orchestrator`.
+
+## Related
+
+- [Standalone WAF assessment contract](/concepts/workflow/#standalone-waf-assessment)
+- [Step 2: Architecture (delivery workflow)](/concepts/workflow/step-2/)
+- [Cost governance and action register financials](/reference/cost-governance/#assessment-costs-and-proposed-recurring-changes)
+- [Workflow prompts](/reference/prompts/workflow-prompts/)
