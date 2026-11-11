@@ -88,6 +88,8 @@ replace cross-project approval storage.
 
 ## Standalone WAF assessment
 
+For step-by-step walkthroughs and copy-paste prompts for both `evidence_only` and `requirements_led` scenarios, see the [WAF assessment guide](/guides/waf-assessment/).
+
 Request a standalone assessment when you want findings about an existing workload
 without an implementation workflow. Choose either `evidence_only`, which starts
 with scoped evidence and no business interview, or `requirements_led`, which first

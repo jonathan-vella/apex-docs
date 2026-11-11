@@ -209,6 +209,7 @@ export default defineConfig({
           label: "Guides and troubleshooting",
           collapsed: true,
           items: [
+            { label: "WAF assessment", slug: "guides/waf-assessment" },
             { label: "Updating APEX", slug: "guides/updating-apex" },
             { label: "Prompt guide", slug: "guides/prompt-guide" },
             { label: "Troubleshooting", slug: "guides/troubleshooting" },
