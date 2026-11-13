@@ -85,4 +85,4 @@ Within the permitted `policy` category, `03-Architect` queried subscription-scop
 | Member 03 | `00000000-0000-4000-8000-000000000004` | `51` | `11` |
 | **Total across 4 scopes** | | **`739`** | **`146`** |
 
-Policy definitions, parameter values, `DeployIfNotExists` identity permissions, and active exemptions were outside the standalone assessment read boundary (`F14` / `A14`). Compare this read-only observation model with full management-group policy reconciliation in [Policy reconciliation and lab risk contract](/showcases/regulated-delivery/governance-and-risk/).
+Policy definitions, parameter values, `DeployIfNotExists` identity permissions, and active exemptions were outside the standalone assessment read boundary (`F14` / `A14`). Compare this read-only observation model with full management-group policy reconciliation in [Policy reconciliation and lab risk contract](/showcases/coe-archetype/governance-and-risk/).

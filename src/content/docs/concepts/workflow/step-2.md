@@ -66,5 +66,5 @@ After resolving review findings and approving Gate 2, advance to [Step 3: Design
 ## See also
 
 - [WAF assessment guide](/guides/waf-assessment/) for standalone existing-workload assessments
-- [Regulated delivery showcase: architecture and pricing](/showcases/regulated-delivery/architecture-and-pricing/)
+- [CoE modernization archetype: architecture and pricing](/showcases/coe-archetype/architecture-and-pricing/)
 - [Cost governance](/reference/cost-governance/)

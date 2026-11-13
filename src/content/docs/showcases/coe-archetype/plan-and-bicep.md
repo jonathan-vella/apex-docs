@@ -12,17 +12,17 @@ ARM executes a single subscription-scope deployment (`targetScope = 'subscriptio
 1. `identity.bicep` creates `id-university-<suffix>` first and passes `principalId` into `monitoring`, `registry`, `storage`, `messaging`, and `keyvault`, where all `6` UAMI RBAC assignments (`AcrPull`, `Storage Blob Data Contributor`, `Azure Service Bus Data Sender`, `Azure Service Bus Data Receiver`, `Key Vault Secrets User`, and `Monitoring Metrics Publisher`) and `7` deployer RBAC assignments are declared.
 2. `private-endpoints.bicep` waits for the four PaaS target resources, and `web.bicep` declares an explicit `dependsOn: [privateEndpoints]` plus output references to all five service modules so every RBAC assignment and private endpoint exists before `app-university-<suffix>` initiates its first container pull.
 
-![Bicep module dependency graph showing subscription-scope main.bicep ordering resource group, identity, data services, SQL MI, private endpoints, and web modules](/showcases/regulated-delivery/04-dependency-diagram.svg)
+![Bicep module dependency graph showing subscription-scope main.bicep ordering resource group, identity, data services, SQL MI, private endpoints, and web modules](/showcases/coe-archetype/04-dependency-diagram.svg)
 
-[Open full-size SVG](/showcases/regulated-delivery/04-dependency-diagram.svg)
+[Open full-size SVG](/showcases/coe-archetype/04-dependency-diagram.svg)
 
 ## Runtime request and authentication flow (`04-runtime-diagram.svg`)
 
 The runtime flow diagram separates initial deployment startup (pulling the pinned `.NET 10` sample image from `mcr.microsoft.com` through `afwp-hub` rule `app-to-mcr`) from steady-state private execution after `postprovision.ps1` imports the image into `cruniversity<suffix>` and switches the web app to Managed Identity pull (`acrUseManagedIdentityCreds: true` with ARM audience tokens enabled).
 
-![Runtime flow diagram showing public HTTPS requests, UAMI authentication to ACR, Blob, Service Bus, Key Vault, and Application Insights, and VNet-local SQL MI connectivity](/showcases/regulated-delivery/04-runtime-diagram.svg)
+![Runtime flow diagram showing public HTTPS requests, UAMI authentication to ACR, Blob, Service Bus, Key Vault, and Application Insights, and VNet-local SQL MI connectivity](/showcases/coe-archetype/04-runtime-diagram.svg)
 
-[Open full-size SVG](/showcases/regulated-delivery/04-runtime-diagram.svg)
+[Open full-size SVG](/showcases/coe-archetype/04-runtime-diagram.svg)
 
 ## Complete Bicep module catalog (`infra/bicep/university/`)
 

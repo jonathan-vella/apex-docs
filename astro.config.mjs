@@ -36,6 +36,11 @@ export default defineConfig({
     "/guides/hooks/": "/concepts/how-it-works/workflow-engine/#copilot-hooks",
     "/project/sensei-branch/": "/project/contributing/",
     "/reference/prompts/repository-prompts/": "/reference/prompts/workflow-prompts/",
+    "/showcases/regulated-delivery/": "/showcases/coe-archetype/",
+    "/showcases/regulated-delivery/architecture-and-pricing/": "/showcases/coe-archetype/architecture-and-pricing/",
+    "/showcases/regulated-delivery/design-and-adrs/": "/showcases/coe-archetype/design-and-adrs/",
+    "/showcases/regulated-delivery/governance-and-risk/": "/showcases/coe-archetype/governance-and-risk/",
+    "/showcases/regulated-delivery/plan-and-bicep/": "/showcases/coe-archetype/plan-and-bicep/",
     ...legacyDemoRedirects,
   },
   markdown: {

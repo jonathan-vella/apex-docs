@@ -28,9 +28,9 @@ This showcase examines the `university` Center of Excellence (CoE) platform arch
 
 `04-Design` generated the service diagram below to illustrate how the archetype creates `rg-university-<suffix>` and injects compute, private endpoints, and SQL Managed Instance into the pre-vended `rg-spoke` subnets while relying on central shared services for egress filtering, Private DNS registration, and log analytics.
 
-![Service architecture diagram for the Contoso University CoE archetype inside the vended Corp spoke](/showcases/regulated-delivery/03-des-diagram.svg)
+![Service architecture diagram for the Contoso University CoE archetype inside the vended Corp spoke](/showcases/coe-archetype/03-des-diagram.svg)
 
-[Open full-size SVG](/showcases/regulated-delivery/03-des-diagram.svg)
+[Open full-size SVG](/showcases/coe-archetype/03-des-diagram.svg)
 
 ## CoE authoring versus member deployment split
 
@@ -80,7 +80,7 @@ Key Vault Standard (`$0.15/month`) and four Standard Private Endpoints (`$29.30/
 
 ## Explore this track
 
-- [Architecture and retail pricing](/showcases/regulated-delivery/architecture-and-pricing/): inspect the WAF pillar trade-offs, retail meter lines, SQL MI license comparison, and weekday schedule projection.
-- [Architecture decisions and network design](/showcases/regulated-delivery/design-and-adrs/): inspect the spoke network diagram and `ADR-0001` through `ADR-0008`.
-- [Policy reconciliation and lab risk contract](/showcases/regulated-delivery/governance-and-risk/): inspect the `19` Deny blockers and the hash-bound `risk-envelope-v1` authorization records.
-- [Implementation plan and AVM Bicep modules](/showcases/regulated-delivery/plan-and-bicep/): inspect the dependency and runtime diagrams, all `10` Bicep modules, PowerShell hooks, and ARM Provider validation.
+- [Architecture and retail pricing](/showcases/coe-archetype/architecture-and-pricing/): inspect the WAF pillar trade-offs, retail meter lines, SQL MI license comparison, and weekday schedule projection.
+- [Architecture decisions and network design](/showcases/coe-archetype/design-and-adrs/): inspect the spoke network diagram and `ADR-0001` through `ADR-0008`.
+- [Policy reconciliation and lab risk contract](/showcases/coe-archetype/governance-and-risk/): inspect the `19` Deny blockers and the hash-bound `risk-envelope-v1` authorization records.
+- [Implementation plan and AVM Bicep modules](/showcases/coe-archetype/plan-and-bicep/): inspect the dependency and runtime diagrams, all `10` Bicep modules, PowerShell hooks, and ARM Provider validation.

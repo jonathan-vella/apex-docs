@@ -17,7 +17,7 @@ test("enterprise showcases render and legacy /demo/ routes redirect cleanly", as
   await expect(page).toHaveURL(/\/showcases\/$/);
   await expect(page.locator("h1")).toBeVisible();
 
-  for (const showcasePath of ["/showcases/waf-assessment/", "/showcases/regulated-delivery/"]) {
+  for (const showcasePath of ["/showcases/waf-assessment/", "/showcases/coe-archetype/"]) {
     await page.goto(showcasePath);
     await expect(page.locator("h1")).toBeVisible();
     const images = page.locator("main img");
