@@ -185,7 +185,7 @@ It does not execute the entire main-agent sequence automatically.
 
 ### Standalone WAF assessment
 
-Select `01-Orchestrator` and run `/waf-assess-existing` to assess an existing workload without running the delivery pipeline. Replace the `{{...}}` placeholders for your workload, or see the [WAF assessment guide](/guides/waf-assessment/) for the variable table and ready-to-copy variants.
+Select `01-Orchestrator` and run `/waf-assess-existing` to assess an existing workload without running the delivery pipeline. When `Scenario` is `requirements_led`, `02-Requirements` guides you through business goals, availability, recovery, compliance, and budget targets interactively with an `Unknown` option on every field. Replace the `{{...}}` placeholders below, or see the [WAF assessment guide](/guides/waf-assessment/) for the variable table and ready-to-copy variants.
 
 ```text
 /waf-assess-existing
@@ -198,17 +198,9 @@ Action register: true
 Azure read scope:
 - Tenant ID: {{TENANT_ID}}
 - Subscriptions: {{SUBSCRIPTION_IDS}}
-- Workload resource groups: {{WORKLOAD_RESOURCE_GROUPS}}
-- Shared resource groups: {{SHARED_RESOURCE_GROUPS}}
-- Excluded resource groups: {{EXCLUDED_RESOURCE_GROUPS}}
+- Resource groups: {{RESOURCE_GROUPS}}
 - Allowed read categories: configuration, topology, utilization, operations, recovery, billing, policy
 - Guardrails: Read-only access only. Do not read secrets, keys, connection strings, or certificates, and do not modify Azure resources.
-
-Business context:
-- Workload summary: {{WORKLOAD_SUMMARY}}
-- Availability and recovery targets: {{SLA_RTO_RPO_TARGETS}}
-- Compliance and regions: {{COMPLIANCE_AND_REGIONS}}
-- Budget and known issues: {{BUDGET_AND_KNOWN_ISSUES}}
 ```
 
 <span id="diagnose---sentinel"></span>
