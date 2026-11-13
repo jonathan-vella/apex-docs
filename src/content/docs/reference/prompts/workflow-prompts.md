@@ -185,30 +185,30 @@ It does not execute the entire main-agent sequence automatically.
 
 ### Standalone WAF assessment
 
-Select `01-Orchestrator` and run `/waf-assess-existing` to assess an existing workload without running the delivery pipeline. See the [WAF assessment guide](/guides/waf-assessment/) for the full walkthrough.
-
-Evidence-only (`evidence_only`, no business interview):
+Select `01-Orchestrator` and run `/waf-assess-existing` to assess an existing workload without running the delivery pipeline. Replace the `{{...}}` placeholders for your workload, or see the [WAF assessment guide](/guides/waf-assessment/) for the variable table and ready-to-copy variants.
 
 ```text
 /waf-assess-existing
-Project: checkout-prod-audit
-Scenario: evidence_only
-Source: combined
-IaC and diagrams: infra/bicep/checkout/, docs/checkout-architecture.png
-Azure read scope: tenant 00000000-0000-0000-0000-000000000000, subscriptions sub-prod-01 and sub-shared-hub, resource groups rg-checkout-prod and rg-hub-net
-Allowed read categories: inventory, configuration, cost, policy
-```
+Project: {{PROJECT_NAME}}
+Scenario: {{SCENARIO}}
+Source: {{SOURCE}}
+Visual charts: true
+Action register: true
 
-Requirements-led (`requirements_led`, evaluates against business objectives and NFR targets):
+Azure read scope:
+- Tenant ID: {{TENANT_ID}}
+- Subscriptions: {{SUBSCRIPTION_IDS}}
+- Workload resource groups: {{WORKLOAD_RESOURCE_GROUPS}}
+- Shared resource groups: {{SHARED_RESOURCE_GROUPS}}
+- Excluded resource groups: {{EXCLUDED_RESOURCE_GROUPS}}
+- Allowed read categories: configuration, topology, utilization, operations, recovery, billing, policy
+- Guardrails: Read-only access only. Do not read secrets, keys, connection strings, or certificates, and do not modify Azure resources.
 
-```text
-/waf-assess-existing
-Project: claims-platform-waf
-Scenario: requirements_led
-Source: azure
-Azure read scope: tenant 00000000-0000-0000-0000-000000000000, subscriptions sub-claims-prod and sub-claims-data, resource groups rg-claims-app and rg-claims-sql
-Allowed read categories: inventory, configuration, cost, policy
-Business context: B2B insurance claims portal; target 99.95% SLA, RTO 1 hour, RPO 15 minutes, ISO 27001 and GDPR residency in swedencentral; current pain points are SQL latency spikes and manual failover.
+Business context:
+- Workload summary: {{WORKLOAD_SUMMARY}}
+- Availability and recovery targets: {{SLA_RTO_RPO_TARGETS}}
+- Compliance and regions: {{COMPLIANCE_AND_REGIONS}}
+- Budget and known issues: {{BUDGET_AND_KNOWN_ISSUES}}
 ```
 
 <span id="diagnose---sentinel"></span>
