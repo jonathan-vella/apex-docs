@@ -9,9 +9,9 @@ In Step 2, `03-Architect` validated all five user-pinned SKUs in `swedencentral`
 
 The architecture optimizes **Security** inside a policy-enforced Corp landing zone while accepting **best-effort Reliability** for a non-production training kit where recovery means redeploying from Bicep:
 
-![WAF pillar score chart for the university archetype showing Security 8, Reliability 4, Performance 6, Cost Optimization 7, and Operational Excellence 7](/showcases/regulated-delivery/02-waf-scores.svg)
+![WAF pillar score chart for the university archetype showing Security 8, Reliability 4, Performance 6, Cost Optimization 7, and Operational Excellence 7](/showcases/coe-archetype/02-waf-scores.svg)
 
-[Open full-size SVG](/showcases/regulated-delivery/02-waf-scores.svg)
+[Open full-size SVG](/showcases/coe-archetype/02-waf-scores.svg)
 
 | WAF pillar | Score | Confidence | Key architectural drivers and accepted trade-offs |
 | --- | ---: | --- | --- |
@@ -40,13 +40,13 @@ All line items below come verbatim from `cost-estimate-subagent` queries against
 
 Deploying the identical manifest into the approved alternate region (`germanywestcentral`) prices at **`$1,321.05/month`** (`+$0.10/month`). Variable charges incurred in the shared services subscription (`2 GB` Application Insights ingestion into `log-management` at `$2.99/GB = $5.98` plus `5 GB` `afw-hub` Standard firewall processing at `$0.016/GB = $0.08`, subtotal **`$6.06/month`**) are reported separately so workload and hub budgets stay distinct.
 
-![Monthly cost distribution chart showing Service Bus Premium at 51.3% and SQL Managed Instance at 37.7% of the $1,320.95 monthly total](/showcases/regulated-delivery/03-des-cost-distribution.svg)
+![Monthly cost distribution chart showing Service Bus Premium at 51.3% and SQL Managed Instance at 37.7% of the $1,320.95 monthly total](/showcases/coe-archetype/03-des-cost-distribution.svg)
 
-[Open full-size SVG](/showcases/regulated-delivery/03-des-cost-distribution.svg)
+[Open full-size SVG](/showcases/coe-archetype/03-des-cost-distribution.svg)
 
 ## Policy-driven cost structure (`57.3%` private-access floor)
 
-In a regulated Corp landing zone, security policies set the minimum cost floor regardless of traffic volume:
+In an ALZ-lite Corp landing zone, Azure Policy rules set the minimum cost floor regardless of traffic volume:
 
 - **Service Bus Premium (`$677.08/month`), ACR Premium (`$50.69/month`), and four Private Endpoints (`$29.30/month`)** combine for **`$757.07/month`** (`57.3%` of total spend). Basic and Standard tiers on Service Bus and ACR cannot attach private endpoints and would fail `mg-factory-corp` Deny policies on deployment.
 - **Event teardown remains the primary cost lever.** Because every fixed meter in this design bills hourly or daily with zero reservation commitment, deleting `rg-university-<suffix>` between training cohorts drops workload spend to `$0.00/hour`.
@@ -62,8 +62,8 @@ In a regulated Corp landing zone, security policies set the minimum cost floor r
 | **AHB (`BasePrice`), Mon to Fri `07:30` to `18:30`** | `260.7` | **`$174.61`** | **`-$314.32/month`** | **Post-C7 steady state** once the Managed Instance Link from `vm-app01` is removed (`ADR-0008`). |
 | License-included, Mon to Fri `07:30` to `18:30` | `260.7` | `$278.85` | `-$210.07/month` | Post-C7 steady state without Azure Hybrid Benefit. |
 
-![Cost projection chart comparing 24x7 pre-cutover spend at $1,320.95/month against post-C7 scheduled SQL MI spend saving $314.32/month](/showcases/regulated-delivery/03-des-cost-projection.svg)
+![Cost projection chart comparing 24x7 pre-cutover spend at $1,320.95/month against post-C7 scheduled SQL MI spend saving $314.32/month](/showcases/coe-archetype/03-des-cost-projection.svg)
 
-[Open full-size SVG](/showcases/regulated-delivery/03-des-cost-projection.svg)
+[Open full-size SVG](/showcases/coe-archetype/03-des-cost-projection.svg)
 
 While SQL MI is stopped overnight and on weekends after `C7`, compute and SQL licensing stop billing (`$0.00/hour`), while the `64 GB` General Purpose storage meter (`$8.76/month`) continues billing.

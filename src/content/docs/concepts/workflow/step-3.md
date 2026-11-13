@@ -43,6 +43,6 @@ Once the diagrams and ADRs are approved, advance to [Step 3.5: Governance](/conc
 
 ## See also
 
-- [Regulated delivery showcase: design and ADRs](/showcases/regulated-delivery/design-and-adrs/)
+- [CoE modernization archetype: design and ADRs](/showcases/coe-archetype/design-and-adrs/)
 - [`apex-python-diagrams` skill](https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-python-diagrams/SKILL.md)
 - [`apex-azure-adr` skill](https://github.com/jonathan-vella/apex/blob/main/.github/skills/apex-azure-adr/SKILL.md)

@@ -4,7 +4,7 @@ import AxeBuilder from "@axe-core/playwright";
 const routes = [
   "/", "/getting-started/quickstart/", "/getting-started/dev-containers/",
   "/concepts/workflow-deep-dive/", "/reference/security-baseline/", "/showcases/",
-  "/showcases/waf-assessment/", "/showcases/regulated-delivery/",
+  "/showcases/waf-assessment/", "/showcases/coe-archetype/",
   "/reference/architecture-explorer/", "/guides/updating-apex/",
 ];
 

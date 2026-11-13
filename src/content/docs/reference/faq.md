@@ -15,7 +15,7 @@ Yes. Select `01-Orchestrator` in VS Code Copilot Chat and run `/waf-assess-exist
 
 ### Is generated code ready for production?
 
-Not from code generation alone. Review requirements, WAF and cost assessments, target-verified Azure Policy constraints, the Step 4 implementation plan, `validate:iac-security-baseline` results, and the live `what-if` or `terraform plan` preview before approving deployment. Verify resource provisioning and application health separately. Inspect the [regulated delivery showcase](/showcases/regulated-delivery/) for a complete artifact trail.
+Not from code generation alone. Review requirements, WAF and cost assessments, target-verified Azure Policy constraints, the Step 4 implementation plan, `validate:iac-security-baseline` results, and the live `what-if` or `terraform plan` preview before approving deployment. Verify resource provisioning and application health separately. Inspect the [CoE modernization archetype showcase](/showcases/coe-archetype/) for a complete artifact trail.
 
 ### Which Copilot plan and model do I need?
 

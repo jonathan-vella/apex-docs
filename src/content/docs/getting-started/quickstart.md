@@ -5,7 +5,7 @@ description: "Create an APEX project from the Accelerator template, open the Azu
 
 Start from the [APEX Accelerator template](https://github.com/jonathan-vella/apex-accelerator),
 not the documentation repository. You will create a workload repository, open its development
-container in VS Code, and start `01-Orchestrator` for either regulated infrastructure delivery
+container in VS Code, and start `01-Orchestrator` for either policy-compliant infrastructure delivery
 or a standalone Well-Architected Framework assessment.
 
 Docker Desktop dev containers are validated on x86-64 and ARM64, including Windows with WSL2,
@@ -221,4 +221,4 @@ to inspect blocked prerequisites rather than editing session state by hand.
 
 - [WAF assessment guide](/guides/waf-assessment/) for read-only Azure and offline IaC reviews
 - [Workflow overview](/concepts/workflow/) for delivery Steps 1 through 7 and standalone routing
-- [Showcases](/showcases/) for completed assessment and regulated Bicep delivery artifacts
+- [Showcases](/showcases/) for completed WAF assessment and CoE modernization archetype artifacts

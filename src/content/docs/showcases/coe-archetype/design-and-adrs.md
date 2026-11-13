@@ -11,9 +11,9 @@ In [Step 3: Design](/concepts/workflow/step-3/), `04-Design` produced rendered a
 
 Every workload resource deploys into `rg-university-<suffix>` while attaching to subnets inside the vended `rg-spoke/vnet-spoke` (`10.20.1.0/24`). No public IP addresses, virtual networks, subnets, NSGs, route tables, or Private DNS zones exist in the workload template.
 
-![Service architecture diagram showing rg-university resources, vended vnet-spoke subnets, and shared hub dependencies](/showcases/regulated-delivery/03-des-diagram.svg)
+![Service architecture diagram showing rg-university resources, vended vnet-spoke subnets, and shared hub dependencies](/showcases/coe-archetype/03-des-diagram.svg)
 
-[Open full-size SVG](/showcases/regulated-delivery/03-des-diagram.svg)
+[Open full-size SVG](/showcases/coe-archetype/03-des-diagram.svg)
 
 ### Network routing, Private Link, and firewall egress (`03-des-network-diagram.svg`)
 
@@ -25,9 +25,9 @@ The network diagram traces the five distinct traffic and control paths across th
 4. **Filtered outbound internet egress (`afw-hub` / `afwp-hub`).** Default-route traffic from `snet-app` traverses `peer-spoke-to-hub` to the Standard Azure Firewall in Shared `rg-hub`, where rule collection group `rcg-member-1` permits `app-to-mcr` (`mcr.microsoft.com`, `*.data.mcr.microsoft.com`), `app-to-azure-monitor` (Application Insights ingestion and live metrics), and `app-to-entra-id` (`AzureActiveDirectory` service tag on TCP `443`).
 5. **Cross-network Managed Instance Link (`B07`/`B08` migration path).** Legacy SQL Server 2022 on `vm-app01` (`vnet-datacenter`) replicates through the hub firewall to `snet-sqlmi` over TCP `5022` and `11000-11999` until `C7` cutover completes.
 
-![Network topology diagram illustrating snet-app VNet integration, snet-pe private endpoints, snet-sqlmi delegation, hub firewall rules, and central Private DNS resolution](/showcases/regulated-delivery/03-des-network-diagram.svg)
+![Network topology diagram illustrating snet-app VNet integration, snet-pe private endpoints, snet-sqlmi delegation, hub firewall rules, and central Private DNS resolution](/showcases/coe-archetype/03-des-network-diagram.svg)
 
-[Open full-size SVG](/showcases/regulated-delivery/03-des-network-diagram.svg)
+[Open full-size SVG](/showcases/coe-archetype/03-des-network-diagram.svg)
 
 ## Architecture Decision Records (`ADR-0001` to `ADR-0008`)
 

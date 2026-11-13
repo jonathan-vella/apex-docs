@@ -35,7 +35,7 @@ Download the APEX overview deck (or the earlier pre-rename `agentic-infraops.PPT
 
 ### BMIT 2026: Il-Pastizzeria ta' Mario
 
-This historical archive preserves the April 2026 BMIT session snapshot (`Il-Pastizzeria ta' Mario`). For current standalone WAF assessment and regulated Bicep delivery artifacts, inspect the [showcases](/showcases/) instead.
+This historical archive preserves the April 2026 BMIT session snapshot (`Il-Pastizzeria ta' Mario`). For current standalone WAF assessment and CoE modernization archetype artifacts, inspect the [showcases](/showcases/) instead.
 
 <a
   href="/downloads/bmit-2026.zip"

@@ -27,23 +27,23 @@ Tenant, subscription, and session identifiers from the brownfield assessment are
 
   <div class="showcase-card">
     <span class="showcase-eyebrow">Delivery workflow · practical-v1 · risk-envelope-v1</span>
-    <h3>Regulated landing-zone delivery</h3>
+    <h3>CoE modernization archetype</h3>
     <p>
-      Center of Excellence platform kit for Contoso University inside a vended Corp spoke, combining retail pricing at $1,320.95 per month, 8 ADRs, 19 Azure Policy Deny reconciliations, hash-bound lab risk records, and 10 Bicep modules.
+      Partner Modernization Factory Center of Excellence (CoE) platform kit for Contoso University inside a vended Corp spoke, combining retail pricing at $1,320.95 per month, 8 ADRs, 19 Azure Policy Deny reconciliations, hash-bound lab risk records, and 10 Bicep modules.
     </p>
     <img
-      src="/showcases/regulated-delivery/03-des-diagram.svg"
-      alt="Regulated delivery service architecture diagram inside the vended spoke with private endpoints and SQL Managed Instance"
+      src="/showcases/coe-archetype/03-des-diagram.svg"
+      alt="CoE modernization archetype service architecture diagram inside the vended spoke with private endpoints and SQL Managed Instance"
     />
     <p>
-      <a href="/showcases/regulated-delivery/">Open the regulated delivery track</a>
+      <a href="/showcases/coe-archetype/">Open the CoE archetype track</a>
     </p>
   </div>
 </div>
 
 ## When to use each workflow
 
-| Dimension | Brownfield WAF and cost assessment | Regulated landing-zone delivery |
+| Dimension | Brownfield WAF and cost assessment | CoE modernization archetype |
 | --- | --- | --- |
 | Primary goal | Audit an existing Azure estate or IaC codebase and produce a prioritized, nonbinding remediation register | Design, price, govern, plan, and generate deployable Bicep or Terraform for a target workload |
 | Entry mode | [WAF assessment guide](/guides/waf-assessment/) (`workflow_mode=assessment`) | [Standard delivery workflow](/concepts/workflow/) (`practical-v1`, Steps 1 to 7) |
@@ -63,10 +63,10 @@ Tenant, subscription, and session identifiers from the brownfield assessment are
 4. [Existing-state topology and inventory](/showcases/waf-assessment/topology-and-inventory/): `22` resource groups, `211` resources, `59` ARM resource types, `5` virtual networks, `10` subnets, and all eight vector topology and inventory diagrams.
 5. [Challenger closures and action register](/showcases/waf-assessment/reviews-and-register/): initial and closure passes from `challenger-review-subagent`, workbook cell reconciliation, retained advisory findings, and all `18` proposed actions (`A01` to `A18`).
 
-### Track 2: Regulated landing-zone delivery
+### Track 2: CoE modernization archetype
 
-1. [Overview and vended spoke brief](/showcases/regulated-delivery/): Center of Excellence (Steps 1 to 5) versus member adopter (Steps 6 and 7) split, three-input deployment contract, and `sku-manifest-v1` revision 3.
-2. [Architecture and retail pricing](/showcases/regulated-delivery/architecture-and-pricing/): WAF trade-off scores (`S 8`, `R 4`, `P 6`, `C 7`, `O 7`), retail estimate of `$1,320.95/month` (`$1.81/hour`), SQL MI Azure Hybrid Benefit comparison, and post-cutover weekday schedule savings (`-$314.32/month`).
-3. [Architecture decisions and network design](/showcases/regulated-delivery/design-and-adrs/): vended spoke subnets (`snet-app`, `snet-pe`, `snet-sqlmi`), hub firewall rules, central DeployIfNotExists Private DNS, and `ADR-0001` through `ADR-0008`.
-4. [Policy reconciliation and lab risk contract](/showcases/regulated-delivery/governance-and-risk/): `25` discovered policies (`19` Deny blockers), 9-tag lowercase fallback, unresolved Challenger pass 11 findings (`bc629836` and `a749666a`), and the signed `risk-envelope-v1` kit-only exception.
-5. [Implementation plan and AVM Bicep modules](/showcases/regulated-delivery/plan-and-bicep/): subscription-scope `main.bicep`, ID-free `main.bicepparam`, RBAC-before-pull dependency ordering, `web-app.bicep` scanner isolation, PowerShell 7 hooks, and ARM Provider validation.
+1. [Overview and vended spoke brief](/showcases/coe-archetype/): Partner Modernization Factory Center of Excellence (Steps 1 to 5) versus hackathon member (Steps 6 and 7) split, three-input deployment contract, and `sku-manifest-v1` revision 3.
+2. [Architecture and retail pricing](/showcases/coe-archetype/architecture-and-pricing/): WAF trade-off scores (`S 8`, `R 4`, `P 6`, `C 7`, `O 7`), retail estimate of `$1,320.95/month` (`$1.81/hour`), SQL MI Azure Hybrid Benefit comparison, and post-cutover weekday schedule savings (`-$314.32/month`).
+3. [Architecture decisions and network design](/showcases/coe-archetype/design-and-adrs/): vended spoke subnets (`snet-app`, `snet-pe`, `snet-sqlmi`), hub firewall rules, central DeployIfNotExists Private DNS, and `ADR-0001` through `ADR-0008`.
+4. [Policy reconciliation and lab risk contract](/showcases/coe-archetype/governance-and-risk/): `25` discovered policies (`19` Deny blockers), 9-tag lowercase fallback, unresolved Challenger pass 11 findings (`bc629836` and `a749666a`), and the signed `risk-envelope-v1` kit-only exception.
+5. [Implementation plan and AVM Bicep modules](/showcases/coe-archetype/plan-and-bicep/): subscription-scope `main.bicep`, ID-free `main.bicepparam`, RBAC-before-pull dependency ordering, `web-app.bicep` scanner isolation, PowerShell 7 hooks, and ARM Provider validation.
