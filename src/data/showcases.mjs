@@ -130,14 +130,14 @@ const trackDefinitions = [
     ],
   },
   {
-    id: "regulated-delivery",
-    label: "Regulated landing-zone delivery",
-    shortTitle: "Regulated delivery",
-    slug: "showcases/regulated-delivery",
+    id: "coe-archetype",
+    label: "CoE modernization archetype",
+    shortTitle: "CoE archetype",
+    slug: "showcases/coe-archetype",
     workflowMode: "Delivery workflow (Steps 1 to 5 CoE archetype)",
     contractBadge: "practical-v1 · risk-envelope-v1",
     summary:
-      "Reusable Bicep modernization platform archetype for a vended Corp spoke, pairing Azure Retail Prices API estimates, eight ADRs, live Azure Policy Deny reconciliation, lab risk-authorization envelopes, and ten AVM-first Bicep modules.",
+      "Reusable Bicep modernization platform archetype built by the Partner Modernization Factory CoE for a vended Corp spoke, pairing Azure Retail Prices API estimates, eight ADRs, live Azure Policy Deny reconciliation, lab risk-authorization envelopes, and ten AVM-first Bicep modules.",
     stats: [
       { label: "Verified retail estimate", value: "$1,320.95/mo ($1.81/hr)" },
       { label: "Governance reconciled", value: "25 policies · 19 Deny" },
@@ -149,7 +149,7 @@ const trackDefinitions = [
         id: "overview",
         label: "Overview and vended spoke brief",
         shortTitle: "Overview and vended spoke brief",
-        slug: "showcases/regulated-delivery",
+        slug: "showcases/coe-archetype",
         stepLabel: "Step 1 · Requirements",
         chipLabel: "Step 1",
         agent: "02-Requirements",
@@ -169,7 +169,7 @@ const trackDefinitions = [
         id: "architecture-and-pricing",
         label: "Architecture and retail pricing",
         shortTitle: "Architecture and retail pricing",
-        slug: "showcases/regulated-delivery/architecture-and-pricing",
+        slug: "showcases/coe-archetype/architecture-and-pricing",
         stepLabel: "Step 2 · Architecture",
         chipLabel: "Step 2",
         agent: "03-Architect · cost-estimate-subagent",
@@ -189,7 +189,7 @@ const trackDefinitions = [
         id: "design-and-adrs",
         label: "Architecture decisions and network design",
         shortTitle: "Architecture decisions and network design",
-        slug: "showcases/regulated-delivery/design-and-adrs",
+        slug: "showcases/coe-archetype/design-and-adrs",
         stepLabel: "Step 3 · Design",
         chipLabel: "Step 3",
         agent: "04-Design",
@@ -209,7 +209,7 @@ const trackDefinitions = [
         id: "governance-and-risk",
         label: "Policy reconciliation and lab risk contract",
         shortTitle: "Policy reconciliation and lab risk contract",
-        slug: "showcases/regulated-delivery/governance-and-risk",
+        slug: "showcases/coe-archetype/governance-and-risk",
         stepLabel: "Step 3.5 · Governance",
         chipLabel: "Step 3.5",
         agent: "04g-Governance · challenger-review-subagent",
@@ -229,7 +229,7 @@ const trackDefinitions = [
         id: "plan-and-bicep",
         label: "Implementation plan and AVM Bicep modules",
         shortTitle: "Implementation plan and AVM Bicep modules",
-        slug: "showcases/regulated-delivery/plan-and-bicep",
+        slug: "showcases/coe-archetype/plan-and-bicep",
         stepLabel: "Steps 4 and 5 · Plan and Bicep",
         chipLabel: "Steps 4-5",
         agent: "05-IaC Planner · 06b-Bicep CodeGen · bicep-validate-subagent",
@@ -276,35 +276,35 @@ export const showcasesSidebarItems = [
 
 export const legacyDemoRedirects = {
   "/demo/": "/showcases/",
-  "/demo/01-requirements/": "/showcases/regulated-delivery/",
-  "/demo/01-requirements/functional/": "/showcases/regulated-delivery/",
+  "/demo/01-requirements/": "/showcases/coe-archetype/",
+  "/demo/01-requirements/functional/": "/showcases/coe-archetype/",
   "/demo/01-requirements/compliance-security/":
-    "/showcases/regulated-delivery/governance-and-risk/",
+    "/showcases/coe-archetype/governance-and-risk/",
   "/demo/01-requirements/budget-scaling/":
-    "/showcases/regulated-delivery/architecture-and-pricing/",
+    "/showcases/coe-archetype/architecture-and-pricing/",
   "/demo/02-architecture/":
-    "/showcases/regulated-delivery/architecture-and-pricing/",
+    "/showcases/coe-archetype/architecture-and-pricing/",
   "/demo/02-architecture/waf-assessment/":
     "/showcases/waf-assessment/waf-posture/",
   "/demo/02-architecture/sizing-pricing/":
-    "/showcases/regulated-delivery/architecture-and-pricing/",
-  "/demo/03-design/": "/showcases/regulated-delivery/design-and-adrs/",
-  "/demo/03-design/adrs/": "/showcases/regulated-delivery/design-and-adrs/",
+    "/showcases/coe-archetype/architecture-and-pricing/",
+  "/demo/03-design/": "/showcases/coe-archetype/design-and-adrs/",
+  "/demo/03-design/adrs/": "/showcases/coe-archetype/design-and-adrs/",
   "/demo/03-design/cost/": "/showcases/waf-assessment/cost-analysis/",
-  "/demo/04-governance/": "/showcases/regulated-delivery/governance-and-risk/",
+  "/demo/04-governance/": "/showcases/coe-archetype/governance-and-risk/",
   "/demo/04-governance/tags/":
-    "/showcases/regulated-delivery/governance-and-risk/",
+    "/showcases/coe-archetype/governance-and-risk/",
   "/demo/04-governance/security/":
-    "/showcases/regulated-delivery/governance-and-risk/",
-  "/demo/05-plan/": "/showcases/regulated-delivery/plan-and-bicep/",
-  "/demo/05-plan/modules/": "/showcases/regulated-delivery/plan-and-bicep/",
-  "/demo/05-plan/phases/": "/showcases/regulated-delivery/plan-and-bicep/",
-  "/demo/06-code/": "/showcases/regulated-delivery/plan-and-bicep/",
-  "/demo/06-code/artifacts/": "/showcases/regulated-delivery/plan-and-bicep/",
-  "/demo/06-code/validation/": "/showcases/regulated-delivery/plan-and-bicep/",
-  "/demo/07-deploy/": "/showcases/regulated-delivery/plan-and-bicep/",
-  "/demo/07-deploy/phases/": "/showcases/regulated-delivery/plan-and-bicep/",
-  "/demo/07-deploy/outputs/": "/showcases/regulated-delivery/plan-and-bicep/",
+    "/showcases/coe-archetype/governance-and-risk/",
+  "/demo/05-plan/": "/showcases/coe-archetype/plan-and-bicep/",
+  "/demo/05-plan/modules/": "/showcases/coe-archetype/plan-and-bicep/",
+  "/demo/05-plan/phases/": "/showcases/coe-archetype/plan-and-bicep/",
+  "/demo/06-code/": "/showcases/coe-archetype/plan-and-bicep/",
+  "/demo/06-code/artifacts/": "/showcases/coe-archetype/plan-and-bicep/",
+  "/demo/06-code/validation/": "/showcases/coe-archetype/plan-and-bicep/",
+  "/demo/07-deploy/": "/showcases/coe-archetype/plan-and-bicep/",
+  "/demo/07-deploy/phases/": "/showcases/coe-archetype/plan-and-bicep/",
+  "/demo/07-deploy/outputs/": "/showcases/coe-archetype/plan-and-bicep/",
   "/demo/08-as-built/": "/showcases/waf-assessment/topology-and-inventory/",
   "/demo/08-as-built/design/":
     "/showcases/waf-assessment/topology-and-inventory/",
@@ -312,13 +312,13 @@ export const legacyDemoRedirects = {
     "/showcases/waf-assessment/reviews-and-register/",
   "/demo/08-as-built/compliance/": "/showcases/waf-assessment/cost-analysis/",
   "/demo/09-reviews/": "/showcases/waf-assessment/reviews-and-register/",
-  "/demo/09-reviews/requirements/": "/showcases/regulated-delivery/",
+  "/demo/09-reviews/requirements/": "/showcases/coe-archetype/",
   "/demo/09-reviews/architecture/":
     "/showcases/waf-assessment/reviews-and-register/",
   "/demo/09-reviews/governance/":
-    "/showcases/regulated-delivery/governance-and-risk/",
+    "/showcases/coe-archetype/governance-and-risk/",
   "/demo/09-reviews/implementation/":
-    "/showcases/regulated-delivery/governance-and-risk/",
+    "/showcases/coe-archetype/governance-and-risk/",
 };
 
 function normalizePathname(pathname) {

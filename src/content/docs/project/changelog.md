@@ -60,8 +60,8 @@ It does not automatically describe the newest product commit.
   ([#792](https://github.com/jonathan-vella/apex/pull/792),
   [#812](https://github.com/jonathan-vella/apex/pull/812)).
 
-- On `apexops.pro`, two current [showcases](/showcases/) (a standalone WAF assessment and a regulated Bicep delivery
-  run) replace the April 2026 `/demo/` case study, with single-hop redirects preserving all published routes.
+- On `apexops.pro`, two current [showcases](/showcases/) (a standalone WAF assessment and the Partner Modernization
+  Factory CoE archetype) replace the April 2026 `/demo/` case study, with single-hop redirects preserving all published routes.
 
 ## October 2026
 
