@@ -4,13 +4,13 @@
 // Adds:
 //   - Pagefind section filter (data-pagefind-filter="section:<group>") so
 //     the built-in search can scope to Getting Started / Concepts / Guides
-//     / Reference / Project / Demo.
-//   - Demo breadcrumb above the article body when the URL sits under /demo/.
-//   - Demo step header card on demo step-root pages.
+//     / Reference / Project / Showcases.
+//   - Showcase breadcrumb above the article body when the URL sits under /showcases/.
+//   - Showcase artifact summary header on showcase track subpages.
 // Preserves the default .sl-markdown-content wrapper for unchanged styling.
 import "@astrojs/starlight/style/markdown.css";
-import DemoBreadcrumb from "./DemoBreadcrumb.astro";
-import DemoStepHeader from "./DemoStepHeader.astro";
+import ShowcaseBreadcrumb from "./ShowcaseBreadcrumb.astro";
+import ShowcaseStepHeader from "./ShowcaseStepHeader.astro";
 import { SITE_BASE } from "../data/siteConfig.mjs";
 
 const pathname = Astro.url.pathname;
@@ -19,7 +19,7 @@ const firstSegment = trimmed.split("/")[0] || "home";
 // Pagefind splits data-pagefind-filter values on whitespace, so the
 // section filter must be slug-safe. Keep the human-readable label
 // available for any future surface that wants to display it.
-const knownSections = new Set(["getting-started", "concepts", "guides", "reference", "project", "demo"]);
+const knownSections = new Set(["getting-started", "concepts", "guides", "reference", "project", "showcases"]);
 const sectionSlug = knownSections.has(firstSegment) ? firstSegment : "home";
 const sectionLabelMap = {
   "getting-started": "Get started",
@@ -27,7 +27,7 @@ const sectionLabelMap = {
   guides: "Guides and troubleshooting",
   reference: "Reference",
   project: "Contribute",
-  demo: "Case study",
+  showcases: "Showcases",
   home: "Home",
 };
 const sectionLabel = sectionLabelMap[sectionSlug];
@@ -38,29 +38,7 @@ const sectionLabel = sectionLabelMap[sectionSlug];
   data-pagefind-filter={`section:${sectionSlug}`}
   data-section-label={sectionLabel}
 >
-  {firstSegment === "demo" && (
-    <aside class="historical-note" aria-label="Historical case study">
-      <p>
-        This case study records an April 2026 run. Resource provisioning succeeded,
-        but the recorded application checks returned HTTP 503. The generated
-        records retain their original findings and are not a current deployment tutorial.
-        Use the <a href={`${SITE_BASE}/concepts/workflow/`}>current workflow</a> for agent handoffs and approvals.
-      </p>
-    </aside>
-  )}
-  <DemoBreadcrumb />
-  <DemoStepHeader />
+  <ShowcaseBreadcrumb />
+  <ShowcaseStepHeader />
   <slot />
 </div>
-
-<style>
-  .historical-note {
-    padding: 1rem;
-    margin-bottom: 1.5rem;
-    border: 1px solid var(--sl-color-hairline);
-    border-radius: 0.5rem;
-    background: var(--sl-color-gray-6);
-    color: var(--sl-color-text);
-  }
-  .historical-note p { margin: 0; }
-</style>

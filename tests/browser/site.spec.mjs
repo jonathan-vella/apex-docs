@@ -7,9 +7,27 @@ test("homepage introduction remains inside its styled paragraph", async ({ page 
   await page.goto("/");
   const tagline = page.locator("p.landing-hero__tagline");
   await expect(tagline).toHaveText(
-    "Use GitHub Copilot agents to capture requirements, assess costs and policy, and generate Bicep or Terraform. Review the evidence and approve each handoff before deployment.",
+    "Assess existing Azure workloads or deliver policy-compliant Bicep and Terraform with GitHub Copilot agents, verified pricing, and human approval gates.",
   );
   await expect(tagline).toHaveCSS("color", "rgb(186, 201, 218)");
+});
+
+test("enterprise showcases render and legacy /demo/ routes redirect cleanly", async ({ page }) => {
+  await page.goto("/demo/");
+  await expect(page).toHaveURL(/\/showcases\/$/);
+  await expect(page.locator("h1")).toBeVisible();
+
+  for (const showcasePath of ["/showcases/waf-assessment/", "/showcases/regulated-delivery/"]) {
+    await page.goto(showcasePath);
+    await expect(page.locator("h1")).toBeVisible();
+    const images = page.locator("main img");
+    expect(await images.count()).toBeGreaterThan(0);
+    for (const image of await images.all()) {
+      await image.scrollIntoViewIfNeeded();
+      await expect(image).toBeVisible();
+      await expect.poll(() => image.evaluate((el) => el.complete && el.naturalWidth > 0)).toBe(true);
+    }
+  }
 });
 
 test("compatibility identifies the guidance source separately from the site build", async ({ page }) => {

@@ -51,55 +51,43 @@ non-manifest entries.
 
 ## Lifecycle
 
-| Step | Agent             | Action                                                              |
-| ---- | ----------------- | ------------------------------------------------------------------- |
-| 1    | `02-Requirements` | Rev 1 records user pins. `services[]` may be empty. |
-| 2    | `03-Architect`    | Rev 2 authors choices from priced `candidate_sets[]`. |
-| 3.5  | `04g-Governance`  | Emits findings against the manifest (read-only)                     |
-| 4    | `05-IaC Planner`  | Rev 3 reconciles findings and checks `requires[]`. |
-| 5    | `06b`/`06t`       | Reads JSON; resolves IaC via `iac_logical_names.{bicep\|terraform}` |
-| 6    | `07b`/`07t`       | Pre-flight quota/region. Substitutions via block-with-escalation    |
-| 7    | `08-As-Built`     | Bidirectional drift: manifest ↔ Azure ↔ IaC; writes `actual_sku`    |
+| Step | Agent | Action |
+| --- | --- | --- |
+| 1 | `02-Requirements` | Revision 1 records optional partial `user-pin` SKUs and, for existing workloads, evidenced `observed-current` SKUs. `services[]` may remain empty after preference capture. |
+| 2 | `03-Architect` | Revision 2 selects `architect-derived` SKUs from priced `candidate_sets[]` and writes back verified `cost_estimate_monthly_usd` values. |
+| 3.5 | `04g-Governance` | Projects policy SKU allowlists (`derive-sku-allowlist.mjs`) and emits read-only compliance findings. |
+| 4 | `05-IaC Planner` | Revision 3 reconciles governance findings, binds `iac_logical_names`, and cross-checks `requires[]`. |
+| 5 | `06b-Bicep CodeGen` / `06t-Terraform CodeGen` | Reads `sku-manifest.json` directly so Bicep and Terraform modules match declared SKUs (`validate:sku-iac-coverage`). |
+| 6 | `07b-Bicep Deploy` / `07t-Terraform Deploy` | Verifies quota and regional availability; any substitution requires block-with-escalation approval. |
+| 7 | `08-As-Built` | Compares deployed Azure SKUs against the manifest in both directions and populates `actual_sku` by environment and region. |
 
-Lifecycle status flows through `decisions.sku_manifest_status` in
-session state:
-`draft → reviewed → locked → deploying → deployed | drift`.
+Lifecycle status flows through `decisions.sku_manifest_status` in `apex-recall`: `draft`, `reviewed`, `locked`, `deploying`, `deployed`, or `drift`. Standalone WAF assessments (`workflow_mode=assessment`) inspect existing resources directly without requiring a forward-looking deployment `sku-manifest.json`.
 
 ## User pins vs architect-derived
 
-Every entry has a `source`:
+Every manifest service entry records its `source`:
 
-- `user-pin` is a hard constraint the user volunteered at Step 1.
-  Never auto-changed downstream. If a planner or deploy step needs to
-  alter a pinned SKU, the workflow escalates to the Architect via the
-  step-N → step-2 return edge.
-- `architect-derived` identifies a choice by `03-Architect` at Step 2 from
-  priced `candidate_sets[]`. Reconciled by the Planner at Step 4 for
-  governance compliance; `source` stays `architect-derived`.
-- `deploy-substitute` records a substitution at Step 6 when quota or
-  regional capacity forces a change. Always paired with an
-  `decisions.sku_overrides[]` entry recording the escalation
-  resolution.
+- `user-pin` marks a hard SKU constraint specified by the owner at Step 1. Downstream agents never overwrite it silently; changing a pinned SKU requires returning to Step 2 via the workflow graph's return edge.
+- `observed-current` records an evidenced SKU already running in an existing workload captured during Step 1 modernization intake.
+- `architect-derived` marks a SKU selected by `03-Architect` at Step 2 from priced `candidate_sets[]` and reconciled at Step 4.
+- `deploy-substitute` marks an approved Step 6 replacement when Azure quota or regional SKU restrictions block the planned SKU, paired with an entry in `decisions.sku_overrides[]`.
 
 ## Cost-estimate dual mode
 
-`cost-estimate-subagent` accepts three exclusive input modes:
+`cost-estimate-subagent` supports three monthly-estimate input modes (`cost-estimate-v2`) plus explicit rate-only quotes:
 
-| Mode | Input              | Purpose                                                                |
-| ---- | ------------------ | ---------------------------------------------------------------------- |
-| A    | `resource_list`    | Back-compat per-resource list                                          |
-| B    | `manifest_path`    | Per-service pricing **+ atomic `cost_estimate_monthly_usd` writeback** |
-| C    | `candidate_sets[]` | A-vs-B comparison; emits `decisions[]`; **no writeback**               |
+| Mode | Input | Purpose |
+| --- | --- | --- |
+| Mode A | `resource_list` | Standalone or compatibility per-resource list |
+| Mode B | `manifest_path` (plus `manifest_usage` and `supplemental_resources[]`) | Complete workload estimate (`02-cost-estimate.json`) plus atomic `cost_estimate_monthly_usd` writeback on manifest `services[]` |
+| Mode C | `candidate_sets[]` | Option-by-option SKU comparison (`decisions[]`) with no manifest writeback |
+| Rate quote | `purpose: "rate-quote"` | Indicative meter unit rates (`retail-rate-quote-v1`) when monthly usage is unknown; never writes back to `sku-manifest.json` |
 
-The Architect's workflow at Step 2 is:
+At Step 2, `03-Architect` prices competing options in Mode C (one decision per call with explicit meter hints), writes revision 2 of `sku-manifest.json`, and runs Mode B once with `manifest_path`, `manifest_usage`, and project-deployed `supplemental_resources[]` so `02-cost-estimate.json` and `sku-manifest.{json,md}` stay synchronized.
 
-1. Build `candidate_sets[]` of competing SKUs per decision.
-2. Call cost-estimate in Mode C to price them.
-3. Pick winners; compute `sla_achieved` from SKU + zonal + region.
-4. Write rev 2 to the manifest.
-5. Call cost-estimate in Mode B for deterministic price writeback.
+<span id="block-with-escalation-step-6"></span>
 
-## Block-with-escalation (step 6)
+## Block-with-escalation at Step 6
 
 When pre-flight quota or regional SKU availability fails:
 

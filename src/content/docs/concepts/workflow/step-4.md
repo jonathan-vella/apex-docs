@@ -32,38 +32,38 @@ Output: agent-output/{project}/04-implementation-plan.md
 
 ## Prerequisites
 
-- `04-governance-constraints.{md,json}` from completed Step 3.5 discovery, with a
-  valid policy array and the required review outcome.
-- `sku-manifest.json` revised through Step 2.
+- Current, target-verified `04-governance-constraints.{md,json}` from completed Step 3.5 discovery (`assumed_corp_not_tenant_verified` assumptions from Step 2 cannot complete Step 4 planning).
+- `sku-manifest.json` revised through Step 2 and reconciled against `sku_allowlist_snapshot`.
 
-The planner halts and asks the user to refresh governance if those preconditions fail.
+`05-IaC Planner` halts and requests target-verified governance discovery if either precondition is missing or stale.
 
 ## What gets produced
 
-- Module selection from Bicep AVM or the Terraform AVM registry.
-- Resource dependency map.
-- CAF naming validation.
-- A deployment sequence based on resource dependencies.
-- Dependency and runtime diagrams with editable source.
-- The IaC contract, policy-property map, and environment manifest that CodeGen
-  and deployment use to check consistency.
+- Pinned module selections from Bicep AVM (`br/public:avm/res/...`) or Terraform AVM (`Azure/avm-res-*/azurerm`), with explicit `### Raw Resource Exceptions` rows when no AVM module exists.
+- CAF naming validation and resource dependency graph.
+- Ordered deployment phases with explicit `phase` parameters (no default `phase` values).
+- Editable Python source and PNG outputs for `04-dependency-diagram` and `04-runtime-diagram`.
+- Machine-readable `04-iac-contract.json`, `04-policy-property-map.json`, and `04-environment-manifest.json` validated by `validate:iac-contract`, `validate:policy-property-map`, and `validate:environment-manifest`.
 
 ## Review
 
-One `comprehensive` review is the default. Under the owner-approved shared
-structured-review candidate, the producer or its authorized Orchestrator invokes
-`challenger-review-subagent` and records the actual attributed JSON output.
-`10-Challenger` is optional for a manually selected review, not a required handoff
-or automatic fallback. Resolve required findings. Deep review requires explicit
-owner opt-in; complexity alone does not enable it. See
-[review finalization and recovery](/concepts/workflow/#review-finalization-and-recovery)
-for the pending runtime evidence and unchanged review-integrity requirements.
+One `comprehensive` review via `challenger-review-subagent` is mandatory before Step 4 completion (`decisions.review_depth = "deep"` adds rotating passes when explicitly opted in). Each Plan review freezes `04-iac-contract.json`, `04-policy-property-map.json`, `04-environment-manifest.json`, and both governance constraint artifacts as supporting inputs.
+
+### Explicit lab risk authorization
+
+For non-production labs where an unresolved default-mode Step 4 finding is intentionally accepted, APEX supports externally signed Ed25519 `risk-envelope-v1` (`risk-authorization-v1`) envelopes verified against an operator-pinned `APEX_RISK_TRUST_CONFIG` and paired with a separate human `risk-gate-approval-v1`:
+
+```bash
+apex-recall check-gate example-lab --action plan-complete --authorization-only \
+  --risk-authorization agent-output/example-lab/risk-authorization.json --json
+```
+
+Risk acceptance never alters the original `NEEDS_REVISION` review verdict or findings, never overrides failed contract or security validators, and is prohibited for production scopes. Kit-maintainer authorizations cover only `plan-complete`, `codegen`, and `code-complete`; lab deployment requires a separate adopter deployment-risk-owner authorization with teardown obligations. See [explicit lab risk acceptance](/concepts/workflow-deep-dive/#explicit-lab-risk-acceptance).
 
 :::note[Approval gate]
-The user must approve the implementation plan before code generation.
+Human approval of `04-implementation-plan.md` and its contracts is required before Step 5 code generation.
 :::
 
 ## Hand-off
 
-After approving the plan and its contracts, select the appropriate CodeGen agent
-for [Step 5](/concepts/workflow/step-5/).
+After approving the plan and contracts, transition to the track-specific CodeGen agent for [Step 5: IaC code](/concepts/workflow/step-5/).

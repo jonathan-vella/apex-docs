@@ -1,0 +1,305 @@
+---
+// ShowcaseStepHeader renders a compact metadata chip, agent, and artifact card
+// on `/showcases/<track>/<page>/` pages, and provides theme-safe `.showcase-*`
+// layout classes for the showcase hub and track overview MDX pages.
+import { getShowcaseContext } from "../data/showcases.mjs";
+
+const context = getShowcaseContext(Astro.url.pathname);
+const showHeader = Boolean(context.track && context.page && !context.isTrackRoot);
+const page = context.page;
+const track = context.track;
+---
+
+{
+  showHeader && page && track && (
+    <aside class="apex-showcase-step-header not-content" aria-label="Showcase artifact summary">
+      <div class="apex-showcase-step-header__top">
+        <span class="apex-showcase-step-header__chip">{page.stepLabel}</span>
+        <span class="apex-showcase-step-header__badge">{track.contractBadge}</span>
+      </div>
+      <p class="apex-showcase-step-header__summary">{page.summary}</p>
+      <dl class="apex-showcase-step-header__meta">
+        <div>
+          <dt>Agents and helpers</dt>
+          <dd>{page.agent}</dd>
+        </div>
+        <div>
+          <dt>Source artifacts</dt>
+          <dd>{page.artifact}</dd>
+        </div>
+        <div>
+          <dt>Key verification focus</dt>
+          <dd>{page.focus}</dd>
+        </div>
+      </dl>
+    </aside>
+  )
+}
+
+<style>
+  .apex-showcase-step-header {
+    display: grid;
+    gap: 0.75rem;
+    margin: 0 0 1.5rem;
+    padding: 1rem 1.15rem;
+    border: 1px solid #30363d;
+    border-radius: 0.75rem;
+    background: #161b22;
+    color: #f0f6fc;
+  }
+
+  .apex-showcase-step-header__top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .apex-showcase-step-header__chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.22rem 0.65rem;
+    border-radius: 999px;
+    background: #0c2d48;
+    border: 1px solid #388bfd;
+    color: #a5d6ff;
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+  }
+
+  .apex-showcase-step-header__badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    background: #21262d;
+    border: 1px solid #484f58;
+    color: #d0d7de;
+    font-family: var(--font-mono, monospace);
+    font-size: 0.74rem;
+  }
+
+  .apex-showcase-step-header__summary {
+    margin: 0;
+    font-size: 0.92rem;
+    line-height: 1.55;
+    color: #d0d7de;
+  }
+
+  .apex-showcase-step-header__meta {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.65rem;
+    margin: 0;
+  }
+
+  .apex-showcase-step-header__meta > div {
+    padding: 0.65rem 0.75rem;
+    border-radius: 0.5rem;
+    border: 1px solid #30363d;
+    background: #0d1117;
+  }
+
+  .apex-showcase-step-header__meta dt {
+    margin: 0 0 0.2rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #b1bac4;
+  }
+
+  .apex-showcase-step-header__meta dd {
+    margin: 0;
+    font-size: 0.82rem;
+    line-height: 1.45;
+    color: #f0f6fc;
+    font-weight: 500;
+  }
+
+  :global(:root[data-theme="light"]) .apex-showcase-step-header {
+    border-color: #cbd5e1;
+    background: #f8fafc;
+    color: #0f172a;
+  }
+
+  :global(:root[data-theme="light"]) .apex-showcase-step-header__chip {
+    background: #e0f2fe;
+    border-color: #0284c7;
+    color: #0c4a6e;
+  }
+
+  :global(:root[data-theme="light"]) .apex-showcase-step-header__badge {
+    background: #ffffff;
+    border-color: #94a3b8;
+    color: #1e293b;
+  }
+
+  :global(:root[data-theme="light"]) .apex-showcase-step-header__summary {
+    color: #334155;
+  }
+
+  :global(:root[data-theme="light"]) .apex-showcase-step-header__meta > div {
+    border-color: #cbd5e1;
+    background: #ffffff;
+  }
+
+  :global(:root[data-theme="light"]) .apex-showcase-step-header__meta dt {
+    color: #475569;
+  }
+
+  :global(:root[data-theme="light"]) .apex-showcase-step-header__meta dd {
+    color: #0f172a;
+  }
+
+  @media (max-width: 64rem) {
+    .apex-showcase-step-header__meta {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<style is:global>
+  .showcase-card-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.1rem;
+    margin: 1.25rem 0;
+  }
+
+  .showcase-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin: 1rem 0 1.5rem;
+  }
+
+  .showcase-card,
+  .showcase-stat {
+    padding: 1rem 1.1rem;
+    border: 1px solid #30363d;
+    border-radius: 0.75rem;
+    background: #161b22;
+    color: #f0f6fc;
+  }
+
+  .showcase-card h3 {
+    margin: 0.35rem 0 0.5rem !important;
+    font-size: 1.15rem;
+    color: #f0f6fc;
+  }
+
+  .showcase-card p {
+    margin: 0 0 0.75rem;
+    font-size: 0.9rem;
+    line-height: 1.55;
+    color: #d0d7de;
+  }
+
+  .showcase-card a {
+    color: #6cb8f7;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+  }
+
+  .showcase-card a:hover,
+  .showcase-card a:focus-visible {
+    color: #a5d6ff;
+  }
+
+  .showcase-eyebrow {
+    display: inline-block;
+    padding: 0.18rem 0.55rem;
+    border-radius: 999px;
+    background: #0c2d48;
+    border: 1px solid #388bfd;
+    color: #a5d6ff;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+  }
+
+  .showcase-stat__label {
+    display: block;
+    font-size: 0.74rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #b1bac4;
+    margin-bottom: 0.25rem;
+  }
+
+  .showcase-stat__value {
+    display: block;
+    font-size: 1.02rem;
+    font-weight: 700;
+    color: #f0f6fc;
+  }
+
+  .sl-markdown-content img[src*="/showcases/"] {
+    display: block;
+    width: 100%;
+    height: auto;
+    margin: 1rem 0;
+    border-radius: 0.65rem;
+    border: 1px solid #30363d;
+    background: #ffffff;
+  }
+
+  :root[data-theme="light"] .showcase-card,
+  :root[data-theme="light"] .showcase-stat {
+    border-color: #cbd5e1;
+    background: #f8fafc;
+    color: #0f172a;
+  }
+
+  :root[data-theme="light"] .showcase-card h3,
+  :root[data-theme="light"] .showcase-stat__value {
+    color: #0f172a;
+  }
+
+  :root[data-theme="light"] .showcase-card p {
+    color: #334155;
+  }
+
+  :root[data-theme="light"] .showcase-card a {
+    color: #004578;
+  }
+
+  :root[data-theme="light"] .showcase-card a:hover,
+  :root[data-theme="light"] .showcase-card a:focus-visible {
+    color: #002b4d;
+  }
+
+  :root[data-theme="light"] .showcase-eyebrow {
+    background: #e0f2fe;
+    border-color: #0284c7;
+    color: #0c4a6e;
+  }
+
+  :root[data-theme="light"] .showcase-stat__label {
+    color: #475569;
+  }
+
+  :root[data-theme="light"] .sl-markdown-content img[src*="/showcases/"] {
+    border-color: #cbd5e1;
+  }
+
+  @media (max-width: 64rem) {
+    .showcase-card-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .showcase-stat-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 38rem) {
+    .showcase-stat-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

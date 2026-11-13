@@ -11,9 +11,10 @@ To contribute, first identify which repository owns the change.
 
 | Repository | Scope |
 |---|---|
-| [apex](https://github.com/jonathan-vella/apex) | Product agents, skills, instructions, IaC procedures, and validators |
-| [apex-accelerator](https://github.com/jonathan-vella/apex-accelerator) | Template contents and the new-project experience |
-| [apex-docs](https://github.com/jonathan-vella/apex-docs) | Published pages under `src/content/docs/`, site components, navigation, and site checks |
+| [apex](https://github.com/jonathan-vella/apex) | Product agents, skills, instructions, `apex-recall`, IaC contracts, and validators |
+| [apex-accelerator](https://github.com/jonathan-vella/apex-accelerator) | Adopter template repository, dev container launchers, and consumer sync workflows |
+| [apex-docs](https://github.com/jonathan-vella/apex-docs) | Documentation pages under `src/content/docs/`, showcases, site components, and link/editorial checks |
+| [apex-microhack](https://github.com/jonathan-vella/apex-microhack) | Workshop challenges, facilitator guides, and `microhack.apexops.pro` site |
 
 The product no longer owns this site's source under `site/`. A product behavior
 change may need a corresponding docs change, but the repositories have separate
@@ -113,10 +114,9 @@ bump from this guide.
 
 ## Getting help
 
-File product questions in [APEX issues](https://github.com/jonathan-vella/apex/issues)
-and site problems in [apex-docs issues](https://github.com/jonathan-vella/apex-docs/issues).
-The [Sensei branch guide](/project/sensei-branch/) covers branch-specific product
-contributor tooling, not the normal docs setup.
+File product defects and workflow questions in
+[APEX issues](https://github.com/jonathan-vella/apex/issues) and documentation or
+site issues in [apex-docs issues](https://github.com/jonathan-vella/apex-docs/issues).
 
 ## Code of conduct
 

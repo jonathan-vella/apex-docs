@@ -36,75 +36,30 @@ An instruction's `applyTo` pattern describes intended file matching. Essential
 approval and stop rules still belong in the main agent's instructions. Verify
 runtime attachment separately from authoring-file syntax.
 
-### `.GitHub/data/` registries
+### `.github/data/` registries
 
-Module catalogs, lifecycle information, deprecation data, and governance evidence
-help the planner avoid unsupported choices. Check their scope and freshness.
-A test fixture or fallback dataset is not evidence of the target subscription's
-current effective policy.
+Pinned AVM module catalogs, deprecation feeds, and `.github/data/alz-corp-policy-baseline.json.gz` give agents offline-verifiable reference data. The shared ALZ Corp baseline represents standard `root`, `landing_zones`, and `corp` archetypes (`assumed_corp_not_tenant_verified`), whereas adopter-owned `.github/data/governance-policy-baseline.json.gz` or private `policy-source` snapshots hold tenant-verified policy evidence.
 
-### `APEX-Recall`
+### `apex-recall`
 
-Use `apex-recall show <project> --json` for current state. Use supported commands
-for updates, and keep recorded decisions tied to actual owner choices.
-
-`show` does not restore backups. A write can commit while leaving its derived
-index stale. Conflicts, recovery, and idempotent retries have distinct outcomes.
-See [session state debugging](/guides/session-debugging/) and the
-[public schema](https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/tools/apex-recall/docs/show-schema.md).
+Use `apex-recall show <project> --json` and `apex-recall handoff <project> --json` to inspect current checkpoints, settled material decisions, review cycles, and gate readiness. See [session state debugging](/guides/session-debugging/) and [`show-schema.md`](https://github.com/jonathan-vella/apex/blob/7c195a1c8e06a5d0c3aa305d1870356e5829df92/tools/apex-recall/docs/show-schema.md).
 
 ### Hooks and validators
 
-Git hooks and CI run configured checks. The owner retired APEX `.github/hooks/`
-runtime hooks in the October 18 migration. Their protection is no longer present;
-do not restore or replace them. Native permission boundaries still need verification.
-See the [retirement record](/guides/hooks/). Git Lefthook, pre-commit security
-checks, and underlying Azure requirements are not retired.
-Each remaining mechanism covers specific rules, not all correctness or safety.
-Independent review evaluates the requested artifact scope separately from these
-checks. In the owner-approved shared-review candidate, automatic producers and
-optional manual `10-Challenger` reviews use the same read-only
-`challenger-review-subagent`. The interactive owner captures metadata and records
-the actual attributed synchronous task output centrally. Required receipts,
-strict freshness, schema, provenance, and separate owner approvals remain.
-The final source revision and native runtime evidence are pending. See
-[review finalization and recovery](/concepts/workflow/#review-finalization-and-recovery).
+Git Lefthook and CI workflows run deterministic schema, contract, safe-shell, secret-scanning (`gitleaks`), and IaC security-baseline checks. Runtime `.github/hooks/` chat hooks remain retired; see [Copilot hooks](/concepts/how-it-works/workflow-engine/#copilot-hooks).
+
+Independent semantic review runs separately through the read-only `challenger-review-subagent` and `record-review.mjs` (`APEX_REVIEW` or hash-bound `APEX_REVIEW_FILE`), enforcing fresh input hashes and zero unresolved `must_fix` findings before step completion. See [review finalization and recovery](/concepts/workflow/#review-finalization-and-recovery).
 
 ## Explicit lab risk acceptance
 
-This capability requires an APEX runtime with `risk-authorization-v1` and `apex-recall check-gate`.
-It was merged into APEX main on October 10, after this site's pinned source, so it is not established by that source.
-The [current-source maintainer contract](https://github.com/jonathan-vella/apex/blob/main/tools/apex-recall/docs/risk-authorizations.md)
-defines the signed records and operator setup.
+The [`risk-authorizations.md` contract](https://github.com/jonathan-vella/apex/blob/7c195a1c8e06a5d0c3aa305d1870356e5829df92/tools/apex-recall/docs/risk-authorizations.md) allows an authorized risk owner to accept specific unresolved default-mode Step 4 Plan findings in a `non-production-lab` environment (`risk-envelope-v1` / `risk-authorization-v1`) when remediation is not feasible.
 
-An authorized owner can accept a specific unremediated Plan risk for a non-production lab when remediation is
-not feasible. Acceptance leaves the original findings, severity, review verdict and hashes unchanged. The gate
-reports `exception-authorized`; a `NEEDS_REVISION` review does not become `APPROVED`.
+Key invariants of `risk-authorization-v1`:
 
-An operator must verify each signer's delegated authority and install a protected external trust configuration.
-The owner selects individual finding IDs and signs the exact project, actions, review bytes, artifact hashes,
-supporting inputs, residual impact, validity window and verification obligations. An independent reviewer signs
-the eligibility assessment. Chat consent or an `accepted_risks` decision supplies no risk-owner authority.
-
-Applicable law and technical deployment impossibility cannot be waived. A mandatory governance or security
-requirement needs a valid exception from that rule's authority. Best-practice guidance alone is not a mandatory
-rule. Unresolved eligibility, missing authority, changed hashes, expiry and revocation block progression.
-
-Kit maintainer authorization can permit Plan approval and CodeGen without claiming adopter tenant approval.
-Deployment requires a separate adopter authorization for the actual lab tenant, subscription, event, inputs and
-phase. It must name the cleanup owner and teardown obligations. Kit approval permits neither deployment nor
-production reuse. Collect execution and teardown evidence afterward, never as invented pre-deployment proof.
-
-The owner evaluates authorization first, then asks the authorized human for separate gate approval.
-Completion, transition, resume and downstream entry use the same evaluator for the requested action and block
-when evidence is missing, expired, revoked or changed. CI and GitHub checks report the same problems as
-warnings only, so a lab never fails a pipeline on its own.
-
-Apex-recall also checks step order: starting or completing a step before its predecessor is done is refused
-unless a human passes `--allow-out-of-order "<reason>"`, which is logged in `decisions.order_overrides`.
-All existing review-integrity, code-validation, policy, preview and deployment approval checks still apply.
-Existing projects receive no automatic authorization or migration. No Azure deployment was tested for this
-documentation change; product regression tests use isolated synthetic lab evidence.
+- Original findings, severities, file hashes, and the `NEEDS_REVISION` verdict remain untouched; the gate transitions to `exception-authorized` only after `apex-recall check-gate` verifies Ed25519 signatures against an operator-pinned external `APEX_RISK_TRUST_CONFIG` and a separate human `risk-gate-approval-v1` is recorded.
+- An independent reviewer with a distinct principal signs `risk-eligibility-v1` for each finding. Applicable law, technical impossibility, failed deterministic validators, and deep-review or Step 1/2/3.5 blockers cannot be waived.
+- Kit-maintainer authorizations cover only `plan-complete`, `codegen`, and `code-complete`. Lab deployment requires a separate adopter `deployment-risk-owner` authorization binding exact `tenant_id`, `subscription_id`, `event_id`, `tree_hash`, cleanup owner, and teardown obligations. Production reuse is prohibited.
+- `apex-recall` also enforces step order, refusing out-of-order starts or completions unless an explicit `--allow-out-of-order "<reason>"` override is logged in `decisions.order_overrides`.
 
 ## Stage-by-stage walkthrough
 
@@ -246,7 +201,7 @@ should change. For example, a selected module version may lack a property requir
 by discovered policy. The correction belongs in module selection and policy
 mapping, not in a deployment-time exception.
 
-Use the [lesson schema](https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/tools/schemas/lesson-log.schema.json)
+Use the [lesson schema](https://github.com/jonathan-vella/apex/blob/7c195a1c8e06a5d0c3aa305d1870356e5829df92/tools/schemas/lesson-log.schema.json)
 for an actual record. An illustration is not evidence that a run occurred.
 
 <details>
@@ -298,90 +253,57 @@ or deployment.
 
 ### When there is no landing zone
 
-Record the absence of inherited controls and apply the current product defaults
-where permitted. Do not copy the historical four-tag fallback from an old example.
-The product's
-[repository instructions](https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/copilot-instructions.md)
-define the fallback. Failed discovery must not be treated as proof that policy is absent.
+Record the absence of inherited controls and apply the canonical greenfield defaults (including the lowercase 9-tag set when live policy defines no tag contract). Do not copy the deprecated four-tag PascalCase convention. See [`.github/copilot-instructions.md`](https://github.com/jonathan-vella/apex/blob/7c195a1c8e06a5d0c3aa305d1870356e5829df92/.github/copilot-instructions.md). Failed discovery never proves that policy is absent.
 
 ## Network planning
 
 ### Bring your own VNet vs. create new
 
-Establish whether the workload references an existing network or owns a new one.
-For an existing VNet, verify its resource ID, address space, required subnets, and
-permissions. Referencing a VNet does not authorize modifying platform-owned resources.
+Establish whether the workload references an existing network or provisions a new one. For an existing VNet, verify its resource ID, address space, required subnets, and permissions without modifying platform-owned resources. For a new VNet, plan non-overlapping CIDRs, subnet delegations, and routing using [`vnet-planning.md`](https://github.com/jonathan-vella/apex/blob/7c195a1c8e06a5d0c3aa305d1870356e5829df92/.github/skills/apex-azure-defaults/references/vnet-planning.md).
 
-For a new VNet, the plan must account for address ranges, subnet requirements,
-routing, and the approved connectivity model. Use the current
-[VNet planning reference](https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/skills/apex-azure-defaults/references/vnet-planning.md).
+### Hub-spoke and virtual WAN topologies
 
-### Hub-spoke and virtual wan topologies
-
-Identify who owns the hub, peering or Virtual WAN connection, routing, and firewall
-policy. Do not infer connectivity from the presence of a spoke VNet alone.
-Check the workload's intended traffic paths and return routes.
+Identify who owns the hub, peering or Virtual WAN connection, routing, and firewall policy. Do not infer connectivity from the presence of a spoke VNet alone; verify traffic paths and return routes.
 
 <span id="private-dns-zones--enumeration-and-reuse"></span>
 
 ### Private DNS zones, enumeration and reuse
 
-Verify the relevant zone IDs, links, permissions, and resolution from intended
-clients. Reuse central DNS only when its ownership and behavior are established.
-A zone-group policy does not prove that the DNS zone or VNet link exists.
-
-Do not create duplicate policy-owned DNS resources. If a required component is
-missing and policy prevents workload-side creation, escalate to the platform owner.
-The older proposed `private-dns-zone-baseline.json` inventory is not a shipped
-contract and must not be assumed to exist.
+Verify relevant private DNS zone IDs, VNet links, permissions, and name resolution. Reuse central DNS zones only when platform ownership and `DeployIfNotExists` (`DINE`) behavior are verified; avoid duplicate DNS zone creation when verified DINE policies already manage zone groups, and escalate to the platform team if neither workload-side creation nor DINE links resolve the endpoint.
 
 ### Recommended corp enforcement pattern
 
-Evaluate Deny and DeployIfNotExists assignments for their actual scope, parameters,
-managed identity permissions, deployment behavior, and remediation. A policy
-assignment alone is not proof that a private endpoint resolves or a network
-connection has been created.
-
-Read the [security baseline](/reference/security-baseline/) for private-networking
-requirements and the conditional monitoring exception.
+Evaluate `Deny` and `DeployIfNotExists` assignments for their actual scope, parameters, managed identity permissions, and remediation behavior. Read the [security baseline](/reference/security-baseline/) for private PaaS data-service requirements and the conditional Azure Monitor public ingestion allowance.
 
 <span id="appendix-a--artifact-contract-reference"></span>
 
-## Appendix a: artifact contract reference
+## Appendix A: artifact contract reference
 
-Use the [canonical workflow graph](https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/skills/apex-workflow-engine/templates/workflow-graph.json)
-and the [step guides](/concepts/workflow/#core-agents-by-workflow-step).
-Prefixes do not always match step numbers. Architecture produces
-`03-des-cost-estimate.md`; Plan produces the `04-` contracts; CodeGen produces
-`05-iac-handoff.json`.
+Use the [canonical workflow graph](https://github.com/jonathan-vella/apex/blob/7c195a1c8e06a5d0c3aa305d1870356e5829df92/.github/skills/apex-workflow-engine/templates/workflow-graph.json) and the [step guides](/concepts/workflow/#core-agents-by-workflow-step). Filename prefixes follow historical slots: Step 2 produces `03-des-cost-estimate.md`, Step 3.5 produces `04-governance-constraints.{md,json}`, Step 4 produces `04-*` contracts, and Step 5 produces `05-iac-handoff.json`.
 
 <span id="appendix-b--skill--step-matrix"></span>
 
-## Appendix b: skills by step
+## Appendix B: skills by step
 
-Consult the selected agent's body and the pinned
-[Explorer](/reference/architecture-explorer/) for skill references.
-Do not interpret a source reference as proof that a skill loaded at runtime.
+Consult each agent's `.agent.md` file and the [Architecture Explorer](/reference/architecture-explorer/) for skill relationships.
 
 <span id="appendix-c--instruction--trigger-matrix"></span>
 
-## Appendix c: instruction scope
+## Appendix C: instruction scope
 
-The [skills and instructions guide](/concepts/how-it-works/skills-and-instructions/)
-explains declared scope and attachment limits. Check the actual instruction file
-for its glob and requirements.
+See [skills and instructions](/concepts/how-it-works/skills-and-instructions/) for `applyTo` globs and precedence tiers.
 
 <span id="appendix-d--glossary"></span>
 
-## Appendix d: glossary
+## Appendix D: glossary
 
-Use the [glossary](/reference/glossary/) for shared terms.
+See the [glossary](/reference/glossary/) for definitions of APEX terms and contracts.
 
 <span id="appendix-e--further-reading"></span>
 
-## Appendix e: further reading
+## Appendix E: further reading
 
 - [Workflow engine and validation](/concepts/how-it-works/workflow-engine/)
 - [Session state debugging](/guides/session-debugging/)
 - [Security baseline](/reference/security-baseline/)
-- [April 2026 case study](/demo/)
+- [Showcases](/showcases/)

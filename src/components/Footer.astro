@@ -1,6 +1,6 @@
 ---
 // Custom Footer for APEX docs
-import DemoNavigationEnhancer from "./DemoNavigationEnhancer.astro";
+import ShowcaseNavigationEnhancer from "./ShowcaseNavigationEnhancer.astro";
 import BackToTop from "./BackToTop.astro";
 import review from "../../docs-review.json";
 import source from "../../apex-source.json";
@@ -10,7 +10,7 @@ const gitSha = (import.meta.env.PUBLIC_GIT_SHA || "").slice(0, 7);
 const buildDate = import.meta.env.PUBLIC_BUILD_DATE || "";
 ---
 
-<DemoNavigationEnhancer />
+<ShowcaseNavigationEnhancer />
 <BackToTop />
 
 <footer class="site-footer">

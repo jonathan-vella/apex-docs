@@ -8,11 +8,17 @@ tableOfContents:
 Quick reference for terms used throughout APEX documentation.
 
 **Jump to:** [A](#a) · [B](#b) · [C](#c) · [D](#d) ·
-[G](#g) · [H](#h) · [I](#i) · [J](#j) · [K](#k) · [M](#m) · [N](#n) ·
+[G](#g) · [H](#h) · [I](#i) · [J](#j) · [K](#k) · [L](#l) · [M](#m) · [N](#n) ·
 [O](#o) · [P](#p) · [S](#s) · [T](#t) · [U](#u) · [W](#w) · [Y](#y) ·
 [Numbers \& Symbols](#numbers--symbols)
 
 ## A
+
+### Action register
+
+Prioritized remediation deliverable (`04-assessment-action-register.md` and three-sheet Excel workbook `assets/04-assessment-action-register.xlsx`) generated from `contracts/assessment-action-register.json` during a standalone WAF assessment. Links each action to WAF and cost findings, effort, target windows, and recurring monthly additions, savings, and net change.
+
+See: [WAF assessment guide](/guides/waf-assessment/)
 
 ### Microsoft Entra ID (formerly Azure Active Directory / AAD)
 
@@ -121,16 +127,15 @@ closest to users. Azure CDN / Azure Front Door accelerate static asset delivery.
 
 ### Challenger
 
-`10-Challenger` is the optional interactive coordinator for manual adversarial
-review and repair. It is not an automatically invoked Orchestrator subagent.
-The owner-approved shared-review candidate uses the existing read-only
-`challenger-review-subagent` to return structured JSON findings for both automatic
-producers and optional manual reviews. The interactive owner records and validates
-the actual attributed task output. The final source revision and native runtime
-evidence remain pending. See
-[review finalization and recovery](/concepts/workflow/#review-finalization-and-recovery).
+`challenger-review-subagent` is the shared read-only structured JSON leaf invoked synchronously (`APEX_REVIEW` or hash-bound `APEX_REVIEW_FILE`) for mandatory and opt-in workflow reviews (`record-review.mjs` writes `challenge-findings-*.json`). `10-Challenger` is an optional human-selected main agent for manual review sessions.
 
-See: [.github/agents/10-challenger.agent.md](https://github.com/jonathan-vella/apex/blob/main/.github/agents/10-challenger.agent.md)
+See: [Review finalization and recovery](/concepts/workflow/#review-finalization-and-recovery)
+
+### Corp policy baseline
+
+Pinned Azure Landing Zones policy archive (`.github/data/alz-corp-policy-baseline.json.gz`) representing standard `root`, `landing_zones`, and `corp` archetypes under `corp-policy-v1`. Explicit owner acceptance (`apex-recall policy-source --assumed-corp`) supports Step 2 Architecture approval without Azure target IDs (`assumed_corp_not_tenant_verified`), while Step 4 completion, CodeGen, and deployment require `current` target-verified policy evidence.
+
+See: [Step 2 policy selection](/concepts/workflow/step-2/#choose-policy-evidence-before-architecture)
 
 ### Copilot Chat
 
@@ -257,6 +262,14 @@ troubleshooting and diagnostics.
 
 External: [KQL Reference](https://learn.microsoft.com/azure/data-explorer/kusto/query/)
 
+## L
+
+### Lab risk authorization
+
+Signed Ed25519 exception contract (`risk-envelope-v1` / `risk-authorization-v1` plus separate human `risk-gate-approval-v1`) verified against an operator-pinned `APEX_RISK_TRUST_CONFIG` for `non-production-lab` Step 4 Plan findings. Marks eligible gates `exception-authorized` while preserving the original `NEEDS_REVISION` verdict and findings unchanged; never applies to production.
+
+See: [Explicit lab risk acceptance](/concepts/workflow-deep-dive/#explicit-lab-risk-acceptance)
+
 ## M
 
 ### MCP (Model Context Protocol)
@@ -338,7 +351,7 @@ JSON-RPC, a lightweight RPC protocol encoded in JSON.
 A general iterative agent pattern based on the [RALPH pattern](https://ghuntley.com/ralph/).
 APEX production workflows retain human approval gates; this pattern does not authorize autonomous deployment.
 
-See: [Workflow Validation](../../guides/e2e-testing/)
+See: [Validation reference](../validation-reference/#migrate-from-the-retired-harness)
 
 ## S
 
@@ -393,13 +406,21 @@ workflow automation, and troubleshooting categories.
 
 See: [.github/skills/](https://github.com/jonathan-vella/apex/tree/main/.github/skills)
 
+### SKU manifest
+
+Per-project artifact (`agent-output/{project}/sku-manifest.{json,md}`) serving as the single source of truth for creative Azure SKU choices across environments and regions (`user-pin`, `observed-current`, `architect-derived`, and `deploy-substitute`).
+
+See: [SKU manifest](../../concepts/how-it-works/sku-manifest/)
+
+### Standalone WAF assessment
+
+Dedicated `workflow_mode=assessment` profile invoked via `/waf-assess-existing` in `01-Orchestrator`. Evaluates live read-only Azure subscriptions (`azure`), local IaC and diagrams (`iac`), or both (`combined`) under `evidence_only` or `requirements_led` discovery, delivering a five-pillar WAF report, existing-state diagram, Cost Management report with visual charts (`assessment-bundle-v3`), and prioritized Action Register before terminating without Governance or deployment.
+
+See: [WAF assessment guide](/guides/waf-assessment/)
+
 ### Subagent
 
-A helper called by an allowed parent for a bounded task such as validation, pricing,
-or preview. The pinned Explorer lists its source revision's inventory.
-`10-Challenger` is an optional human-selected main agent, not a helper. The
-shared-review candidate adapts `challenger-review-subagent` into the read-only
-structured JSON helper used by automatic and optional manual review owners.
+A stateless leaf helper under `.github/agents/_subagents/` invoked by an authorized parent agent for bounded pricing (`cost-estimate-subagent`), lint/preview (`bicep-*`, `terraform-*`), policy precheck (`policy-precheck-subagent`), or structured review (`challenger-review-subagent`). Leaf subagents never prompt the user or delegate further.
 
 See: [.github/agents/\_subagents/](https://github.com/jonathan-vella/apex/tree/main/.github/agents/_subagents)
 

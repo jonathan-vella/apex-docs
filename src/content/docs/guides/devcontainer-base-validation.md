@@ -38,11 +38,9 @@ compares:
 | Baseline | Base image from the pull request's target commit | arm64 |
 | Candidate | Base image from the pull request branch | arm64 |
 
-The host runners are GitHub-hosted Linux machines. The base image under test is the operating system inside the dev
-container. This separation tests the same container boundary contributors use locally.
+The host runners are GitHub-hosted Linux machines, and the base image under test is the Azure Linux 4 container environment inside `.devcontainer/`. Because hosted CI has no authenticated corporate package feed ([jonathan-vella/apex#794](https://github.com/jonathan-vella/apex/issues/794)), workflow jobs install from the default public registries (`registry.npmjs.org` and `pypi.org`), whereas Microsoft maintainers use the corporate CFS host launchers (`open-microsoft.ps1` / `open-microsoft.sh`) on local dev boxes.
 
-Each matrix leg creates an untracked, repo-relative validation config. The tracked
-`.devcontainer/devcontainer.json` is never rewritten by a workflow step.
+Each matrix leg creates an untracked, repo-relative validation config. The tracked `.devcontainer/devcontainer.json` is never rewritten by a workflow step.
 
 ## Manual validation
 
@@ -106,6 +104,6 @@ base-image incompatibility.
 
 ## Related
 
-- [Dev Container Hygiene](../devcontainer-hygiene/). maintain a focused contributor environment
-- [Validation & Linting](../../reference/validation-reference/). understand repository validation commands
-- [Troubleshooting](../troubleshooting/). diagnose local and workflow failures
+- [Dev container hygiene](../devcontainer-hygiene/) for maintaining a lean contributor workspace
+- [Validation reference](../../reference/validation-reference/) for repository validation commands
+- [Troubleshooting](../troubleshooting/) for diagnosing local and workflow failures

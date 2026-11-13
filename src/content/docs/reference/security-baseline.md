@@ -7,9 +7,7 @@ Apply the product's security defaults together with effective Azure Policy and
 approved requirements. Source validation checks specific patterns; reviews and
 runtime evidence cover requirements that source scans cannot establish.
 
-The [pinned baseline](https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/instructions/references/iac-security-baseline.md)
-is the behavioral reference. Required adversarial reviews use the human-selected
-`10-Challenger` agent, not a Challenger subagent.
+The [pinned security baseline](https://github.com/jonathan-vella/apex/blob/7c195a1c8e06a5d0c3aa305d1870356e5829df92/.github/instructions/references/iac-security-baseline.md) and [policy compliance reference](https://github.com/jonathan-vella/apex/blob/7c195a1c8e06a5d0c3aa305d1870356e5829df92/.github/instructions/references/iac-policy-compliance.md) are the authoritative rules for `03-Architect`, `05-IaC Planner`, CodeGen, and `validate:iac-security-baseline`. Mandatory semantic reviews run through `challenger-review-subagent` (with `10-Challenger` available for optional manual sessions).
 
 ## Rules
 
@@ -27,30 +25,14 @@ is the behavioral reference. Required adversarial reviews use the human-selected
 
 ## Private networking
 
-PaaS data services use private endpoints and disabled public access in every
-environment, including development, except for the Azure Monitor case below.
-App Service APIs must be private. App Service hosting a public-facing web application may use public HTTPS ingress;
-the remaining identity and security controls still apply. VNet integration is outbound connectivity, not an
-inbound private endpoint. Unsupported services or incompatible SKUs require an explicit design decision,
-not a silent public fallback.
+PaaS data services (`Storage`, `SQL`, `PostgreSQL`, `MySQL`, `Cosmos DB`, `Key Vault`, `Container Registry`, `Redis`, `Service Bus`, `Event Hubs`) require private endpoints and disabled public network access (`publicNetworkAccess: 'Disabled'` / `public_network_access_enabled = false`) in every environment, including development.
 
-Log Analytics and workspace-based Application Insights may use authenticated
-public query and ingestion endpoints when effective policy and approved requirements
-allow them. Record query and ingestion settings separately. Retain HTTPS/TLS,
-Entra query authentication, least-privilege access, supported authenticated ingestion,
-and local-auth controls.
+Two explicit service distinctions apply:
 
-This exception does not apply to Storage, SQL, Key Vault, ACR, or other data services.
-Require Azure Monitor Private Link Scope when policy or approved isolation
-requirements demand private monitoring. Plan its scoped resources, endpoints, DNS,
-and client connectivity before disabling public endpoints. Do not silently relax
-existing private-only requirements.
+- **App Service web frontends vs. APIs.** App Service APIs must remain private. App Service instances hosting a public-facing web application may use public HTTPS ingress when isolated in a dedicated Web App module (`--public-web-app`), while retaining TLS 1.2, HTTP/2, Managed Identity, and VNet outbound integration.
+- **Log Analytics and workspace-based Application Insights.** Authenticated public query and ingestion endpoints are permitted when effective Azure Policy and approved workload requirements allow them (recording query and ingestion flags separately while keeping HTTPS/TLS, Microsoft Entra ID authentication, and disabled local auth). Azure Monitor Private Link Scope (`AMPLS`) is required when policy or approved isolation requirements mandate private-only monitoring, not by default.
 
-Private DNS resolution is mandatory. Project IaC provisions DNS unless verified central infrastructure or an
-effective DeployIfNotExists policy owns the specific components. Check assignment scope, parameters, zone IDs,
-permissions, deployment behavior and remediation before omitting those components. A zone-group policy does not
-prove the DNS zone or VNet link exists. Do not duplicate policy-owned DNS; verify resolution from intended clients.
-See [DINE evaluation][dine] and [private endpoint DNS][private-dns].
+Private DNS resolution is mandatory for every private endpoint. Project IaC provisions private DNS zones, VNet links, and DNS zone groups unless verified central platform infrastructure or an effective `DeployIfNotExists` (`DINE`) policy owns those exact components. Verified DINE ownership avoids deploying duplicate DNS zones; it never waives DNS resolution itself. Verify assignment scope, parameters, zone IDs, managed identity permissions, and client resolution before omitting workload DNS modules. See [DINE policy evaluation][dine] and [private endpoint DNS][private-dns].
 
 > **WAF pillar key**: SE:05 = Identity & access, SE:06 = Network security, SE:07 = Encryption.
 

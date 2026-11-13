@@ -1,31 +1,52 @@
 ---
 title: "Get started"
-description: "Create a workload repository, open the supported development environment, and start Requirements."
+description: "Choose how to start with APEX: assess an existing Azure workload, deliver regulated Bicep or Terraform infrastructure, or run the hands-on MicroHack."
 sidebar:
   order: 0
 ---
 
 import { CardGrid, LinkCard } from "@astrojs/starlight/components";
 
-Start with the quickstart. Use the container guide for setup details. Azure automation
-setup is a separate administrative task, not a prerequisite for reading or drafting requirements.
+Pick the path that matches your goal. You can assess local IaC or draft architecture against shared policy assumptions before connecting an Azure subscription.
+
+## Choose your path
 
 <CardGrid>
   <LinkCard
-    title="Quickstart"
-    description="Use the template, open the dev container, and run your first agent."
+    title="1. Assess an existing workload"
+    description="Run a read-only Azure or offline IaC Well-Architected Framework review, cost report, topology diagram, and action register."
+    href="/guides/waf-assessment/"
+  />
+  <LinkCard
+    title="2. Deliver regulated infrastructure"
+    description="Create a repository from the Accelerator template, open the dev container, and run the gated Bicep or Terraform delivery workflow."
     href="/getting-started/quickstart/"
   />
   <LinkCard
-    title="Azure Setup"
-    description="Provision the Entra ID app registration, OIDC federation, and GitHub secrets."
-    href="/getting-started/azure-setup/"
+    title="3. Run the hands-on MicroHack"
+    description="Complete the guided team challenges for governance, architecture, deployment, and diagnostics."
+    href="https://microhack.apexops.pro/"
   />
   <LinkCard
-    title="Dev Container Setup"
-    description="Configure Windows, WSL2, and the container; review optional authentication."
-    href="/getting-started/dev-containers/"
+    title="Explore showcases"
+    description="Inspect real artifacts from a standalone WAF assessment and a regulated Bicep delivery run."
+    href="/showcases/"
   />
 </CardGrid>
 
-Once setup is complete, head to the [Workflow](/concepts/workflow/) to walk the agentic Steps 1–7.
+## Environment and cloud setup
+
+<CardGrid>
+  <LinkCard
+    title="Dev container setup"
+    description="Configure Docker Desktop, WSL2, optional Microsoft CFS package feeds, and GitHub authentication."
+    href="/getting-started/dev-containers/"
+  />
+  <LinkCard
+    title="Azure setup"
+    description="Match Azure permissions to your workflow mode, or configure OIDC federation and GitHub environments for CI."
+    href="/getting-started/azure-setup/"
+  />
+</CardGrid>
+
+Once your environment is ready, read the [workflow overview](/concepts/workflow/) for step boundaries, independent reviews, and human approval gates.

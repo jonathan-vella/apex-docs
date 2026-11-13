@@ -1,140 +1,70 @@
 ---
 title: "Workflow engine and validation"
-description: "Understand step dependencies, human approvals, state recovery, and the limits of automated checks."
+description: "Understand workflow DAG routing, apex-recall state transitions, Challenger sidecar enforcement, and Lefthook vs. retired Copilot hooks."
 ---
 
 ## Workflow engine
 
-### The dag model
+### The DAG model
 
-The [workflow graph](https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/skills/apex-workflow-engine/templates/workflow-graph.json)
-defines the main steps, dependencies, output contracts, review defaults, and
-return paths. It describes valid progression, not an autonomous scheduler.
-The domain graph and its artifact contracts survive the
-[current agent-body migration](/concepts/how-it-works/agents/#current-agent-body-migration).
-Removing UI handoff metadata does not remove graph edges or their approval gates.
+The machine-readable [workflow graph](https://github.com/jonathan-vella/apex/blob/7c195a1c8e06a5d0c3aa305d1870356e5829df92/.github/skills/apex-workflow-engine/templates/workflow-graph.json) defines two execution profiles:
 
-Use [Run the workflow](/concepts/workflow/) for the reader-facing sequence.
-Product changes to the graph, agent definitions, or skills require their own
-review and validation. Editing project state is not a way to customize the graph.
+- **Delivery DAG (`practical-v1` default).** Connects Step 1 Requirements, Step 2 Architecture, optional Step 3 Design, Step 3.5 Governance, Step 4 IaC Plan, Step 5 CodeGen, Step 6 Deploy, Step 7 As-Built, and Post-Lessons, including return edges (such as `step-6b -> step-5b` or `step-N -> step-2`) when downstream validation or quota checks uncover upstream conflicts.
+- **Standalone assessment DAG (`workflow_mode=assessment`).** Routes `scope` -> optional `requirements` -> `evidence` -> `analysis` -> `diagram` -> `review` -> `acceptance` -> `terminal` (`apex-recall assessment <project> --action start|advance|revise|accept|adopt`) without entering Governance, IaC planning, or deployment.
+
+See [Run the workflow](/concepts/workflow/) for step-by-step inputs and outputs.
 
 ### Gates and approval points
 
-The human approves requirements, architecture and cost, governance constraints,
-and the implementation plan. Code validation precedes deployment, and explicit
-apply authorization is still required. After deployment, inspect the actual
-resources and health checks before accepting the as-built record.
+`apex-recall complete-step` and `apex-recall transition --complete` enforce Challenger sidecar gates at runtime (exiting with code `2` when required `challenge-findings-*.json` files are missing, stale against disk hashes, mismatched on lens, or hold unresolved `must_fix` findings). Step 2 enforces both `comprehensive` architecture and separate `cost-feasibility` reviews, and rejects leftover `*.tmp.md` or `FAILED` cost files (`step2_residue`).
 
-Review defaults differ by step. In particular, Architecture has a separate
-cost-estimate review, Governance has reconciliation, and Deploy has no Challenger
-review. See the [review matrix](/concepts/workflow/#adversarial-review-matrix).
-
-If a gate fails, return to the owning step and resolve its evidence. A retained
-artifact can still be stale after an upstream decision changes.
+Human approval gates remain mandatory at every delivery stage transition, at Step 6 cloud deployment, and at final bundle acceptance for standalone WAF assessments.
 
 ### Native tasks and questions
 
-Select a main agent directly when you want it to ask and resolve material
-questions. Requirements, Architect, Design, and Governance retain their native
-question tools. A delegated main worker returns `USER_INPUT_REQUIRED`, including
-`request_id`, `phase`, `message`, `requestedSchema.properties`, and missing
-inputs, to its interactive parent instead. Leaves never ask users or delegate.
+Interactive step owners ask missing material questions through native `ask_user` when directly selected, or return `USER_INPUT_REQUIRED` (`message` plus `requestedSchema.properties`) when delegated by `01-Orchestrator`.
 
-Use the native task result and lifecycle available in that session. Continue an
-asynchronous task only through a handle that actually supports same-task
-continuation. A one-shot task returns its result; it does not promise a resumable
-worker. Neither model selection nor a static tool list proves permission isolation.
-
-The source migration removes worker-ready, nonce, `WORKER_EXECUTE`, mandatory
-verifier, and log-preflight rituals from active bodies and shared caller guidance.
-Historical diagnostic readers remain. Production independent review receipts,
-`record-review` attribution, and freshness validation still apply.
-
-For independent review, the owner-approved October 19 candidate adapts the
-existing `challenger-review-subagent` into one read-only structured JSON leaf.
-Automatic producers, authorized Orchestrator calls, and optional manual
-`10-Challenger` reviews use the same synchronous native `APEX_REVIEW` task
-contract. The interactive owner captures metadata and records the actual
-attributed output centrally, then validates schema, freshness, and provenance.
-Review budgets, lenses, step gates, security requirements, and owner approvals
-are unchanged. Final source and native runtime evidence remain pending. See
-[review finalization and recovery](/concepts/workflow/#review-finalization-and-recovery).
+Independent reviews invoke the shared read-only `challenger-review-subagent` synchronously with no model or effort overrides, passing inline `APEX_REVIEW` JSON or a hash-bound `APEX_REVIEW_FILE` envelope (`request_path` plus `request_sha256` verified on disk by `record-review.mjs`). When two lenses share a frozen snapshot (such as Step 2 or standalone assessment WAF and cost-feasibility reviews), `review-audit ... --attempt-outcome started` is recorded sequentially before parallel `task` dispatch, and `record-review.mjs` writes complete sequentially afterward so state updates never contend on `00-session-state.json.lock`.
 
 ### IaC routing
 
-Requirements records the chosen Bicep or Terraform track. Step 4 uses the shared
-`05-IaC Planner`. Steps 5 and 6 select the matching CodeGen and Deploy agents.
-Do not invent separate Step 4 agents or activate both tracks implicitly.
+Step 1 records `decisions.iac_tool` (`bicep` or `terraform`). Step 4 runs the shared `05-IaC Planner`, and Steps 5 and 6 route to `06b-Bicep CodeGen` / `07b-Bicep Deploy` or `06t-Terraform CodeGen` / `07t-Terraform Deploy`.
 
 ### Session state and resume
 
-Use `apex-recall show <project> --json` to inspect state. It reads primary state
-without restoring backups. Participating writers use locks and revision checks.
-Primary replacement and index updates are separate operations, so a write can
-commit while leaving the index stale.
+All session state flows through `apex-recall`:
 
-The [public state contract](https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/tools/apex-recall/docs/show-schema.md)
-defines conflicts, idempotent retries, and authorized recovery. These mechanisms
-do not lock arbitrary editors or guarantee a multi-file transaction.
-
-Reopening a completed step with `start-step --force` marks the steps that depend on
-it as `stale` and sets `plan_status` to `SUPERSEDED` when a Plan approval rested on
-it. A stale step must be completed again in order before the next step can start.
-See [Reopen a completed step](/guides/session-debugging/#reopen-a-completed-step).
+- Prefer `apex-recall transition <project> --from-step <s> --to-step <t> --complete --decision key=value --json` to bundle step completion, Challenger gate verification, decision recording, and next-step entry into one atomic write.
+- Use `apex-recall show <project> --json` and `apex-recall handoff <project> --json` to inspect current checkpoints, `blocked_prerequisites`, `review_cycles`, and exact resume commands. See [`show-schema.md`](https://github.com/jonathan-vella/apex/blob/7c195a1c8e06a5d0c3aa305d1870356e5829df92/tools/apex-recall/docs/show-schema.md).
+- Reopening an earlier step with `start-step --force` marks dependent downstream steps `stale` and sets `plan_status` to `SUPERSEDED` so stale artifacts must be re-verified in order. See [session debugging](/guides/session-debugging/#reopen-a-completed-step).
 
 ### Session break protocol
 
-Before starting a new chat, retain the handoff, current decisions, relevant
-artifacts, and unresolved findings. Select the appropriate main agent in the
-new session and inspect current evidence. Do not assume the old conversation
-contains everything needed to resume safely.
-Retain `00-handoff.md` even though active definitions omit `handoffs:` metadata.
-Use a native task result or explicitly select the next named agent, not an assumed
-handoff button. A question answer does not independently authorize the transition.
-
-For damaged state, follow [session recovery](/guides/session-debugging/).
+When ending or switching chats, `00-handoff.md` and `apex-recall` preserve project context on disk. In a new VS Code Copilot Chat window, select `01-Orchestrator` and send `resume <project>` (or run `/apex-workflow-start resume <project>`). Never edit `00-session-state.json` directly.
 
 ## Quality and safety systems
 
 ### Validation scripts
 
-Product validators check artifact structure, agent and skill definitions,
-governance contracts, IaC, and source metadata. The
-[validation reference](/reference/validation-reference/) identifies the relevant
-commands. Use the product's `package.json` for its current command inventory.
+Node and Python validators enforce artifact H2 templates, JSON schemas, agent/skill contracts, question batching, governance property maps, SKU manifest coverage, and the IaC security baseline. See the [validation reference](/reference/validation-reference/) for the full catalog.
 
-The apex-docs build, link checks, and browser tests validate this website instead.
-A passing website build is not an infrastructure validation result.
+<span id="git-hooks-pre-commit-and-pre-push"></span>
 
-### Git hooks (pre-commit and pre-push)
+### Git hooks
 
-The product uses lefthook to run checks on staged changes and before a push.
-Read the configured hooks for their actual scope. Hooks are not proof that all
-changes were scanned, especially when tools are missing or a commit bypasses hooks.
+Git Lefthook runs local `pre-commit` checks (`gitleaks` secret scanning, `artifact-validation`, safe-shell, and lint checks), `commit-msg` Conventional Commit validation, and `pre-push` diff-based validators (`diff-based-push-check.sh`) before code leaves your workstation.
 
 ### Circuit breaker
 
-Repeated failures should stop work and preserve diagnostic evidence. Follow the
-owning agent's retry and escalation rules. Do not use a generic retry count or
-waiting period as permission to repeat a failed cloud mutation.
-
-Unavailable or empty review output does not satisfy a required review. Use the
-declared recovery path and human handoff rather than inventing an inline approval.
+Deploy agents cap automated error recovery at bounded retries (default 3 attempts) and halt immediately on Azure Policy denials, quota conflicts, or missing authorization, surfacing structured diagnostics to the operator instead of looping or substituting SKUs silently.
 
 ### Context compression
 
-The `apex-context-management` skill describes selective loading and summarization.
-Read the necessary artifact sections and keep decision evidence available.
-Do not describe estimated context percentages as measured runtime guarantees.
-
-A short summary cannot replace the exact input coverage required by a validator
-or reviewer. Skills and runtime artifact summaries serve different purposes.
+The `apex-context-management` skill defines runtime compression rules (`full`, `summarized`, `minimal`) when passing upstream Markdown context to downstream agents while keeping JSON contracts (`sku-manifest.json`, `04-governance-constraints.json`, `04-iac-contract.json`) intact and uncompressed.
 
 ### Copilot hooks
 
-The owner intentionally deleted APEX `.github/hooks/` runtime hooks in the
-October 18 migration. `tool-guardian` and `subagent-validation` are historical,
-not active protections or setup requirements. Do not restore or replace them.
-Native tool restrictions do not establish equivalent protection; verify their
-permission boundaries separately. Git Lefthook and CI remain separate.
-See the [runtime-hook retirement record](/guides/hooks/).
+APEX runtime chat hooks under `.github/hooks/` (`tool-guardian`, `subagent-validation`, and `hooks.json`) were permanently retired and deleted during the transition to the VS Code Copilot target. Do not recreate `.github/hooks/` or add regex command-interception hooks during setup:
+
+- Regex chat hooks cannot provide real credential or cloud-permission isolation, and native tool allowlists in `.agent.md` frontmatter are authoring metadata rather than a security sandbox.
+- Active deterministic enforcement lives in `apex-recall` step and Challenger sidecar gates, `record-review.mjs` provenance checks, repository validators (`npm run validate:all`), `azd` lifecycle hooks inside workload `azure.yaml` files, Git Lefthook (`pre-commit` `gitleaks` and `pre-push` checks), and GitHub Actions CI workflows.

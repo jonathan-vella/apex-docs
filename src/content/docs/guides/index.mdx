@@ -1,69 +1,63 @@
 ---
 title: "Guides"
-description: "Task-oriented guides for prompting, debugging, deploying, and operating APEX."
+description: "Task-oriented guides for running WAF assessments, prompting agents, deploying with azd, updating projects, and debugging state."
 sidebar:
   order: 0
 ---
 
 import { CardGrid, LinkCard } from "@astrojs/starlight/components";
 
-Use these guides for prompting, diagnosis, deployment, and contributor maintenance.
-Read [Concepts](/concepts/) for workflow ownership and [Reference](/reference/) for contracts.
+Use these guides for day-to-day workflows, deployment setup, and troubleshooting. Read [Concepts](/concepts/) for architecture and step contracts, [Reference](/reference/) for baselines and validators, and [Showcases](/showcases/) for complete sample artifacts.
 
 <CardGrid>
   <LinkCard
-    title="WAF Assessment"
-    description="Run a standalone Well-Architected Framework assessment for an existing workload using evidence-only or requirements-led discovery."
+    title="WAF assessment guide"
+    description="Copy a variable-based starter prompt to run a standalone Azure WAF review, cost report, topology diagram, and action register."
     href="/guides/waf-assessment/"
   />
   <LinkCard
     title="Updating APEX"
-    description="Compare source versions and review upstream changes without losing project customizations."
+    description="Compare your repository with the reviewed APEX and Accelerator commits and merge upstream sync updates safely."
     href="/guides/updating-apex/"
   />
   <LinkCard
-    title="Prompt Guide"
-    description="Author and reuse effective prompts."
+    title="Prompt guide"
+    description="Select the right agent or skill and structure scoped workflow prompts."
     href="/guides/prompt-guide/"
   />
   <LinkCard
-    title="Troubleshooting"
-    description="Diagnose common Bicep, Terraform, and azd deployment errors."
-    href="/guides/troubleshooting/"
-  />
-  <LinkCard
-    title="Session Debugging"
-    description="Inspect project state, handle conflicts, and recover with explicit authorization."
-    href="/guides/session-debugging/"
-  />
-  <LinkCard
-    title="azd Deployment"
-    description="Use the approved deployment method without bypassing APEX gates."
+    title="azd deployment"
+    description="Provision and deploy per-project infrastructure with Azure Developer CLI inside APEX gates."
     href="/guides/azd-deployment/"
   />
   <LinkCard
-    title="Security Baseline"
-    description="Apply security defaults, policy, and service-specific networking rules."
-    href="/reference/security-baseline/"
+    title="Troubleshooting"
+    description="Diagnose agent discovery, MCP, Azure Policy, Bicep, Terraform, and dev container errors."
+    href="/guides/troubleshooting/"
   />
   <LinkCard
-    title="Cost Governance"
-    description="Manage budgets, alerts, and cost-aware sizing."
-    href="/reference/cost-governance/"
+    title="Session state debugging"
+    description="Inspect apex-recall handoffs, resolve lock or stale-step blockers, and recover state safely."
+    href="/guides/session-debugging/"
   />
   <LinkCard
-    title="Dev Container Hygiene"
-    description="Reduce context-window bloat in the dev container."
+    title="Debug log export"
+    description="Export redacted VS Code Copilot session bundles for diagnostics and token profiling."
+    href="/guides/apex-debug-log-export/"
+  />
+  <LinkCard
+    title="Dev container hygiene"
+    description="Keep VS Code Copilot context lean by blocking unwanted extension customizations."
     href="/guides/devcontainer-hygiene/"
   />
   <LinkCard
-    title="Dev Container Base Validation"
-    description="Compare a candidate base image with the baseline on native amd64 and arm64 runners."
+    title="Dev container base validation"
+    description="Validate candidate container base images across native amd64 and arm64 runners."
     href="/guides/devcontainer-base-validation/"
   />
   <LinkCard
-    title="Workflow Validation"
-    description="Run focused contract tests and human-reviewed workflow acceptance."
-    href="/guides/e2e-testing/"
+    title="Validation reference"
+    description="Run repository validators, focused contract suites, Lefthook checks, and manual acceptance."
+    href="/reference/validation-reference/"
   />
 </CardGrid>

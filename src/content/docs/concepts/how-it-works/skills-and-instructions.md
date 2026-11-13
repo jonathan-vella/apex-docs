@@ -5,18 +5,11 @@ description: "How skills and instructions guide agents"
 
 ## Skills system
 
-Repository skill names and directories use exactly one `apex-` prefix, including
-imported skills. Explicit integrations must use the new names: `azure-defaults`
-becomes `apex-azure-defaults`. There are no old-name compatibility wrappers.
-Agent names, public npm commands, instruction filenames, upstream identities,
-and externally installed skills are unchanged. See the
-[complete migration map and provenance][skill-migration].
-
-[skill-migration]: https://github.com/jonathan-vella/apex/blob/main/tools/tests/exec-plans/active/apex-workflow-audit.md#skill-merger-and-retirement-plan
+Repository skill names and directories under [`.github/skills/`](https://github.com/jonathan-vella/apex/tree/7c195a1c8e06a5d0c3aa305d1870356e5829df92/.github/skills) use a single `apex-` prefix (`apex-azure-defaults`, `apex-workflow-engine`, and so on). There are no unprefixed compatibility aliases.
 
 ### Skill structure
 
-Each skill follows a standard layout:
+Each skill follows a single-tier layout:
 
 ```text
 .github/skills/{name}/
@@ -30,55 +23,30 @@ Each skill follows a standard layout:
 
 ### Progressive loading
 
-Skills use discovery metadata (`name` and `description`), then the full `SKILL.md`
-when selected, then references or templates only when needed. There is no alternate
-digest skill tier. Runtime artifact compression is a separate context-management concern.
+Agents discover skills through YAML frontmatter (`name` and `description`), load `SKILL.md` on demand, and read `references/*.md` or `templates/*` only when `SKILL.md` directs them to a specific file. There is no digest or minimal skill tier; runtime artifact compression is handled separately by `apex-context-management`.
 
 ### Invocation and harness boundaries
 
-`user-invocable` defaults to `true`; `disable-model-invocation` defaults to `false`.
-A hidden skill is absent from the slash menu. A manual-only skill cannot be selected
-automatically by the model. These flags do not authorize tools or bypass human gates.
+`user-invocable` defaults to `true`, and `disable-model-invocation` defaults to `false`. Skills inherit the calling agent's model and tools without changing role permissions or bypassing human gates.
 
-Local prompt files are adapters, not Agent Host entry points. Host manual entries include
-`apex-host-workflow-start`, `apex-host-git-commit`, and `apex-host-debug-log-export`.
-Select the owning agent first; skills inherit its model/tools. Workflow recovery uses
-`apex-host-workflow-start` with an explicit `resume` operation. Source validation and
-model labels do not prove native discovery, runtime attachment, or model eligibility.
+In the VS Code **Copilot** session target, legacy Local slash-adapter `.prompt.md` files are retired except `/waf-assess-existing` (`.github/prompts/waf-assess-existing.prompt.md`). User-invocable entry skills include `/apex-workflow-start` (start or `resume <project>`), `/apex-github-operations` (`gh` CLI-first GitHub workflows), and `/apex-debug-log-export` (privacy-redacted debug bundle export).
 
 ### Skill catalog
 
-The [Architecture Explorer](/reference/architecture-explorer/) lists skills from
-the product revision pinned by this site. Inspect `.github/skills/*/SKILL.md` in
-your own checkout for its installed inventory. The following groups are examples,
-not an automatically updated catalog:
+The [Architecture Explorer](/reference/architecture-explorer/) displays every skill from the pinned APEX commit. Inspect `.github/skills/*/SKILL.md` in your checkout for its installed set:
 
-| Domain               | Skills                                                                                                                                                                                                            |
-| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Azure Infrastructure | `apex-azure-defaults`, `apex-azure-bicep-patterns`, `apex-terraform-patterns`, `apex-azure-validate`                                                                                                                                  |
-| Azure Operations     | `apex-azure-diagnostics`, `apex-azure-adr`, `apex-azure-deploy`                                                                                                                                                                  |
-| Diagram & Chart      | `apex-python-diagrams`, `apex-mermaid`                                                                                                                                                                                      |
-| Artefact Generation  | `apex-azure-artifacts`, `apex-context-management`                                                                                                                                                                           |
-| Workflow and State   | `apex-workflow-engine`, `apex-golden-principles`                                                                                                                                                                            |
-| Deployment           | `apex-iac-common`                                                                                                                                                                                                      |
-| GitHub Operations    | `apex-github-operations`                                                                                                                                                                                               |
-| Terraform Tooling    | `apex-terraform-search-import`, `apex-terraform-test`                                                                                                                                                                       |
-| Azure Plugin Skills  | `apex-azure-prepare`, `apex-azure-cost-optimization`, `apex-azure-compute`, `apex-azure-compliance`, `apex-azure-rbac`, `apex-azure-storage`, `apex-azure-kusto`, `apex-azure-quotas`, `apex-azure-resources`, `apex-azure-cloud-migrate`, `apex-entra-app-registration`, `apex-azure-kubernetes`, `apex-azure-reliability`, `apex-azure-upgrade` |
-| Microsoft Learn      | `apex-microsoft-docs`                                                                                                                                                                                                  |
-| Meta / Tooling       | `apex-agent-authoring`, `apex-context-management`                                                                                                                                                                           |
+| Domain | Skills |
+| --- | --- |
+| Azure Infrastructure and Governance | `apex-azure-defaults`, `apex-azure-governance-discovery`, `apex-azure-bicep-patterns`, `apex-terraform-patterns`, `apex-azure-validate` |
+| Azure Operations and Decisions | `apex-azure-diagnostics`, `apex-azure-adr`, `apex-azure-deploy`, `apex-iac-common` |
+| Diagrams and Charts | `apex-python-diagrams`, `apex-mermaid` |
+| Artifacts and Context | `apex-azure-artifacts`, `apex-context-management`, `apex-debug-log-export` |
+| Workflow and Principles | `apex-workflow-engine`, `apex-workflow-start`, `apex-golden-principles` |
+| GitHub and Terraform Tooling | `apex-github-operations`, `apex-terraform-search-import`, `apex-terraform-test` |
+| Azure Workload Analysis | `apex-azure-prepare`, `apex-azure-cost-optimization`, `apex-azure-compute`, `apex-azure-compliance`, `apex-azure-rbac`, `apex-azure-storage`, `apex-azure-kusto`, `apex-azure-quotas`, `apex-azure-resources`, `apex-azure-cloud-migrate`, `apex-entra-app-registration`, `apex-azure-kubernetes`, `apex-azure-reliability`, `apex-azure-upgrade`, `apex-microsoft-docs` |
+| Authoring and Prose Quality | `apex-agent-authoring`, `apex-vendor-prompting`, `apex-unslop` |
 
-`apex-docs-writer` was archived when documentation moved to apex-docs. Follow this
-site's [writing guide](/project/style-guide/) and explicit Unslop review instead.
-`apex-agent-authoring` owns product customization assessments.
-`apex-context-management` retains context audits, log export, and runtime compression;
-`apex-workflow-engine` retains entry, recovery, and DAG routing.
-
-For the authoritative
-list of VS Code Copilot customization mechanisms (instructions, prompt
-files, custom agents, agent skills, MCP servers, hooks, plugins) see
-[`.github/copilot-instructions.md`](https://github.com/jonathan-vella/apex/blob/main/.github/copilot-instructions.md)
-and the per-mechanism files under
-[`.github/instructions/`](https://github.com/jonathan-vella/apex/tree/main/.github/instructions).
+For workspace-wide VS Code Copilot rules, see [`.github/copilot-instructions.md`](https://github.com/jonathan-vella/apex/blob/main/.github/copilot-instructions.md) and [`.github/instructions/`](https://github.com/jonathan-vella/apex/tree/main/.github/instructions).
 
 ## Instruction system
 
@@ -105,7 +73,6 @@ duplicating every glob; exact patterns live in `.github/instructions/*.instructi
 | `lesson-collection`            | Orchestrator agent definitions                                   | Production lesson collection protocol                          |
 | `agent-skills`                 | `**/.github/skills/**/SKILL.md`                                  | Skill file format standards                                    |
 | `instructions`                 | `**/*.instructions.md`                                           | Meta: instruction file guidelines                              |
-| `prompt`                       | `**/*.prompt.md`                                                 | Prompt file guidelines                                         |
 | `context-optimization`         | Agents, skills, instructions                                     | Context window management rules                                |
 | `no-interactive-shell`         | Chat-loaded agents, skills, instructions, prompts, and root docs | No interactive prompts, bounded terminal output                |
 | `docs-trigger`                 | Agents, skills, and `tools/scripts/*.mjs`                        | Required product documentation updates                         |
@@ -259,7 +226,7 @@ when discovery does not provide it.
 
 :::tip[Further reading]
 
-- [Core concepts](../four-pillars/)
+- [How APEX works](../)
 - [Agent architecture](../agents/)
 - [Workflow engine and validation](../workflow-engine/)
 - [MCP integration](../mcp-integration/)

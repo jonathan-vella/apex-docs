@@ -1,87 +1,107 @@
 ---
 title: "How APEX works"
-description: "Understand the workflow owners, evidence, and approval boundaries behind APEX."
+description: "Understand the four core building blocks, evidence contracts, and human approval boundaries behind APEX."
 ---
 
 import { CardGrid, LinkCard } from "@astrojs/starlight/components";
 
 ## Executive summary
 
-APEX guides Azure infrastructure work through requirements, architecture, governance,
-planning, code generation, deployment, and as-built documentation. Optional design
-work adds diagrams and decision records.
+APEX coordinates Azure infrastructure delivery and standalone Well-Architected Framework assessments through domain agents, reusable skills, scoped authoring instructions, and machine-readable registries.
 
-The owner selects each main agent. Skills provide reusable guidance, instructions
-define conventions, and MCP tools supply external evidence. Validators check
-specific contracts. Required reviews and human approvals remain separate from
-those checks.
+The operator selects `01-Orchestrator` or a step-owning agent in VS Code Copilot Chat. Skills supply domain procedures, instructions enforce file-level conventions, MCP servers query external APIs, and deterministic validators check artifact and IaC contracts before independent `challenger-review-subagent` reviews and human approval gates.
 
-Generated Bicep or Terraform is an implementation to inspect and validate.
-Generation alone does not establish policy compliance, deployment readiness,
-or application health.
+Generated Bicep or Terraform code is a verifiable candidate implementation. Code generation alone never proves policy compliance, deployment authorization, or live application health.
 
 <CardGrid>
   <LinkCard title="System architecture" href="architecture/"
-    description="Project artifacts, shared planning, and track-specific execution." />
-  <LinkCard title="Core concepts" href="four-pillars/"
-    description="Agents, skills, instructions, and registries." />
+    description="Dual workflow modes, shared planning, and track-specific Bicep and Terraform execution." />
   <LinkCard title="Agent architecture" href="agents/"
-    description="Main-agent ownership, bounded helpers, and human handoffs." />
+    description="VS Code Copilot runtime boundaries, delegated questions, and shared Challenger reviews." />
   <LinkCard title="Skills and instructions" href="skills-and-instructions/"
-    description="Invocation rules, declared scope, and runtime limits." />
+    description="On-demand skill loading, file-scoped instructions, and authoring rules." />
   <LinkCard title="Workflow engine and validation" href="workflow-engine/"
-    description="Dependencies, reviews, state, and recovery." />
+    description="DAG routing, apex-recall state transitions, Lefthook checks, and retired runtime hooks." />
   <LinkCard title="MCP integration" href="mcp-integration/"
-    description="External tools and their authentication boundaries." />
+    description="Workspace .mcp.json configuration for GitHub MCP and Azure MCP." />
+  <LinkCard title="SKU manifest" href="sku-manifest/"
+    description="Single source of truth for Azure service SKUs across environments and regions." />
 </CardGrid>
+
+## Four core building blocks
+
+APEX separates task ownership, domain procedures, authoring conventions, and workflow topology across distinct repository layers so changes remain auditable.
+
+<span id="1-agents"></span>
+
+### 1. Agents
+
+Agent definitions under `.github/agents/` (main agents) and `.github/agents/_subagents/` (leaf helpers) declare each role's tools, constraints, output contracts, and stop conditions. Active definitions omit fixed model pins so the VS Code Copilot runtime manages model selection, and `01-Orchestrator`, Deploy, Diagnose, and manual Challenger entries set `disable-model-invocation: true` so they are selected explicitly by the human operator.
+
+<span id="2-skills"></span>
+
+### 2. Skills
+
+Skills under `.github/skills/apex-*/SKILL.md` package domain workflows, helper scripts, `references/*.md`, and `templates/*`. Skills load on demand into the calling agent's context and never change the active agent identity or grant cloud permissions.
+
+<span id="3-instructions"></span>
+
+### 3. Instructions
+
+Instruction files under `.github/instructions/*.instructions.md` attach file-scoped rules via `applyTo` globs during authoring. Because glob matching does not guarantee runtime attachment in every task, essential approval, security, output, and stop rules remain directly inside main agent definitions and deterministic validators.
+
+<span id="4-configuration-registries"></span>
+
+### 4. Configuration registries
+
+Machine-readable registries tie the system together: `tools/registry/agent-registry.json` indexes agent definitions, `.github/skills/apex-workflow-engine/templates/workflow-graph.json` defines delivery and assessment DAG routing, and `.github/data/` holds pinned AVM module indexes and the shared ALZ Corp policy baseline. Inspect the generated inventory in the [Architecture Explorer](/reference/architecture-explorer/).
+
+<span id="agentsmd--the-table-of-contents"></span>
+
+### AGENTS.md and copilot-instructions.md
+
+<span id="copilot-instructionsmd--the-vs-code-bridge"></span>
+
+Root `AGENTS.md` defines repository setup, validation commands, the security baseline, and the workflow table. `.github/copilot-instructions.md` adds VS Code Copilot runtime boundaries, Azure regional and tag defaults, `apex-recall` lifecycle commands, and `ask_user` question-batching rules.
+
+<span id="tools-and-mcp-servers"></span>
+
+### Tools and MCP servers
+
+Workspace-root `.mcp.json` configures `github` MCP and stdio `azure-mcp` (`@azure/mcp@3.0.0`, including `pricing_get` retail lookups and `azureterraform` schema queries), while historical Cost Management queries use authenticated `az rest` calls. Tool availability never implies authorization to mutate cloud resources. See [MCP integration](mcp-integration/).
 
 ## Recommended reading order
 
-Start with the [workflow overview](/concepts/workflow/). Read
-[system architecture](architecture/) for the records that connect its steps,
-then [agent architecture](agents/) for ownership and handoffs.
-Use the remaining references when inspecting a specific mechanism.
+Start with the [workflow overview](/concepts/workflow/), read [system architecture](architecture/) for how artifacts connect steps, and review [agent architecture](agents/) for delegation and Challenger review contracts.
 
 ## Intellectual foundations
 
-The product's
-[golden-principles skill](https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/skills/apex-golden-principles/SKILL.md)
-describes its engineering influences. Those influences are background reading,
-not runtime contracts or evidence of deployment reliability.
+The [`apex-golden-principles` skill](https://github.com/jonathan-vella/apex/blob/7c195a1c8e06a5d0c3aa305d1870356e5829df92/.github/skills/apex-golden-principles/SKILL.md) records the engineering ideas that shaped APEX.
 
-### Harness engineering (OpenAI)
+<span id="harness-engineering-openai"></span>
 
-The [OpenAI article](https://openai.com/index/harness-engineering/) discusses
-repository guidance and automated feedback for coding agents. In APEX, inspect
-the actual instructions, templates, and validator coverage rather than assuming
-every written rule has mechanical enforcement.
+### Harness engineering
 
-### Ralph (Snarktank)
+The [OpenAI harness engineering article](https://openai.com/index/harness-engineering/) emphasizes repository-stored instructions and deterministic feedback loops for coding agents. APEX pairs Markdown contracts with JSON schemas and Node/Python validators so structural drift fails fast.
 
-[Ralph](https://github.com/snarktank/ralph) is a separate autonomous iteration
-project. APEX's former autonomous E2E subsystem is retired. Current APEX workflows
-retain human-selected main-agent handoffs and approval gates.
-See [workflow validation](/guides/e2e-testing/).
+<span id="ralph-snarktank"></span>
+
+### Ralph
+
+[Ralph](https://github.com/snarktank/ralph) explores bounded agent loops over persisted files. APEX retired its early autonomous E2E loop in favor of `apex-recall` state checkpoints, bounded review repair cycles, and human approval gates. See the [validation reference](/reference/validation-reference/).
 
 ### How this project synthesises both
 
-APEX retains versioned project artifacts, scoped tasks, and validation feedback.
-`apex-recall` supports state inspection and controlled updates between sessions.
-These mechanisms do not make every step stateless, guarantee transactional changes
-across all artifacts, or authorize autonomous deployment.
+APEX combines versioned artifacts in `agent-output/{project}/`, `apex-recall` state transitions, deterministic validators, and independent `challenger-review-subagent` reviews while keeping consequential scope, policy-exception, and deployment decisions under human control.
 
 ## Golden principles
 
-Read the pinned skill for the complete principles. For a project run, apply them
-through specific evidence: current requirements, explicit decisions, reviewed
-contracts, reproducible checks, and recorded outcomes.
-
-When a recurring defect suggests a product change, record a lesson and submit
-the correction for review. Do not silently rewrite approved artifacts or policy.
+Every workflow run relies on verifiable evidence: captured material inputs, source-attributed retail pricing or Cost Management queries, target-verified Azure Policy snapshots before implementation, reproducible validator checks, and explicit owner approvals. When a run uncovers a recurring gap, capture it in `09-lessons-learned.{json,md}` and submit a reviewed fix to the owning agent, skill, or validator.
 
 ## References
 
 - [Workflow deep dive](/concepts/workflow-deep-dive/)
+- [Showcases](/showcases/)
 - [Azure Well-Architected Framework](https://learn.microsoft.com/azure/well-architected/)
 - [Azure Verified Modules](https://aka.ms/AVM)
 - [Azure Cloud Adoption Framework](https://learn.microsoft.com/azure/cloud-adoption-framework/)

@@ -5,9 +5,9 @@ description: "State scope, provide evidence, and ask for checks that match the o
 
 ## Choose the right interface
 
-Use inline completion for a small code edit, chat for a question, and the selected
-APEX main agent for its workflow step. Attaching a file or typing another agent's
-name does not select that agent.
+Use inline completion for small single-file edits, standard chat for quick repository questions, and `01-Orchestrator` (or a step-owning APEX agent) in the VS Code **Copilot** session target for structured delivery or WAF assessments. Attaching a file or mentioning an agent's name in prose does not switch the active agent.
+
+When `02-Requirements`, `03-Architect`, `04-Design`, or `04g-Governance` needs missing material inputs, it opens a validated `ask_user` form where every field accepts custom freeform text directly. You do not need to pre-author every SLA, CIDR, or SKU detail in your opening prompt.
 
 ## Break down complex tasks
 
@@ -88,7 +88,9 @@ resource changes when the intent is only diagnosis.
 Missing context should produce a question or an explicit limitation, not an
 invented price, requirement, approval, or successful check.
 
-## Always validate ai output
+<span id="always-validate-ai-output"></span>
+
+## Always validate AI output
 
 Check module and API support, policy-property coverage, required outputs, security,
 and the actual preview. A recent-looking API year does not prove compatibility.

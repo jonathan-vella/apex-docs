@@ -132,16 +132,13 @@ Do not silently remove protected inputs, restamp old reviews, reset allowances o
 
 ## Assessment costs and proposed recurring changes
 
-The standalone cost report keeps actual spend, API forecasts and retail estimates
-separate. Architect owns authorized Cost Management Query and Forecast operations;
-the pricing subagent remains retail-only. Neither a helper command nor assessment
-acceptance grants billing access.
+Standalone WAF assessments keep historical Azure billing, API forecasts, and retail catalog projections strictly separate:
 
-`03-cost-management-report.md` and `contracts/03-cost-management.json` retain
-historical billing evidence, coverage and exclusions. Unavailable billing,
-utilization or pricing remains partial or Not assessed, never zero or an invented
-saving. A retail subtotal is not the workload's actual bill. See the pinned
-[assessment cost contract](https://github.com/jonathan-vella/apex/blob/3d027d41810e33c0d2f08b17ed18f7adf2f21e3a/.github/skills/apex-azure-cost-optimization/references/assessment-cost-contract.md).
+- `03-Architect` queries authorized historical spend and current-month forecasts via Azure Cost Management Query and Forecast REST APIs (`az rest`), keeping `ActualCost` and `AmortizedCost` views and currencies separate rather than mixing them into one total.
+- Under `assessment-bundle-v3` (`Visual charts: true`), `render-assessment-charts.py` generates `assets/03-cost-trends.svg` and `assets/03-cost-drivers.svg` embedded in `03-cost-management-report.md` alongside `contracts/03-cost-management.json`.
+- When scoped evidence has no priceable resource (`Source: iac` with unknown SKUs or usage) and `assessment_exit=assessment_only` is selected, `03-Architect` writes `contracts/02-assessment-cost-status.json` (`"status": "NOT_ASSESSED"`) with no fabricated zero-dollar total or numeric chart, while still completing the independent `cost-feasibility` review.
+
+See the pinned [assessment cost contract](https://github.com/jonathan-vella/apex/blob/7c195a1c8e06a5d0c3aa305d1870356e5829df92/.github/skills/apex-azure-cost-optimization/references/assessment-cost-contract.md).
 
 Retail-derived register bases retain a separate project-relative path and SHA-256
 for the original pricing request. The validator checks that request with captured
@@ -240,6 +237,7 @@ az consumption budget show \
 
 ## Related
 
-- [Quickstart](/getting-started/quickstart/). install and run your first project
-- [Workflow](/concepts/workflow/). how agents collaborate across steps
-- [Troubleshooting](/guides/troubleshooting/). diagnose failed deploys
+- [Quickstart](/getting-started/quickstart/) for setting up your first APEX repository
+- [WAF assessment guide](/guides/waf-assessment/) for standalone Cost Management and action-register reports
+- [Workflow overview](/concepts/workflow/) for delivery and assessment cost gates
+- [Troubleshooting](/guides/troubleshooting/) for diagnosing pricing and deployment issues

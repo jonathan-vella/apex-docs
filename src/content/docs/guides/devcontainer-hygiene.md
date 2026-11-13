@@ -99,18 +99,9 @@ Common locations:
 
 ### Inspect what loaded
 
-Right-click in the Copilot Chat view and select **Diagnostics**. The diagnostics
-view lists every active agent, skill, instruction, prompt, and hook, including
-where each one came from.
+Right-click in the Copilot Chat view and select **Diagnostics**. The diagnostics view lists every active agent, skill, instruction, prompt, and MCP tool, along with its source path.
 
-An older source pin or client listing may still show historical hooks. The owner
-retired APEX `.github/hooks/` runtime hooks in the October 18 migration; do not
-restore them to match that listing. Do not disable Git Lefthook, pre-commit
-security checks, CI, MCP servers, or other tooling as a blanket cleanup. Verify
-the scope of each component. See the [retirement record](/guides/hooks/).
-
-Use this when you need to confirm that workspace mitigations are active or when
-a new extension appears to be adding unexpected context.
+Runtime `.github/hooks/` chat hooks remain retired in APEX; do not recreate them if Diagnostics shows an empty hooks section, and do not disable Git Lefthook, `gitleaks`, CI workflows, or `.mcp.json` servers during cleanup. See [Copilot hooks](/concepts/how-it-works/workflow-engine/#copilot-hooks).
 
 ## Adding dev container extensions
 
@@ -139,9 +130,6 @@ telemetry details.
 
 ## Related
 
-- [Debug Log Export](../apex-debug-log-export/). bundle Copilot debug logs
-  for review
-- [Session Debugging](../session-debugging/). recover workflow state and
-  resume safely
-- [Validation & Linting](../../reference/validation-reference/). run
-  repository validation checks
+- [Debug log export](../apex-debug-log-export/) for packaging Copilot session logs
+- [Session state debugging](../session-debugging/) for `apex-recall` recovery
+- [Validation reference](../../reference/validation-reference/) for repository checks

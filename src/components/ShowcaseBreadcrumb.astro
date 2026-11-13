@@ -1,0 +1,87 @@
+---
+// ShowcaseBreadcrumb renders a `Showcases › <Track> › <Page>` trail on pages
+// under `/showcases/`. Labels come from `src/data/showcases.mjs`.
+import { getShowcaseContext } from "../data/showcases.mjs";
+
+const context = getShowcaseContext(Astro.url.pathname);
+const showTrail = context.inShowcases && !context.isHub && Boolean(context.track);
+---
+
+{
+  showTrail && context.track && (
+    <nav class="apex-showcase-breadcrumb not-content" aria-label="Showcases breadcrumb">
+      <a href={context.hub.href}>Showcases</a>
+      <span class="sep" aria-hidden="true">›</span>
+      {context.isTrackRoot || !context.page ? (
+        <span class="current" aria-current="page">{context.track.shortTitle}</span>
+      ) : (
+        <>
+          <a href={context.track.href}>{context.track.shortTitle}</a>
+          <span class="sep" aria-hidden="true">›</span>
+          <span class="current" aria-current="page">{context.page.label}</span>
+        </>
+      )}
+    </nav>
+  )
+}
+
+<style>
+  .apex-showcase-breadcrumb {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+    margin: 0 0 1rem;
+    padding: 0.45rem 0.75rem;
+    border: 1px solid #30363d;
+    border-radius: 0.5rem;
+    background: #161b22;
+    font-size: 0.82rem;
+    line-height: 1.4;
+    color: #d0d7de;
+  }
+
+  .apex-showcase-breadcrumb a {
+    color: #6cb8f7;
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+    font-weight: 600;
+  }
+
+  .apex-showcase-breadcrumb a:hover,
+  .apex-showcase-breadcrumb a:focus-visible {
+    color: #a5d6ff;
+  }
+
+  .apex-showcase-breadcrumb .sep {
+    color: #929ca8;
+  }
+
+  .apex-showcase-breadcrumb .current {
+    color: #f0f6fc;
+    font-weight: 500;
+  }
+
+  :global(:root[data-theme="light"]) .apex-showcase-breadcrumb {
+    border-color: #cbd5e1;
+    background: #f8fafc;
+    color: #334155;
+  }
+
+  :global(:root[data-theme="light"]) .apex-showcase-breadcrumb a {
+    color: #004578;
+  }
+
+  :global(:root[data-theme="light"]) .apex-showcase-breadcrumb a:hover,
+  :global(:root[data-theme="light"]) .apex-showcase-breadcrumb a:focus-visible {
+    color: #002b4d;
+  }
+
+  :global(:root[data-theme="light"]) .apex-showcase-breadcrumb .sep {
+    color: #475569;
+  }
+
+  :global(:root[data-theme="light"]) .apex-showcase-breadcrumb .current {
+    color: #0f172a;
+  }
+</style>

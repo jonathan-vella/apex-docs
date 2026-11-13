@@ -1,46 +1,45 @@
 ---
 title: "Concepts"
-description: "How APEX agents, skills, instructions, state, and external tools work together."
+description: "How APEX agents, skills, instructions, session state, and MCP servers coordinate infrastructure delivery and WAF assessments."
 sidebar:
   order: 0
 ---
 
 import { CardGrid, LinkCard } from "@astrojs/starlight/components";
 
-These pages explain who owns each APEX step, which records it consumes, and what
-evidence is required before the next handoff.
+These pages explain who owns each APEX step, which artifacts and contracts it consumes, and what evidence is required before the next handoff or approval gate.
 
 <CardGrid>
   <LinkCard
     title="How APEX works"
-    description="Start here for workflow ownership and evidence boundaries."
+    description="Start here for the four core components, intellectual foundations, and operating principles."
     href="/concepts/how-it-works/"
   />
   <LinkCard
-    title="System Architecture"
-    description="Agents, skills, instructions, MCP servers, and how they layer."
+    title="System architecture"
+    description="How agents, skills, instructions, validators, and MCP servers layer together."
     href="/concepts/how-it-works/architecture/"
   />
   <LinkCard
-    title="Core Concepts"
-    description="Agents, skills, instructions, and configuration registries."
-    href="/concepts/how-it-works/four-pillars/"
+    title="Agents and delegation"
+    description="VS Code Copilot runtime boundaries, main step owners, leaf subagents, and independent Challenger reviews."
+    href="/concepts/how-it-works/agents/"
   />
   <LinkCard
-    title="Workflow Overview"
-    description="The seven-step pipeline from Requirements to As-Built."
+    title="Workflow overview"
+    description="The multi-step delivery workflow and the standalone WAF assessment profile."
     href="/concepts/workflow/"
   />
   <LinkCard
-    title="Workflow Deep Dive"
-    description="Cross-cutting decisions, gates, and known network boundaries."
+    title="Workflow deep dive"
+    description="Context surfaces, Azure Landing Zones integration, network topologies, and artifact contracts."
     href="/concepts/workflow-deep-dive/"
   />
   <LinkCard
-    title="MCP Integration"
-    description="How Azure Resource Manager MCP, Azure MCP, and other servers plug into agents."
+    title="MCP integration"
+    description="How workspace-root .mcp.json connects GitHub MCP and Azure MCP to agents."
     href="/concepts/how-it-works/mcp-integration/"
   />
 </CardGrid>
 
-Looking for the task-oriented guides instead? Head to [How-to & Tutorials](/guides/).
+Looking for task walkthroughs or sample outputs? Open the [guides](/guides/) or browse the [showcases](/showcases/).

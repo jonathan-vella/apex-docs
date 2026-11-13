@@ -1,0 +1,72 @@
+---
+title: "Enterprise showcases"
+description: "Inspect two verified APEX artifact bundles: a four-subscription brownfield WAF and cost assessment, and a policy-bound Bicep platform archetype for a vended Azure Landing Zone spoke."
+---
+
+Inspect two real APEX output bundles generated from multi-subscription Azure environments. One track runs the terminal, read-only standalone assessment workflow (`workflow_mode=assessment`) across four brownfield subscriptions. The second track runs the infrastructure delivery workflow (`practical-v1`, Steps 1 to 5) to build a policy-compliant Bicep platform kit for a vended Azure Landing Zone spoke.
+
+Tenant, subscription, and session identifiers from the brownfield assessment are replaced with deterministic documentation placeholders (`00000000-0000-4000-8000-000000000000` to `00000000-0000-4000-8000-000000000004`). Resource counts, WAF pillar scores, Cost Management totals, retail pricing line items, Azure Policy findings, Challenger review records, and Bicep modules match the source runs.
+
+## Compare the two showcase tracks
+
+<div class="showcase-card-grid">
+  <div class="showcase-card">
+    <span class="showcase-eyebrow">Standalone assessment · assessment-bundle-v3</span>
+    <h3>Brownfield WAF and cost assessment</h3>
+    <p>
+      Read-only assessment of a Partner Modernization Factory estate spanning one Microsoft Entra tenant, four subscriptions, 22 resource groups, and 211 resources without reading secrets, keys, app settings, or tag values.
+    </p>
+    <img
+      src="/showcases/waf-assessment/03-des-diagram.svg"
+      alt="Existing-state four-subscription overview diagram showing Shared, Member 01, Member 02, and Member 03 boundaries"
+    />
+    <p>
+      <a href="/showcases/waf-assessment/">Open the brownfield WAF assessment track</a>
+    </p>
+  </div>
+
+  <div class="showcase-card">
+    <span class="showcase-eyebrow">Delivery workflow · practical-v1 · risk-envelope-v1</span>
+    <h3>Regulated landing-zone delivery</h3>
+    <p>
+      Center of Excellence platform kit for Contoso University inside a vended Corp spoke, combining retail pricing at $1,320.95 per month, 8 ADRs, 19 Azure Policy Deny reconciliations, hash-bound lab risk records, and 10 Bicep modules.
+    </p>
+    <img
+      src="/showcases/regulated-delivery/03-des-diagram.svg"
+      alt="Regulated delivery service architecture diagram inside the vended spoke with private endpoints and SQL Managed Instance"
+    />
+    <p>
+      <a href="/showcases/regulated-delivery/">Open the regulated delivery track</a>
+    </p>
+  </div>
+</div>
+
+## When to use each workflow
+
+| Dimension | Brownfield WAF and cost assessment | Regulated landing-zone delivery |
+| --- | --- | --- |
+| Primary goal | Audit an existing Azure estate or IaC codebase and produce a prioritized, nonbinding remediation register | Design, price, govern, plan, and generate deployable Bicep or Terraform for a target workload |
+| Entry mode | [WAF assessment guide](/guides/waf-assessment/) (`workflow_mode=assessment`) | [Standard delivery workflow](/concepts/workflow/) (`practical-v1`, Steps 1 to 7) |
+| Azure permissions | Scalar read-only queries across approved subscriptions and categories; zero writes | Read-only policy and spoke preflight during planning; resource deployment gated at Step 6 |
+| Cost method | Live Azure Cost Management `ActualCost`, `AmortizedCost`, and Forecast API series | Pre-deployment Azure Retail Prices API (`cost-estimate-subagent`) written back to `sku-manifest.json` |
+| Policy handling | Subscription-scoped policy compliance state observations (`146` `NonCompliant` state rows) | Live `04g-Governance` policy discovery (`25` assignments, `19` Deny blockers mapped to Bicep properties) |
+| Review gates | Independent WAF and cost-feasibility passes by `challenger-review-subagent` before bundle acceptance | Stage-by-stage `challenger-review-subagent` gates, `bicep-validate-subagent`, and ARM Provider validation |
+| Lifecycle end state | Terminal `assessment-bundle-v3` receipt; never advances into IaC generation or deployment | Verified `infra/bicep/university/` tree and `05-iac-handoff.json` ready for adopter Step 6 provisioning |
+
+## Browse every showcase page
+
+### Track 1: Brownfield WAF and cost assessment
+
+1. [Overview and authorized scope](/showcases/waf-assessment/): four-subscription read boundary, seven scalar collection categories, secret and tag-value exclusions, and terminal bundle rules.
+2. [Five-pillar WAF posture](/showcases/waf-assessment/waf-posture/): control-only scoring method, pillar scores (`Security 7.3`, `Reliability 5.0`, `Performance Efficiency 5.0`, `Operational Excellence 5.7`), and why `Cost Optimization` stays `Not assessed`.
+3. [Actual and amortized cost analysis](/showcases/waf-assessment/cost-analysis/): closed-month USD totals (`$1,050.07` in October), empty September slice handling on Member 03, non-additive Forecast API splits, and resource-group attribution.
+4. [Existing-state topology and inventory](/showcases/waf-assessment/topology-and-inventory/): `22` resource groups, `211` resources, `59` ARM resource types, `5` virtual networks, `10` subnets, and all eight vector topology and inventory diagrams.
+5. [Challenger closures and action register](/showcases/waf-assessment/reviews-and-register/): initial and closure passes from `challenger-review-subagent`, workbook cell reconciliation, retained advisory findings, and all `18` proposed actions (`A01` to `A18`).
+
+### Track 2: Regulated landing-zone delivery
+
+1. [Overview and vended spoke brief](/showcases/regulated-delivery/): Center of Excellence (Steps 1 to 5) versus member adopter (Steps 6 and 7) split, three-input deployment contract, and `sku-manifest-v1` revision 3.
+2. [Architecture and retail pricing](/showcases/regulated-delivery/architecture-and-pricing/): WAF trade-off scores (`S 8`, `R 4`, `P 6`, `C 7`, `O 7`), retail estimate of `$1,320.95/month` (`$1.81/hour`), SQL MI Azure Hybrid Benefit comparison, and post-cutover weekday schedule savings (`-$314.32/month`).
+3. [Architecture decisions and network design](/showcases/regulated-delivery/design-and-adrs/): vended spoke subnets (`snet-app`, `snet-pe`, `snet-sqlmi`), hub firewall rules, central DeployIfNotExists Private DNS, and `ADR-0001` through `ADR-0008`.
+4. [Policy reconciliation and lab risk contract](/showcases/regulated-delivery/governance-and-risk/): `25` discovered policies (`19` Deny blockers), 9-tag lowercase fallback, unresolved Challenger pass 11 findings (`bc629836` and `a749666a`), and the signed `risk-envelope-v1` kit-only exception.
+5. [Implementation plan and AVM Bicep modules](/showcases/regulated-delivery/plan-and-bicep/): subscription-scope `main.bicep`, ID-free `main.bicepparam`, RBAC-before-pull dependency ordering, `web-app.bicep` scanner isolation, PowerShell 7 hooks, and ARM Provider validation.

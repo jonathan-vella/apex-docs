@@ -15,40 +15,53 @@ The site's generated reference data uses the revision recorded in
 [`apex-source.json`](https://github.com/jonathan-vella/apex-docs/blob/main/apex-source.json).
 It does not automatically describe the newest product commit.
 
-## Unreleased
-
-- Billing documentation retains source/date references and original conclusions rather than automatically archiving
-  whole pages in Git. Necessary full-text captures remain private unless redistribution rights and attribution are
-  established. Owner-authorized repair preserves historical originals and review records; changed evidence requires
-  revalidation, not renewed approval by restamping.
-  See [documentation evidence](/reference/cost-governance/#product-documentation-is-not-raw-retail-evidence).
-
 ## November 2026
 
-- Retail pricing captures raw source evidence and request accounting for replay instead of reconstructing
-  query results from chat. Preflight checks missing billing usage before queries, and monthly publication
-  validates exact source rates, units, tiers, timestamps and deterministic totals.
-  Explicit rate-only quotes preserve unknown monthly usage without passing the workload estimate gate.
-  See [reproducible retail pricing](/reference/cost-governance/#reproducible-retail-pricing).
+- Standalone WAF assessments (`assessment-bundle-v3`) add inline SVG WAF posture and Cost Management trend/driver
+  charts, a single `{{...}}` variable-based `/waf-assess-existing` starter prompt, and guided `02-Requirements`
+  business-target discovery with an `Unknown` option on every field
+  ([#834](https://github.com/jonathan-vella/apex/pull/834),
+  [#837](https://github.com/jonathan-vella/apex/pull/837),
+  [#839](https://github.com/jonathan-vella/apex/pull/839)).
+  New Azure and combined runs include an evidence-linked Assessment Action Register in matching Excel and Markdown
+  views, while IaC-only export remains opt-in
+  ([#823](https://github.com/jonathan-vella/apex/pull/823)).
+  Acceptance is terminal and authorizes no Governance or deployment.
+  See the [WAF assessment guide](/guides/waf-assessment/) and
+  [standalone assessment contract](/concepts/workflow/#standalone-waf-assessment).
 
-- Standalone WAF assessments support `evidence_only` and `requirements_led`
-  discovery with independently selected IaC, Azure or combined evidence.
-  New Azure and combined runs include an evidence-linked Assessment Action
-  Register in matching Excel and Markdown views. IaC-only export is an explicit
-  option. The offline CLI validates source evidence, calculates recurring
-  additions, savings and net change, and regenerates the bundle.
-  Original runs retain their output contract until explicit adoption, which
-  preserves history and consumed review allowance. Acceptance authorizes no
-  remediation, Governance or deployment
-  ([jonathan-vella/apex#823](https://github.com/jonathan-vella/apex/pull/823)).
-  See the [standalone assessment guide](/concepts/workflow/#standalone-waf-assessment).
+- The `practical-v1` workflow contract is now the default for new projects, pairing complete-stage work packages,
+  APEX-local input request provenance, bounded ordinary review cycles, actionable `apex-recall handoff --json`
+  recovery guidance, and hash-bound `APEX_REVIEW_FILE` dispatches for large multi-file Challenger reviews
+  ([#803](https://github.com/jonathan-vella/apex/pull/803),
+  [#831](https://github.com/jonathan-vella/apex/pull/831),
+  [#838](https://github.com/jonathan-vella/apex/pull/838),
+  [#840](https://github.com/jonathan-vella/apex/pull/840)).
 
-- Delivery policy intake separates the shared ALZ Corp baseline from private tenant snapshots.
-  The `corp-policy-v1` contract permits Architecture approval against explicit, hash-bound Corp assumptions.
-  Target-verified policies remain required before planning completion, CodeGen and deployment.
-  Native scope capture replaces user-prepared JSON and keeps identifying scope and policy evidence outside
-  public project artifacts. Existing histories require explicit adoption.
+- Delivery policy intake (`corp-policy-v1`) separates the shared ALZ Corp baseline from private tenant snapshots.
+  Architecture can proceed against explicit, hash-bound shared Corp assumptions without Azure target IDs, while
+  planning completion, CodeGen, and deployment require current target-verified policy evidence captured privately
+  with `discover.py --retain-rule-evidence`
+  ([#825](https://github.com/jonathan-vella/apex/pull/825),
+  [#829](https://github.com/jonathan-vella/apex/pull/829),
+  [#830](https://github.com/jonathan-vella/apex/pull/830)).
   See [policy-source selection](/concepts/workflow/step-2/#choose-policy-evidence-before-architecture).
+
+- Retail pricing (`cost-estimate-v2`) captures raw source responses and request accounting for deterministic replay,
+  separates commercial product-documentation references from raw meter evidence, and supports explicit `rate-quote`
+  runs when monthly usage is unknown without passing the workload estimate gate
+  ([#826](https://github.com/jonathan-vella/apex/pull/826),
+  [#828](https://github.com/jonathan-vella/apex/pull/828)).
+  See [cost governance](/reference/cost-governance/#reproducible-retail-pricing).
+
+- Active agent definitions removed fixed model and reasoning-effort pins so selection stays runtime-managed,
+  retired `azure-resource-manager-mcp` in favor of Azure MCP `pricing_get` plus direct `az rest` Cost Management
+  queries, and retired legacy slash-adapter prompt files except `/waf-assess-existing`
+  ([#792](https://github.com/jonathan-vella/apex/pull/792),
+  [#812](https://github.com/jonathan-vella/apex/pull/812)).
+
+- On `apexops.pro`, two current [showcases](/showcases/) (a standalone WAF assessment and a regulated Bicep delivery
+  run) replace the April 2026 `/demo/` case study, with single-hop redirects preserving all published routes.
 
 ## October 2026
 
