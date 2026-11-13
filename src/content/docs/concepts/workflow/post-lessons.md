@@ -18,10 +18,11 @@ correction. A lesson does not authorize an agent or skill change.
 Output: agent-output/{project}/09-lessons-learned.{json,md}
 ```
 
-## Lesson schema (subset)
+<span id="lesson-schema-subset"></span>
 
-This is an illustrative excerpt, not a complete record or evidence of a real run.
-Use `tools/schemas/lesson-log.schema.json` for required fields.
+## Lesson schema subset
+
+This illustrative excerpt shows key fields in `09-lessons-learned.json`; see `tools/schemas/lesson-log.schema.json` for the complete schema:
 
 ```json
 {

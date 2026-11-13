@@ -3,22 +3,11 @@ title: "Validation and linting"
 description: "Separate APEX product checks from documentation-site builds and verify the scope of each result."
 ---
 
-This page describes selected commands from the pinned APEX product. Run them in
-that checkout, not apex-docs. The current `package.json`, hook configuration,
-and CI files determine exact coverage.
+This page catalogs the validators, linters, Lefthook Git hooks, and CI workflows in the pinned `apex` repository (`7c195a1c8e06`). Run these commands inside an `apex` or `apex-accelerator` checkout, not `apex-docs`.
 
-The owner retired APEX `.github/hooks/` runtime hooks in the October 18 migration.
-Do not restore them or introduce replacement hooks to satisfy an older validation
-recipe. `validate:hooks` and `test:hooks` below are historical pinned commands,
-not current setup requirements. Source-caller retirement belongs to the product
-change and is not verified by this docs update. Git Lefthook, pre-commit checks,
-secret scanning, other validators, and CI remain separate. See the
-[retirement record](/guides/hooks/) for the lost protection and permission limits.
+Runtime `.github/hooks/` chat hooks remain retired; deterministic enforcement runs through `apex-recall`, `record-review.mjs`, the scripts below, Git Lefthook, and GitHub Actions CI. See [Copilot hooks](/concepts/how-it-works/workflow-engine/#copilot-hooks).
 
-For this documentation site, use `npm run build`, `npm run check:links`,
-`npm test`, and `npm run test:browser`. The build uses the Linux toolchain and
-prepared pinned product metadata. The link checker validates routes and fragments.
-Use `npm run check:external-links` separately for external destinations.
+For the `apex-docs` site repository, run `npm run source:prepare`, `npm run build`, `npm run check:links`, `npm run check:docs`, `npm test`, and `npm run test:browser`.
 
 :::tip[Quick reference]
 
@@ -137,69 +126,86 @@ All scripts are in the `tools/scripts/` directory. Run via `npm run <command>`.
 
 ### Architecture and registry validators
 
-| npm Command                   | Script                            | Purpose                                        |
-| ----------------------------- | --------------------------------- | ---------------------------------------------- |
-| `validate:agents`             | `validate-agents.mjs`             | Agent frontmatter, body size, model alignment  |
-| `validate:skills`             | `validate-skills.mjs`             | Skill format, affinity, references, stale refs |
-| `validate:skill-checks`       | `validate-skill-checks.mjs`       | Skill size (≤500 lines) and references         |
-| `validate:instruction-checks` | `validate-instruction-checks.mjs` | Instruction frontmatter and applyTo patterns   |
-| `validate:agent-registry`     | `validate-agent-registry.mjs`     | Agent registry consistency                     |
-| `validate:workflow-graph`     | `validate-workflow-graph.mjs`     | DAG integrity (no orphans, no cycles)          |
+| npm Command | Script | Purpose |
+| --- | --- | --- |
+| `validate:agents` | `validate-agents.mjs` | Agent and prompt frontmatter, body contracts, vendor rules, and handoff rules |
+| `validate:skills` | `validate-skills.mjs` | Skill `apex-` naming, frontmatter, references, and stale-name checks |
+| `validate:skill-checks` | `validate-skill-checks.mjs` | `SKILL.md` line budget and reference integrity |
+| `validate:instruction-checks` | `validate-instruction-checks.mjs` | Instruction frontmatter and `applyTo` glob rules |
+| `validate:agent-registry` | `validate-agent-registry.mjs` | `tools/registry/agent-registry.json` consistency |
+| `validate:workflow-graph` | `validate-workflow-graph.mjs` | Delivery and assessment DAG integrity |
+| `validate:explorer-graph` | `validate-explorer-graph.mjs` | Strict Architecture Explorer graph schema and edge checks |
+| `validate:context-budget` | `validate-context-budget.mjs` | Per-step prompt and instruction token-budget ceilings |
+| `validate:models` | `validate-models.mjs` | Model policy consistency and deprecated-model checks |
 
 ### Artifact and template validators
 
-| npm Command          | Script                   | Purpose                                                   |
-| -------------------- | ------------------------ | --------------------------------------------------------- |
-| `validate:artifacts` | `validate-artifacts.mjs` | H2 sync, template compliance, and auto-fix (with `--fix`) |
+| npm Command | Script | Purpose |
+| --- | --- | --- |
+| `validate:artifacts` | `validate-artifacts.mjs` | H2 template compliance and auto-fix (`--fix`) |
+| `check:h2-order` | `check-h2-order.mjs` | Artifact H2 heading sequence check |
+| `validate:sku-manifest` | `validate-sku-manifest.mjs` | `sku-manifest.json` schema, monotonic revisions, allowlist cross-check, and TTL freshness |
+| `validate:sku-iac-coverage` | `validate-sku-iac-coverage.mjs` | Bidirectional SKU consistency between `sku-manifest.json` and generated Bicep/Terraform |
 
 ### Governance and compliance validators
 
-| npm Command                      | Script                               | Purpose                                                      |
-| -------------------------------- | ------------------------------------ | ------------------------------------------------------------ |
-| `lint:governance-refs`           | `validate-governance-refs.mjs`       | Governance guardrails integrity                              |
-| `validate:no-hardcoded-counts`   | `validate-no-hardcoded-counts.mjs`   | Prevent hardcoded entity counts                              |
-| `lint:deprecated-refs`           | `validate-no-deprecated-refs.mjs`    | Block deprecated API/pattern references                      |
-| `validate:iac-security-baseline` | `validate-iac-security-baseline.mjs` | IaC security baseline (TLS, HTTPS, blob, identity, SQL auth) |
+| npm Command | Script | Purpose |
+| --- | --- | --- |
+| `lint:governance-refs` | `validate-governance-refs.mjs` | Governance discovery guardrail references |
+| `validate:governance-baseline` | `validate-governance-baseline.mjs` | Shared ALZ Corp and tenant governance baseline archive integrity |
+| `validate:region-canonical` | `validate-region-canonical.mjs` | Canonical `swedencentral` / `westeurope` / `germanywestcentral` region defaults |
+| `validate:no-hardcoded-counts` | `validate-no-hardcoded-counts.mjs` | Blocks hard-coded entity counts across agents, skills, instructions, and root docs |
+| `lint:deprecated-refs` | `validate-no-deprecated-refs.mjs` | Blocks retired agent filenames, retired skills, and deprecated paths |
+| `validate:terminology` | `validate-terminology.mjs` | Enforces `.github/terminology-blocklist.json` |
+| `validate:iac-security-baseline` | `validate-iac-security-baseline.mjs` | Enforces TLS 1.2, HTTPS-only, no public blob, Managed Identity, Entra-only SQL, and private networking |
 
 ### Session and state validators
 
-| npm Command              | Script                       | Purpose                                                   |
-| ------------------------ | ---------------------------- | --------------------------------------------------------- |
-| `validate:session-state` | `validate-session-state.mjs` | Schema validation + deprecated lock/claim field detection |
-| `validate:challenger-presence` | `validate-challenger-presence.mjs` | Required review findings exist for each review-mandated step; for projects with Step 2 complete, no `*.tmp.md` or `FAILED` cost files remain at the top level |
-| `validate:challenger-findings` | `validate-challenger-findings.mjs` | Review findings schema and freshness; rejects mutable parent-owned files (`sku-manifest.json`, `00-handoff.md`, `README.md`, recall state, `*-decisions.json`) as supporting inputs |
+| npm Command | Script | Purpose |
+| --- | --- | --- |
+| `validate:session-state` | `validate-session-state.mjs` | `00-session-state.json` schema and deprecated-field checks |
+| `validate:decision-keys` | `validate-decision-keys.mjs` | Validates `apex-recall` decision keys against `decision-keys.md` |
+| `validate:question-batching` | `validate_question_batching.py` | Enforces `ask_user` schema shape, material-input context mapping, and no companion `*_other` fields |
+| `validate:challenger-presence` | `validate-challenger-presence.mjs` | Verifies required `challenge-findings-*.json` sidecars across delivery steps and standalone assessment bundles, plus zero `step2_residue` files |
+| `validate:challenger-findings` | `validate-challenger-findings.mjs` | Verifies Challenger sidecar schema, SHA-256 input freshness (`--verify-cache`), and immutable `supporting_inputs` |
+| `validate:challenger-decisions` | `validate-challenge-findings-decisions.mjs` | Validates finding disposition records |
+| `validate:risk-authorizations` | `validate-risk-authorizations.mjs` | Validates signed Ed25519 `risk-envelope-v1` lab risk authorizations and approvals |
 
 ### Quality and cross-reference validators
 
-| npm Command             | Script                          | Purpose                            |
-| ----------------------- | ------------------------------- | ---------------------------------- |
-| `lint:glob-audit`       | `validate-glob-audit.mjs`       | Detect overly broad glob patterns  |
-| `lint:orphaned-content` | `validate-orphaned-content.mjs` | Detect unreferenced skills/content |
-| `lint:docs-freshness`   | `check-docs-freshness.mjs`      | Documentation staleness detection  |
-| `validate:retirement-scan` | `audit-retirement-candidates.mjs` | Tracked-file census and schema checks |
-| `lint:version-sync`     | `validate-version-sync.mjs`     | Version consistency across files   |
+| npm Command | Script | Purpose |
+| --- | --- | --- |
+| `lint:glob-audit` | `validate-glob-audit.mjs` | Detects overly broad `applyTo` globs |
+| `lint:orphaned-content` | `validate-orphaned-content.mjs` | Detects unreferenced skills and references |
+| `lint:docs-freshness` | `check-docs-freshness.mjs` | Detects stale filenames and hardcoded version banners |
+| `audit:retirement` | `audit-retirement-candidates.mjs` | Whole-repository tracked-file census and retirement checks |
+| `lint:version-sync` | `validate-version-sync.mjs` | Version consistency across manifests |
+| `lint:safe-shell` | `safe-shell.mjs` | Blocks interactive shell flags (`-i`, `read -p`) and unsafe pipelines in committed snippets |
 
 ### Configuration validators
 
-| npm Command       | Script                       | Purpose                           |
-| ----------------- | ---------------------------- | --------------------------------- |
-| `validate:vscode` | `validate-vscode-config.mjs` | VS Code settings completeness     |
-| `validate:hooks`  | `validate-hooks.mjs`         | Historical runtime-hook check; not a setup requirement after retirement |
-| `test:hooks`      | `test-hooks.sh`              | Historical runtime-hook tests; do not recreate deleted hooks to run them |
-| `lint:mcp-config` | `validate-mcp-config.mjs`    | MCP server configuration validity |
+| npm Command | Script | Purpose |
+| --- | --- | --- |
+| `validate:vscode` | `validate-vscode-config.mjs` | VS Code workspace and dev container settings consistency |
+| `validate:extension-bloat` | `validate-extension-bloat.mjs` | Rejects denylisted chat-bloating extensions in `.devcontainer/devcontainer.json` |
+| `lint:mcp-config` | `validate-mcp-config.mjs` | Validates workspace-root `.mcp.json` |
+| `validate:mcp-tool-refs` | `validate-mcp-tool-refs.mjs` | Verifies referenced Azure MCP tool names against pinned `@azure/mcp` snapshot |
+| `validate:tool-versions` | `validate-tool-versions.mjs` | Verifies pinned dev container CLI versions and checksums |
 
 ### Code and format linters
 
-| npm Command          | Tool                | Purpose                                                  |
-| -------------------- | ------------------- | -------------------------------------------------------- |
-| `lint:md`            | markdownlint-cli2   | Markdown formatting and style                            |
-| `format:check`       | Prettier            | Code formatting (JS/JSON/CSS; markdown via markdownlint) |
-| `lint:links`         | `check-repository-links.mjs` | Product repository link checks                     |
-| `lint:json`          | `lint-json.mjs`     | JSON/JSONC syntax validation                             |
-| `lint:python`        | ruff                | Python code quality (`tools/apex-recall/`)               |
-| `lint:terraform-fmt` | terraform fmt       | Terraform formatting compliance                          |
-| `lint:bicep-fmt`     | bicep format        | Bicep formatting compliance (no-op when no projects)     |
-| `validate:terraform` | terraform validate  | Terraform validation per project                         |
+| npm Command | Tool | Purpose |
+| --- | --- | --- |
+| `lint:md` | `markdownlint-cli2` | Markdown formatting and heading rules |
+| `lint:prose` | `vale` | Microsoft and APEX prose style rules on `.github/` and `README.md` |
+| `format:check` | `prettier` | Formatting check for JS, JSON, YAML, and CSS |
+| `lint:js:ci` | `eslint` | Zero-warning ESLint check across `tools/scripts` and `tools/tests` |
+| `lint:links` | `check-repository-links.mjs` | Repository relative and external link validation |
+| `lint:json` and `lint:json-schemas` | `lint-json.mjs` / `validate-json-schemas.mjs` | JSON/JSONC syntax and Ajv schema validation |
+| `lint:python` | `ruff` | Python lint check on `tools/apex-recall/src/` |
+| `lint:powershell` | `PSScriptAnalyzer` | PowerShell script analysis |
+| `lint:terraform-fmt` and `validate:terraform` | `terraform` | Recursive HCL formatting and module validation |
+| `lint:bicep-fmt` | `bicep format` | Bicep formatting check |
 
 ### Aggregate commands
 
@@ -227,17 +233,18 @@ unbounded `run-p` aggregates as rollback and benchmark baselines.
 ### Agent-invoked IaC validators (runtime, not CI)
 
 These validators are run **by agents during the workflow** against generated
-artifacts (Steps 4–6), not by lefthook or CI. They have no committed inputs on
+artifacts in Steps 4 through 6, not by lefthook or CI. They have no committed inputs on
 `main`, so they are intentionally absent from the aggregates above.
 
-| npm Command                          | Invoked by                          | Validates                          |
-| ------------------------------------ | ----------------------------------- | ---------------------------------- |
-| `validate:iac-contract`              | 05-IaC Planner                      | `04-iac-contract.json` schema/DAG  |
-| `validate:iac-contract-consistency`  | 05-IaC Planner                      | Contract ↔ implementation plan     |
-| `validate:iac-handoff`               | 06b/06t CodeGen                     | `05-iac-handoff.json` + tree hash  |
-| `validate:environment-manifest`      | 05-IaC Planner                      | `04-environment-manifest.json`     |
-| `validate:policy-property-map`       | 05-IaC Planner                      | `04-policy-property-map.json`      |
-| `sync:draft-contract-hashes`         | 05-IaC Planner                      | Refreshes `plan_ref` and `l1m_ref` digests of an unapproved draft contract; keeps formatting; `--write` replaces the file atomically |
+| npm Command | Invoked by | Validates |
+| --- | --- | --- |
+| `validate:iac-contract` | `05-IaC Planner` | `04-iac-contract.json` schema and phase DAG |
+| `validate:iac-contract-consistency` | `05-IaC Planner` | `04-iac-contract.json` vs. `04-implementation-plan.md` |
+| `validate:iac-handoff` | `06b-Bicep CodeGen` / `06t-Terraform CodeGen` | `05-iac-handoff.json` and IaC tree hash |
+| `validate:environment-manifest` | `05-IaC Planner` | `04-environment-manifest.json` |
+| `validate:policy-property-map` | `05-IaC Planner` | `04-policy-property-map.json` |
+| `validate:policy-precheck` | `07b-Bicep Deploy` / `07t-Terraform Deploy` | `06-policy-precheck.json` vs. deployment preview |
+| `sync:draft-contract-hashes` | `05-IaC Planner` | Refreshes `plan_ref` and `l1m_ref` digests of an unapproved draft contract (`--write` updates atomically) |
 
 #### Contract validator rules
 
@@ -292,12 +299,43 @@ npm run fix:artifacts -- <file> --apply  # Fix artifact H2 headings
 npm run lint:python:fix            # Fix Python lint issues
 ```
 
+## Focused contract tests and manual workflow acceptance
+
+<span id="run-focused-checks"></span>
+
+### Run focused contract suites
+
+When modifying `apex` tooling, run the targeted test suite covering your change before running `npm run validate:all`:
+
+```bash
+npm run test:tool-contracts
+npm run test:validator-runner
+npm run test:apex-recall
+npm run test:python-tools
+npm run test:governance-discovery
+npm run test:devcontainer-verdicts
+```
+
+<span id="perform-manual-acceptance"></span>
+
+### Perform manual workflow acceptance
+
+Static validators verify file contracts, schemas, and hashes; they do not test live VS Code Copilot agent discovery or cloud execution. For end-to-end workflow changes, exercise `01-Orchestrator` in the VS Code **Copilot** target across fresh and resumed (`resume <project>`) runs, verifying question batching, both mandatory Step 2 Challenger reviews (`comprehensive` and `cost-feasibility`), and human stage gates.
+
+<span id="migrate-from-the-retired-harness"></span>
+
+### Retired autonomous E2E harness
+
+The early autonomous RALPH E2E subsystem (`e2e:validate`, `e2e:benchmark`, `e2e:combine`, `test:lib-e2e`) is permanently retired without replacement wrappers. `tools/schemas/lesson-log.schema.json` still tolerates historical `workflow_mode: "e2e"` entries in archived lesson files, while active validation uses the unit suites above plus human-gated runs.
+
 ---
 
-:::tip[Further Reading]
+<span id="related"></span>
 
-- [Contributing](../../project/contributing/). branch naming and commit conventions
-- [Agent Hooks](../../guides/hooks/). runtime-hook retirement and historical context
-- [Workflow Validation](../../guides/e2e-testing/). focused checks and manual acceptance
+:::tip[Further reading]
 
-  :::
+- [Contributing](../../project/contributing/) for branch naming and pull-request checks
+- [Workflow engine and validation](../../concepts/how-it-works/workflow-engine/) for `apex-recall` gates and retired Copilot hooks
+- [Dev container base validation](../../guides/devcontainer-base-validation/) for multi-arch container CI
+
+:::

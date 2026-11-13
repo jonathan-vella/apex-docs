@@ -19,9 +19,23 @@ const originalPaths = execFileSync(
   .trim()
   .split("\n");
 
-test("import retains all source pages and binary assets with provenance", () => {
+const retiredSourcePaths = new Set([
+  "src/content/docs/concepts/how-it-works/four-pillars.md",
+  "src/content/docs/guides/e2e-testing.md",
+  "src/content/docs/guides/hooks.md",
+  "src/content/docs/project/sensei-branch.md",
+  "src/content/docs/reference/prompts/repository-prompts.md",
+]);
+
+const isRetiredSourcePath = (relative) =>
+  relative.startsWith("src/content/docs/demo/") ||
+  relative.startsWith("public/demo/") ||
+  retiredSourcePaths.has(relative);
+
+test("import retains active source pages and shared binary assets with provenance", () => {
   for (const original of originalPaths) {
     const relative = original.slice("site/".length);
+    if (isRetiredSourcePath(relative)) continue;
     assert.ok(fs.existsSync(path.join(root, relative)), relative);
     if (/\.(png|jpg|jpeg|svg|zip|PPTX|webp|gif)$/.test(relative)) {
       const bytes = execFileSync("git", ["show", `${origin.commit}:${original}`], {
@@ -33,15 +47,37 @@ test("import retains all source pages and binary assets with provenance", () => 
   }
 });
 
-test("frontmatter and built routes preserve the original documentation URLs", () => {
+test("frontmatter, built routes, and static redirects preserve all original documentation URLs", () => {
   for (const original of originalPaths.filter((file) => /\/content\/docs\/.*\.mdx?$/.test(file))) {
     const relative = original.slice("site/".length);
+    const defaultRoute = relative
+      .replace("src/content/docs/", "")
+      .replace(/\.mdx?$/, "")
+      .replace(/(^|\/)index$/, "")
+      .replace(/\/$/, "");
+
+    if (isRetiredSourcePath(relative)) {
+      const redirectHtmlPath = path.join(root, "dist", defaultRoute, "index.html");
+      assert.ok(fs.existsSync(redirectHtmlPath), `missing redirect for ${defaultRoute}`);
+      const redirectHtml = fs.readFileSync(redirectHtmlPath, "utf8");
+      const refreshMatch = redirectHtml.match(/http-equiv="refresh"\s+content="0;url=([^"#?]+)/i);
+      assert.ok(refreshMatch, `expected static meta-refresh redirect in ${defaultRoute}`);
+      const targetRoute = refreshMatch[1].replace(/^\//, "").replace(/\/$/, "");
+      const targetHtmlPath = targetRoute
+        ? path.join(root, "dist", targetRoute, "index.html")
+        : path.join(root, "dist", "index.html");
+      assert.ok(fs.existsSync(targetHtmlPath), `redirect target missing: ${defaultRoute} -> ${refreshMatch[1]}`);
+      const targetHtml = fs.readFileSync(targetHtmlPath, "utf8");
+      assert.ok(!/http-equiv="refresh"/i.test(targetHtml), `redirect chain detected: ${defaultRoute} -> ${refreshMatch[1]}`);
+      continue;
+    }
+
     const text = fs.readFileSync(path.join(root, relative), "utf8");
     const match = text.match(/^---\r?\n([\s\S]*?)\r?\n---/);
     assert.ok(match, relative);
     const frontmatter = yaml.load(match[1]);
     assert.ok(frontmatter.title && frontmatter.description, relative);
-    let route = frontmatter.slug ?? relative.replace("src/content/docs/", "").replace(/\.mdx?$/, "");
+    let route = frontmatter.slug ?? defaultRoute;
     route = route.replace(/(^|\/)index$/, "").replace(/\/$/, "");
     const output = route === "404" ? "404.html" : path.join(route, "index.html");
     assert.ok(fs.existsSync(path.join(root, "dist", output)), route);

@@ -1,23 +1,18 @@
 ---
 title: "MCP server integration"
-description: "MCP servers for Azure operations, pricing, and repository context"
+description: "Configure workspace-root .mcp.json for GitHub MCP and Azure MCP across retail pricing, documentation, and Terraform lookups."
 ---
 
-The Model Context Protocol (MCP) lets APEX agents discover and invoke external
-tools through a common interface. The workspace declares its servers in
-`.mcp.json`. Azure MCP runs as a workspace stdio process, not an additional
-Azure MCP extension pack.
+The Model Context Protocol (`MCP`) lets APEX agents query external services through a standard tool interface. APEX declares workspace servers in root `.mcp.json` (`mcpServers` with `"tools": ["*"]`) rather than deprecated `.vscode/mcp.json` (`servers`) so the VS Code **Copilot** harness loads them directly without migration prompts or extra Azure extension packs.
 
 ## Architecture
 
-The selected agent calls tools permitted by its definition. Workspace Azure MCP provides Azure
-service tools, including retail pricing. GitHub MCP provides repository context. Actual historical
-cost and forecast analysis in `apex-azure-cost-optimization` uses the authenticated Azure Cost
-Management REST API (`az rest`) rather than a separate hosted ARM MCP server. Each integration has
-its own authentication and authorization requirements.
+Workspace `.mcp.json` registers exactly two MCP servers:
 
-Registering a server does not authorize every agent to use every tool.
-Inspect the current configuration and the selected agent's declarations together.
+1. **`azure-mcp`** (`stdio` via `npx -y @azure/mcp@3.0.0 server start`): Azure retail pricing (`pricing_get`), Microsoft Learn documentation (`documentation`), Azure Terraform provider and AVM schemas (`azureterraform`), and read-only Azure resource inspection.
+2. **`github`** (`http` via `https://api.githubcopilot.com/mcp/`): Fallback repository, issue, and pull-request context when `gh` CLI does not cover a capability.
+
+The former hosted `azure-resource-manager-mcp` server and custom Python pricing server are retired. Historical and forecast Azure spend queries in `apex-azure-cost-optimization` and standalone WAF assessments run directly through authenticated Azure Cost Management REST API calls (`az rest --method post` against `Microsoft.CostManagement/query` and `Microsoft.CostManagement/forecast`).
 
 <span id="azure-resource-manager-mcp"></span>
 <span id="pricing-and-cost-tools"></span>
@@ -25,101 +20,79 @@ Inspect the current configuration and the selected agent's declarations together
 
 ## Cost analysis and retail pricing
 
-The `apex-azure-cost-optimization` skill, run by a main agent, queries actual historical spend and
-cost forecasts directly through the authenticated Azure Cost Management Query and Forecast REST APIs
-(`az rest --method post` against `Microsoft.CostManagement/query` and `Microsoft.CostManagement/forecast`),
-combined with Azure Monitor metrics and Azure Resource Graph for utilization analysis.
+APEX keeps actual billing evidence and retail catalog pricing strictly separate:
 
-The cost-estimate subagent prices planned resources from the retail catalog only (`azure-mcp/pricing`,
-command `pricing_get`). Deployment, resource mutation, and budget creation are outside
-APEX's permitted scope. Do not treat server registration as approval for those operations.
+- **Actual and forecast Azure spend (`apex-azure-cost-optimization` and standalone assessments).** Queries `Microsoft.CostManagement/query` and `Microsoft.CostManagement/forecast` via `az rest`, keeping `ActualCost` and `AmortizedCost` views and currencies separate and combining spend data with Azure Monitor utilization metrics.
+- **Planned and as-built retail pricing (`cost-estimate-subagent`).** Queries `azure-mcp` `pricing` (`pricing_get`) for evidence-backed `cost-estimate-v2` monthly workload estimates or `retail-rate-quote-v1` unit-rate quotes when monthly usage is unknown.
 
 ### Migration limitations
 
-The official Azure MCP pricing tool and Cost Management REST APIs replace the former custom Python
-pricing server and hosted ARM MCP entry. APEX no longer provides custom bulk estimates, fuzzy SKU
-discovery, customer discounts, PTU sizing, Databricks or GitHub pricing, Spot history or simulation,
-or orphaned resource detection through its pricing workflow.
-
-No compatibility adapter is retained. Use official service-specific sources in
-a separate workflow when one of those capabilities is required.
+Retiring the custom pricing server and `azure-resource-manager-mcp` means APEX does not perform negotiated EA/MCA discount lookups, fuzzy SKU guessing, PTU capacity simulation, Databricks/GitHub license pricing, or Spot eviction history inside `cost-estimate-subagent`. Verify enterprise-discounted budgets in the [Azure Pricing Calculator](https://azure.microsoft.com/pricing/calculator/) or Azure Cost Management.
 
 ## Azure MCP server
 
-At the site's source pin, Azure MCP runs as a workspace stdio server through
-`npx -y @azure/mcp@3.0.0 server start` in `.mcp.json`. This avoids installing an Azure extension
-pack and its unrelated transitive extensions.
+In `.mcp.json`, `azure-mcp` runs as a pinned workspace `stdio` process:
 
-Agents use it for governance discovery, Azure service inspection, Microsoft
-Learn searches, Azure Terraform guidance, and retail pricing. It uses Azure CLI or managed
-identity credentials as supported by the server.
+```json title=".mcp.json"
+{
+  "mcpServers": {
+    "github": {
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp/",
+      "tools": ["*"]
+    },
+    "azure-mcp": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@azure/mcp@3.0.0", "server", "start"],
+      "env": {
+        "NPM_CONFIG_ALLOW_REMOTE": "all"
+      },
+      "tools": ["*"]
+    }
+  }
+}
+```
 
 ### Azure MCP pricing
 
-The cost-estimate subagent prices planned resources only through the Azure MCP `pricing` tool
-(`azure-mcp/pricing`, command `pricing_get`) and has no other Azure tool. It takes `sku`, `service`, `region`,
-`service-family`, `price-type`, `currency`, `include-savings-plan` and a raw OData `filter`; at least one filter input is
-required. Meter and product constraints go through `filter`, for example
-`serviceName eq 'Azure App Service' and armRegionName eq 'swedencentral' and meterName eq 'P1 v3 App'`.
+`cost-estimate-subagent` calls `azure-mcp` `pricing` (`pricing_get`) with `sku`, `service`, `region`, `service-family`, `price-type`, `currency`, `include-savings-plan`, and an OData `filter` (for example, `serviceName eq 'Azure App Service' and armRegionName eq 'swedencentral' and meterName eq 'P1 v3 App'`).
 
-On the pinned release, an empty match returns `status: 200` with an empty `prices` array, a bare `service` such as
-`SQL Database` can be rejected with `status: 400`, and responses carry no paging metadata. The subagent therefore
-narrows queries by `productName` or `meterName`, selects meters locally, calculates totals from `retailPrice`,
-`unitOfMeasure`, quantity and explicit usage, and fails closed when a meter or usage assumption is ambiguous. The
-Architect asks it to price one decision per call, with meter hints in the prompt, so one call cannot exhaust the
-request budget.
-
-If `pricing_get` returns no rows or a retryable error, only the subagent may use the documented public Retail Prices
-API helper as evidence fallback. That evidence is labelled as direct API data, never as MCP output.
+Because `@azure/mcp@3.0.0` returns `status: 200` with an empty `prices` array on zero matches and rejects unspecific `service` strings with `status: 400`, `03-Architect` dispatches focused calls with explicit meter hints, and `cost-estimate-subagent` captures raw response hashes and verifies unit conversions and tier arithmetic (`cost-estimate-v2`). If `pricing_get` returns empty rows or a retryable transport error, only `cost-estimate-subagent` may invoke the constrained direct Azure Retail Prices API fallback, labeling those records with direct-API provenance rather than MCP provenance.
 
 ## Other servers
 
-| Server | Transport | Purpose |
+| Server | Transport | Primary role in APEX |
 | --- | --- | --- |
-| GitHub MCP | HTTP | Repository, issue, and pull-request context |
+| `github` | HTTP | Fallback GitHub API context (`gh` CLI remains primary for issues and pull requests) |
 
-Architecture diagrams are generated locally through the `apex-python-diagrams` skill,
-not through MCP. Terraform module versions, module READMEs and provider documentation come from the Azure MCP
-`azureterraform` commands (`avm versions`, `avm get`, `azurerm get`, `azapi get`), with the public Terraform
-Registry API as the fallback. The AVM module index stays the source for module existence and lifecycle, and
-initialized provider schemas come from Terraform CLI.
-
-An unknown module makes `avm versions` return status 400 (`ArgumentException`, "not found in available modules");
-that is the only response agents treat as "unpublished". `azurerm get` returns status 200 even for an unknown
-resource type, so an empty `arguments` list with a "Documentation not found" summary means the type does not exist.
+Architecture diagrams are rendered locally through `apex-python-diagrams` rather than an MCP server. Terraform AVM module versions, READMEs, and `azurerm` / `azapi` provider docs come from `azure-mcp` `azureterraform` (`avm versions`, `avm get`, `azurerm get`, `azapi get`), with the public Terraform Registry API as fallback.
 
 ## Verification
 
-Run the configuration validator:
+Validate `.mcp.json` and pinned tool snapshots from your project root:
 
 ```bash
 npm run lint:mcp-config
+npm run validate:mcp-tool-refs
 ```
 
-In VS Code, run **MCP: List Servers**, select `azure-mcp`, and restart it after configuration changes. In
-Chat's tool picker, verify that the `pricing` tool appears under `azure-mcp`.
-Actual tool availability still depends on the server and client session.
+In VS Code, run **MCP: List Servers** from the command palette to inspect or restart `azure-mcp` after configuration updates.
 
 ## Authentication
 
-| Server | Authentication |
+| Integration | Authentication |
 | --- | --- |
-| Azure MCP server | Azure CLI or managed identity; retail prices are public |
-| GitHub MCP | Client-managed GitHub authentication |
-| Public Terraform Registry and `azureterraform` lookups | No Azure credentials required |
+| `azure-mcp` retail pricing and `azureterraform` docs | Public catalog queries require no Azure sign-in |
+| `azure-mcp` resource inspection and `az rest` Cost Management | Active `az login` or managed identity with scoped `Reader` / `Cost Management Reader` access |
+| `github` MCP | VS Code GitHub Copilot sign-in (`gh` CLI uses its own `gh` config volume or host `GH_TOKEN`) |
 
-Authentication and authorization failures must be surfaced to the user. Agents
-must not fall back to remembered prices or expose tokens, tenant details, or
-other credentials.
+Agents surface authentication or RBAC denials directly to the user and never fabricate prices or expose credentials.
 
 ## Troubleshooting
 
 | Symptom | Action |
 | --- | --- |
-| Azure scope is denied | Sign in with an identity that has the required read permissions |
-| Retail query returns many rows or `status: 400` | Use a `filter` with service, region and `productName` or `meterName` |
-| Configuration is rejected | Run `npm run lint:mcp-config` and compare `.mcp.json` |
-
-Final estimates should still be reviewed against the
-[Azure Pricing Calculator](https://azure.microsoft.com/pricing/calculator/)
-before committing a budget.
+| Azure resource or Cost Management query returns `403` | Sign in with `az login --tenant <TENANT_ID>` using an identity with `Reader` (and `Cost Management Reader` for billing) on the target scope |
+| `pricing_get` returns `status: 400` or too many rows | Narrow the OData `filter` with exact `serviceName`, `armRegionName`, and `productName` or `meterName` |
+| MCP server fails to start or prompts migration | Confirm `.mcp.json` is at the workspace root, remove stale `.vscode/mcp.json`, and run `npm run lint:mcp-config` |

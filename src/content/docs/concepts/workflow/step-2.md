@@ -1,6 +1,6 @@
 ---
 title: "Step 2: Architecture"
-description: "Evaluate requirements against the Azure Well-Architected Framework and pick SKUs with the 03-Architect agent."
+description: "Evaluate requirements against the Azure Well-Architected Framework, select policy source, and produce evidence-backed retail pricing with 03-Architect."
 sidebar:
   order: 2
   label: "Step 2: Architecture"
@@ -8,100 +8,63 @@ sidebar:
 
 ## Purpose
 
-Assess the proposed architecture against the Azure Well-Architected Framework.
-Compare service and SKU choices with the workload, policy constraints, and budget.
-Record the source and date of pricing evidence.
+Evaluate the proposed architecture against all five Azure Well-Architected Framework pillars, select creative service SKUs in `sku-manifest.{json,md}`, and produce an evidence-backed monthly cost estimate.
 
 ## Agent
 
-[`03-Architect`](https://github.com/jonathan-vella/apex/blob/main/.github/agents/03-architect.agent.md)
-uses
-[`cost-estimate-subagent`](https://github.com/jonathan-vella/apex/blob/main/.github/agents/_subagents/cost-estimate-subagent.agent.md)
-for pricing work permitted by the agent definition.
+[`03-Architect`](https://github.com/jonathan-vella/apex/blob/main/.github/agents/03-architect.agent.md) delegates all retail dollar calculations to [`cost-estimate-subagent`](https://github.com/jonathan-vella/apex/blob/main/.github/agents/_subagents/cost-estimate-subagent.agent.md).
 
-Pillar evidence starts from the Well-Architected service guide for each in-scope service,
-found through the Azure MCP server and cited as the Microsoft Learn page. The agent also
-reads `apex-azure-kubernetes` when AKS is a candidate, and `apex-azure-upgrade` when the
-workload keeps an existing Functions Consumption app or Azure Cache for Redis instance.
+Pillar analysis starts from Microsoft Learn Well-Architected service guides retrieved via Azure MCP (`documentation`). `03-Architect` also loads `apex-azure-kubernetes` when AKS is in scope and `apex-azure-upgrade` when assessing Functions Consumption or legacy Azure Cache for Redis workloads.
 
 ## Choose policy evidence before Architecture
 
-Delivery projects using `corp-policy-v1` select a policy source after Requirements approval.
-The interactive owner reuses a captured choice or asks you to choose target-verified evidence
-or the standard Azure Landing Zones Corp assumptions.
+New delivery projects use `corp-policy-v1` to establish policy context before drafting Step 2:
 
-The shared file is `.github/data/alz-corp-policy-baseline.json.gz`. It describes the pinned
-`root`, `landing_zones` and `corp` archetypes. It does not describe your tenant's custom assignments,
-parameters or exemptions. Accepting it does not require a tenant ID, subscription ID or prepared JSON file.
+- **Shared ALZ Corp assumptions (`--assumed-corp`).** Reads `.github/data/alz-corp-policy-baseline.json.gz` (`governance_baseline.py --alz-default`) covering the pinned `root`, `landing_zones`, and `corp` archetypes. Requires no Azure tenant ID, subscription ID, or sign-in, and records `assumed_corp_not_tenant_verified`. Architecture can reach Gate 2 approval with an explicit `Assumed Corp policies` qualification, while Step 4 completion, CodeGen, and deployment still require `current` target-verified policy evidence.
+- **Target-verified policy evidence.** Captures non-secret tenant and subscription scope privately outside the repository and collects effective policies via `04g-Governance` (`discover.py --retain-rule-evidence`). See [private scope and evidence](/concepts/workflow/step-3-5/#private-scope-and-evidence).
 
-The owner records your actual acceptance with `apex-recall policy-source --assumed-corp`.
-Recall binds the shared file hash and reports `assumed_corp_not_tenant_verified`.
-Architecture may reach approval with that qualification. Both independent reviews still apply.
-Changed or missing baseline data requires a new source decision.
-
-If you select tenant evidence, Governance collects it within your explicitly authorized scope.
-The [Governance guide](/concepts/workflow/step-3-5/#private-scope-and-evidence) explains private capture.
-Assumptions cannot satisfy IaC planning completion, CodeGen or deployment. Those actions need current,
-target-verified policy evidence and their separate approvals.
-
-Existing projects keep their recorded contract until an explicit policy-source choice adopts this one.
-Adoption does not reset review attempts, rewrite completed steps or approve Azure operations.
-The source and guidance pins remain separate from this contract's rollout.
+Existing projects keep their recorded policy contract unless the owner explicitly runs `apex-recall policy-source`.
 
 ## Invocation
 
 ```text
-Select: 03-Architect in Copilot Chat
+Select: 01-Orchestrator or 03-Architect in Copilot Chat
 Output: agent-output/{project}/02-architecture-assessment.md
         agent-output/{project}/03-des-cost-estimate.md
+        agent-output/{project}/02-cost-estimate.json
         agent-output/{project}/03-des-sku-comparison.md
         agent-output/{project}/sku-manifest.{json,md} (rev 2)
 ```
 
 ## What gets produced
 
-- An assessment of reliability, security, cost optimization, operational excellence,
-  and performance efficiency.
-- SKU recommendations and pricing evidence recorded in the manifest.
-- Architecture decisions with alternatives and trade-offs.
-- Risks, assumptions, and proposed mitigations.
+- Five-pillar WAF evaluation (`Reliability`, `Security`, `Cost Optimization`, `Operational Excellence`, `Performance Efficiency`) with trade-offs and risk mitigations.
+- Authoritative SKU selections and `manifest_writeback[]` updates in `sku-manifest.{json,md}` (revision 2).
+- Complete workload monthly estimate (`cost-estimate-v2`) combining manifest services and project-deployed supplemental resources (such as Private Endpoints, Private DNS zones, Key Vault, NAT Gateway, and Log Analytics).
 
 ## Pricing inputs and evidence
 
-The parent runs preflight before dispatching retail pricing. Required usage includes each applicable storage,
-operation and transfer charge, with explicit aggregation and billing-route assumptions.
-The pricing helper captures actual source responses and validates the selected native meters and calculations.
-Recovery reuses current evidence without resetting request counts or inventing missing quantities.
+Every retail figure in user-facing artifacts must come from `cost-estimate-subagent` (Azure MCP `pricing_get` primary, constrained Azure Retail Prices API fallback):
 
-If you request indicative unit rates while monthly usage is unknown, the parent uses `purpose: "rate-quote"`
-with a separate output. That quote can support a discussion, but it does not provide a monthly workload total,
-update manifest prices or satisfy Architecture approval. Read the
-[retail pricing contract](/reference/cost-governance/#reproducible-retail-pricing) for evidence and reuse rules.
-
-Product documentation uses source/date references, short original billing conclusions, applicability and limitations;
-the exact-byte retail API rule does not require full-page documentation copies in Git.
-See [documentation publication and historical repair](/reference/cost-governance/#product-documentation-is-not-raw-retail-evidence).
+- **Monthly workload estimates (`purpose: "monthly-estimate"`).** Preflight checks required storage, operation, and data-transfer dimensions before querying meters, then verifies raw response hashes, unit conversions, tier bands, and arithmetic in `02-cost-estimate.json`. Step 2 completion rejects residual `*.tmp.md` files or `FAILED` cost outputs in the project root (`step2_residue`).
+- **Indicative rate quotes (`purpose: "rate-quote"`).** When the owner asks for unit rates while monthly usage is unknown, `cost-estimate-subagent` emits `retail-rate-quote-v1` with native meter units and tier bands. Rate quotes never write back to `sku-manifest.json` or satisfy Gate 2 cost-feasibility approval.
+- **Documentation references vs. raw meter evidence.** Billing inclusions and exemptions use structured source/date references and short original conclusions rather than archiving whole commercial documentation pages in Git. See [cost governance](/reference/cost-governance/#reproducible-retail-pricing).
 
 ## Review
 
-The default is one `comprehensive` architecture review and a separate
-`cost-feasibility` review of the cost estimate. Both are mandatory and independent.
-Use the `10-Challenger` handoff for each required scope.
+Step 2 requires **two** separate, synchronous `challenger-review-subagent` reviews before Gate 2 approval:
 
-Deep review needs explicit owner opt-in. It changes the architecture review plan,
-not the requirement for the independent cost-estimate review.
+1. A `comprehensive` review of `02-architecture-assessment.md`.
+2. An independent `cost-feasibility` review of `03-des-cost-estimate.md` and `02-cost-estimate.json`.
+
+Both reviews can run in parallel once their `review-audit ... --attempt-outcome started` records are logged sequentially. Opting into `decisions.review_depth = "deep"` adds rotating multi-pass lenses to architecture while keeping the separate `cost-feasibility` review mandatory.
 
 ## Hand-off
 
-After resolving findings and approving the architecture, select
-[optional design](/concepts/workflow/step-3/) or go directly to
-[Governance](/concepts/workflow/step-3-5/). Skipping design does not skip governance.
+After resolving review findings and approving Gate 2, advance to [Step 3: Design](/concepts/workflow/step-3/) when diagrams or ADRs are requested, or transition directly to [Step 3.5: Governance](/concepts/workflow/step-3-5/). Skipping Step 3 never skips Governance.
 
 ## See also
 
-- [WAF assessment guide](/guides/waf-assessment/) for standalone existing-workload assessments (`evidence_only` and `requirements_led`).
-- [Azure WAF pillars](https://learn.microsoft.com/azure/well-architected/)
-- [Well-Architected service guides](https://learn.microsoft.com/azure/well-architected/service-guides/)
-- [Cost estimate
-  subagent](https://github.com/jonathan-vella/apex/blob/main/.github/agents/_subagents/cost-estimate-subagent.agent.md)
-  for the pricing workflow.
+- [WAF assessment guide](/guides/waf-assessment/) for standalone existing-workload assessments
+- [Regulated delivery showcase: architecture and pricing](/showcases/regulated-delivery/architecture-and-pricing/)
+- [Cost governance](/reference/cost-governance/)

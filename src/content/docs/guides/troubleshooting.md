@@ -37,14 +37,11 @@ configuration if needed.
 
 <span id="2-orchestratorsubagent-invocation-not-working-vs-code-1109"></span>
 
-### 2. Orchestrator does not invoke the next main agent
+### 2. Orchestrator or subagent dispatch not working
 
-This is expected in the current workflow. Main agents, including Challenger,
-require human selection. Do not add wildcard `agents: ["*"]` permissions or an
-obsolete experimental setting to make Orchestrator delegate.
+Confirm that your VS Code Copilot Chat session target is **Copilot** (not a legacy Local profile) and reload the VS Code window if `.github/agents/` files were recently updated on disk.
 
-If an allowed helper fails, inspect the parent agent's actual tool and helper
-declarations. Main-agent handoffs and bounded helper calls are different mechanisms.
+In the Copilot target, `01-Orchestrator` is human-selected (`disable-model-invocation: true`) and dispatches allowlisted step workers and `challenger-review-subagent` through native tasks. Step workers call only their declared leaf subagents (`cost-estimate-subagent`, validate/preview subagents, `policy-precheck-subagent`, and `challenger-review-subagent`); if a delegated worker lacks nested task access, it returns `REVIEW_REQUIRED` so `01-Orchestrator` runs the sibling review automatically. Do not add wildcard `agents: ["*"]` frontmatter to work around a missing capability.
 
 ### 3. Skill not activating automatically
 
@@ -125,35 +122,19 @@ Do not paste credentials into prompts, committed scripts, or diagnostic bundles.
 
 ### 7. Artifact validation failures
 
-Compare the affected artifact with its current template under
-`.github/skills/apex-azure-artifacts/templates/`. Preserve required headings and
-their order. Run the check named in the failure through the supported product
-workflow. Do not delete mandatory sections to satisfy a prose cleanup.
+Compare the affected artifact against its template in `.github/skills/apex-azure-artifacts/templates/`, keeping required H2 headings in exact template order. Run `npm run validate:artifacts` from the workload repository root; note that agents do not invoke `markdownlint-cli2` directly against `agent-output/**` because Git Lefthook (`artifact-validation`) and Challenger review enforce artifact compliance.
 
 ### 8. MCP server not responding
 
-Check `.mcp.json`, the client's registered servers, authentication, and the
-specific tool's error. Restart the failed server through the client's MCP controls
-when appropriate.
+Confirm workspace-root `.mcp.json` exists (`github` and `azure-mcp` at `@azure/mcp@3.0.0`), remove any stale `.vscode/mcp.json`, and run `npm run lint:mcp-config`. In VS Code, run **MCP: List Servers** and restart `azure-mcp` if needed.
 
-Missing pricing evidence must remain missing. Work that does not depend on the
-failed tool may continue, but a required check cannot become a success by fallback.
-Governance uses Azure authentication independently of retail-pricing access.
+Never substitute remembered prices when `pricing_get` fails; surface the error directly. Note that `azure-resource-manager-mcp` is retired and historical Cost Management queries use `az rest` with `Cost Management Reader` permissions.
 
 ### 9. Dev container build fails
 
-Read the first failed build step. Confirm Docker is available and WSL integration
-is enabled. Check proxy, registry, disk, and port errors before rebuilding.
-Do not disable TLS verification to get past a package-download failure.
+Inspect the first failing step in the Dev Containers log, verify Docker Desktop and WSL2 integration are running, and never disable TLS verification to bypass download errors.
 
-If setup fails at an `npm` or Python install, check the package sources line in the
-startup output and see
-[package sources](/getting-started/dev-containers/#package-sources). If a customized
-container stopped building after an update, see the
-[migration steps](/getting-started/dev-containers/#migrate-a-customized-container).
-
-Use [container setup](/getting-started/dev-containers/) for the supported environment.
-A successful native Windows dev preview does not establish Linux build compatibility.
+If corporate network inspection causes an SSL `HandshakeFailure` against `files.pythonhosted.org` or `registry.npmjs.org` on a Microsoft device, close all VS Code windows, connect to corporate VPN, relaunch from the host via `.\.devcontainer\open-microsoft.ps1` or `bash .devcontainer/open-microsoft.sh`, and rebuild. See [package sources](/getting-started/dev-containers/#package-sources) and [container migration](/getting-started/dev-containers/#migrate-a-customized-container).
 
 <span id="10-orphaned-vs-code-extensions-injecting-unwanted-instructions"></span>
 
@@ -176,11 +157,11 @@ Product scripts do not necessarily exist in apex-docs.
 Do not use `--no-verify` as a routine workaround. A corrected commit message does
 not resolve a failing source or artifact validator.
 
-### 12. Handoff prompt not working
+<span id="12-handoff-prompt-not-working"></span>
 
-Check that the target agent exists and matches the handoff declaration. Main-agent
-selection remains a human action. Inspect malformed frontmatter or a client discovery
-problem rather than adding delegation privileges.
+### 12. Handoff button not appearing
+
+Active APEX agent definitions intentionally omit `handoffs:` frontmatter, so VS Code does not render handoff buttons at the bottom of replies. Continue inside `01-Orchestrator` (or send `resume <project>` in a new `01-Orchestrator` chat), or select the next step agent named in `agent-output/{project}/00-handoff.md` from the agent picker.
 
 ## Diagnostic commands
 

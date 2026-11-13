@@ -1,0 +1,88 @@
+---
+title: "Overview and authorized scope"
+description: "Read-only scope authorization, business context, scalar collection rules, and terminal lifecycle for a four-subscription brownfield WAF assessment."
+---
+
+This showcase examines `partner-modernization-factory-v2`, a requirements-led, Azure-sourced standalone Well-Architected Framework assessment produced with [APEX standalone assessment mode](/guides/waf-assessment/) (`workflow_mode=assessment`). `02-Requirements`, `03-Architect`, `04-Design`, and `challenger-review-subagent` evaluated one Microsoft Entra tenant and four Azure subscriptions without writing to Azure or reading sensitive values.
+
+<div class="showcase-stat-grid">
+  <div class="showcase-stat">
+    <span class="showcase-stat__label">Authorized scope</span>
+    <span class="showcase-stat__value">1 tenant · 4 subscriptions</span>
+  </div>
+  <div class="showcase-stat">
+    <span class="showcase-stat__label">Reconciled inventory</span>
+    <span class="showcase-stat__value">22 RGs · 211 resources</span>
+  </div>
+  <div class="showcase-stat">
+    <span class="showcase-stat__label">October ActualCost</span>
+    <span class="showcase-stat__value">$1,050.07 USD</span>
+  </div>
+  <div class="showcase-stat">
+    <span class="showcase-stat__label">Bundle contract</span>
+    <span class="showcase-stat__value">assessment-bundle-v3</span>
+  </div>
+</div>
+
+## Existing-state overview diagram
+
+`04-Design` generated the overview below from scalar inventory and topology snapshots using `apex-python-diagrams` (`dlib.py`). Solid blue arrows mark observed control-plane associations such as connected VNet peerings and Private DNS links. Dashed amber arrows mark user-declared flows that a read-only control-plane scan cannot test.
+
+![Existing-state four-subscription assessment diagram showing Shared, Member 01, Member 02, and Member 03 resource groups, peering states, and four unverified critical-flow sketches](/showcases/waf-assessment/03-des-diagram.svg)
+
+[Open full-size SVG](/showcases/waf-assessment/03-des-diagram.svg)
+
+## Authorized tenant and subscription boundary
+
+The operator granted explicit read-only access to all resource groups in four subscriptions under synthetic tenant placeholder `00000000-0000-4000-8000-000000000000`. Collateral and unattributed resource groups remained in scope so subscription-wide billing and inventory totals could reconcile without guesswork.
+
+| Logical alias | Display role | Synthetic subscription ID | Declared attribution in brief | Observed RGs / resources |
+| --- | --- | --- | --- | ---: |
+| `gh-shared` | Shared | `00000000-0000-4000-8000-000000000001` | Shared hub; `rg-management` declared shared | `7 / 21` |
+| `gh-workload01` | Member 01 | `00000000-0000-4000-8000-000000000002` | Member workload; `rg-spoke` declared workload | `6 / 75` |
+| `gh-workload02` | Member 02 | `00000000-0000-4000-8000-000000000003` | Member workload; `rg-spoke` declared workload | `6 / 112` |
+| `gh-workload03` | Member 03 | `00000000-0000-4000-8000-000000000004` | Member workload; `rg-spoke` declared workload | `3 / 3` |
+
+Only `rg-management` in Shared and `rg-spoke` in Member 01 matched explicit ownership declarations in the scope receipt. `rg-hub`, `rg-datacenter`, and `rg-university-cijshn` carried inferred reference associations with unknown ownership. All other resource groups remained unattributed rather than guessed from naming conventions.
+
+## Permitted scalar categories and non-read guardrails
+
+The scope receipt restricted `03-Architect` to seven scalar read categories and blocked credential, configuration-value, and out-of-scope queries:
+
+| Boundary | Rule enforced during collection |
+| --- | --- |
+| Permitted read categories | `configuration`, `topology`, `utilization`, `operations`, `recovery`, `billing`, and `policy` |
+| Prohibited data reads | Secrets, keys, connection strings, app settings, user data, tag values, alert recipient addresses, credential-bearing command output, and HTTP authorization headers |
+| Prohibited Azure actions | Resource writes, account or tenant switching, CLI extension installs, management-group-wide queries, billing-account queries, and live remediation |
+| Unsafe collector projections | Stock full-body topology and raw diagnostic-setting projections were skipped in favor of scalar-allowlisted Azure Resource Graph and REST queries |
+
+Because tag values and alert email addresses were excluded from the read scope, the assessment recorded zero email addresses or user principal names while still verifying action-group enablement and resource-group container locations.
+
+## Declared lab brief versus observed Azure state
+
+In `requirements_led` mode, `02-Requirements` captured the operator's modernization hackathon brief first so `03-Architect` could test declared expectations against live Azure evidence:
+
+- **Declared reference scenario.** A two-day partner hackathon modernizing Contoso University (~25,000 fictional students, not a measured concurrency target) from simulated on-premises VMs (`vm-app01` and `vm-dev01` in `vnet-datacenter`) to a vended spoke (`vnet-spoke`) running Linux App Service `P0v3`, SQL Managed Instance `GP_Gen5` (4 vCores), ACR Premium, Storage `Standard_LRS`, Service Bus Premium, and Key Vault Standard.
+- **Declared critical flows.** Public HTTPS student traffic to App Service and SQL MI; managed-identity Blob access to `teaching-materials`; managed-identity Service Bus notifications; online Managed Instance Link cutover under one hour with documented rollback; and developer access to `vm-dev01` through a shared Azure Bastion.
+- **Observed reality.** Only Member 01 contained `rg-spoke` and an associated `rg-university-cijshn` deployment. Member 02 held `112` resources across ArcBox, harness, and Azure Migrate resource groups with no `rg-spoke`. Member 03 held `3` baseline governance and alert resources with no `rg-spoke`. Shared contained `vnet-hub`, Azure Firewall, and four Private DNS zones, but no Azure Bastion existed in the shared subscription.
+
+## Terminal bundle lifecycle
+
+Standalone assessments follow a dedicated state machine in `apex-recall assessment` and stop permanently once accepted:
+
+| Graph phase | Owner | Outcome in this run |
+| --- | --- | --- |
+| `scope` | `01-Orchestrator` | Recorded four-subscription read receipt and reporting windows (`2026-11-11T15:13:51.244Z` cutoff). |
+| `requirements` | `02-Requirements` | Authored `01-requirements.md` separating user-declared targets from unverified runtime state. |
+| `evidence` | `03-Architect` | Reconciled `22` resource groups, `211` resources, `16/16` `ActualCost` slices, and `16/16` `AmortizedCost` slices with partial runtime coverage. |
+| `analysis` | `03-Architect` | Authored `02-architecture-assessment.md`, `03-cost-management-report.md`, `03-amortized-cost-supplement.md`, and the 18-item action register. |
+| `diagram` | `04-Design` | Generated 8 deterministic `dlib.py` SVGs covering 100% of observed resource groups, resource families, and subnets. |
+| `review` | `challenger-review-subagent` | Approved both independent closure passes (`architecture` pass 2/2 and `cost-feasibility` pass 3/3), retaining one `should_fix` advisory item per lens. |
+| `acceptance` | Human operator | Recorded terminal owner acceptance on `2026-11-13`. No Step 3.5 Governance, Step 4 plan, IaC generation, or deployment follows. |
+
+## Explore this track
+
+- [Five-pillar WAF posture](/showcases/waf-assessment/waf-posture/): inspect the control-only scoring rubric and per-pillar evidence coverage.
+- [Actual and amortized cost analysis](/showcases/waf-assessment/cost-analysis/): inspect closed-month spend, Forecast API splits, and resource-group attribution.
+- [Existing-state topology and inventory](/showcases/waf-assessment/topology-and-inventory/): walk through all eight topology and family-level inventory diagrams.
+- [Challenger closures and action register](/showcases/waf-assessment/reviews-and-register/): inspect the Challenger review repairs and the 18-item remediation register.

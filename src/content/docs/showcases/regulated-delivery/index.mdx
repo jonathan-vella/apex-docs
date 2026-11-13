@@ -1,0 +1,86 @@
+---
+title: "Overview and vended spoke brief"
+description: "Center of Excellence platform kit requirements, vended Azure Landing Zone spoke contract, three-input interface, and pinned SKU manifest for Contoso University."
+---
+
+This showcase examines the `university` Center of Excellence (CoE) platform archetype (`B09`), built with the [APEX delivery workflow](/concepts/workflow/) (`practical-v1`, Steps 1 to 5). The CoE team authored and validated a reusable Bicep modernization platform that lands inside an existing vended Corp spoke without creating or modifying virtual networks, subnets, NSGs, route tables, or Private DNS zones.
+
+<div class="showcase-stat-grid">
+  <div class="showcase-stat">
+    <span class="showcase-stat__label">Verified retail run-rate</span>
+    <span class="showcase-stat__value">$1,320.95/mo ($1.81/hr)</span>
+  </div>
+  <div class="showcase-stat">
+    <span class="showcase-stat__label">Policy blockers satisfied</span>
+    <span class="showcase-stat__value">19 Deny · 0 conflicts</span>
+  </div>
+  <div class="showcase-stat">
+    <span class="showcase-stat__label">Design artifacts</span>
+    <span class="showcase-stat__value">8 ADRs · 7 SVG diagrams</span>
+  </div>
+  <div class="showcase-stat">
+    <span class="showcase-stat__label">IaC implementation</span>
+    <span class="showcase-stat__value">10 Bicep modules · 36 resources</span>
+  </div>
+</div>
+
+## CoE archetype architecture in the vended spoke
+
+`04-Design` generated the service diagram below to illustrate how the archetype creates `rg-university-<suffix>` and injects compute, private endpoints, and SQL Managed Instance into the pre-vended `rg-spoke` subnets while relying on central shared services for egress filtering, Private DNS registration, and log analytics.
+
+![Service architecture diagram for the Contoso University CoE archetype inside the vended Corp spoke](/showcases/regulated-delivery/03-des-diagram.svg)
+
+[Open full-size SVG](/showcases/regulated-delivery/03-des-diagram.svg)
+
+## CoE authoring versus member deployment split
+
+Rather than forcing every hackathon or product team to repeat architecture, pricing, policy discovery, and Bicep authoring from scratch, the `university` kit separates reusable CoE engineering from adopter execution:
+
+| Delivery stage | Owner | APEX steps | Deliverables and boundary |
+| --- | --- | --- | --- |
+| Reusable platform kit authoring | Center of Excellence (`apex-factory-coe`) | [Step 1](/concepts/workflow/step-1/) to [Step 5](/concepts/workflow/step-5/) | `01-requirements.md`, `sku-manifest.json` (rev 3), `02-architecture-assessment.md`, `03-des-cost-estimate.md`, `ADR-0001` to `ADR-0008`, `04-governance-constraints.md`, `04-implementation-plan.md`, signed `risk/` records, and `infra/bicep/university/`. Zero tenant or subscription GUIDs committed in templates. |
+| Per-team workload provisioning | Adopting member team | [Step 6](/concepts/workflow/step-6/) and [Step 7](/concepts/workflow/step-7/) | Supplies three environment variables (`AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`, `SUFFIX`), obtains adopter deployment authorization, runs `azd provision` (with `preprovision` and `postprovision` hooks), and generates `06-deployment-summary.md` and `07-*` as-built records. |
+| Application and data cutover | Parallel app and DB tracks (`B06` / `B10` / `C7`) | Post-platform | Pushes the `.NET 10` `contoso-university` container image to private ACR, migrates SQL Server 2022 from `vm-app01` via Managed Instance Link, writes `ConnectionStrings--DefaultConnection` to Key Vault, and removes the MI link so the weekday stop/start schedule activates. |
+
+## Three-input adopter contract and automatic discovery
+
+Requirement capability 2 restricts human deployment inputs to three values. A cross-platform PowerShell 7 `preprovision` hook (`scripts/preflight.ps1`) discovers every remaining parameter read-only from the vended landing zone and fails closed before ARM creates any resource:
+
+| Value | Source | Preflight verification rule |
+| --- | --- | --- |
+| `AZURE_TENANT_ID` | Human input | Must equal the signed-in `az account show` tenant ID. |
+| `AZURE_SUBSCRIPTION_ID` | Human input | Must equal the signed-in workload subscription ID. |
+| `SUFFIX` | Human input (`4` to `6` lowercase `[a-z0-9]`) | Checked for length, character set, and global DNS name availability across ACR, Storage, Service Bus, Key Vault, and App Service (`18` to `23` character generated names, all within Azure's 24-character Storage and Key Vault ceilings). |
+| `AZURE_LOCATION` | Derived from `vnet-hub` via `vnet-spoke` peering | Must belong to the approved manifest set (`swedencentral` or `germanywestcentral`); blocks silent region drift. |
+| `LOG_ANALYTICS_WORKSPACE_ID` | Derived (`rg-management/log-management` in shared sub) | Workspace must exist in an approved EU region, and the deployer must hold link permissions. |
+| `SQLMI_DIRECTORY_IDENTITY_ID` | Derived (`rg-management/id-sqlmi-directory` in shared sub) | Identity must exist and grant `Microsoft.ManagedIdentity/userAssignedIdentities/*/assign/action` to the deployer. |
+| `DEPLOYER_OBJECT_ID` and `DEPLOYER_UPN` | Derived from signed-in Microsoft Entra user | Principal must be a human user (service principals fail closed); wired as SQL MI Entra admin and data-plane operator. |
+
+## Vended landing-zone invariants
+
+Eighteen functional capabilities govern how the kit interacts with the landing zone (`B08`):
+
+- **Zero network or DNS declarations.** `rg-spoke`, `vnet-spoke` (`10.20.1.0/24`), `snet-app` (`/26`, delegated to `Microsoft.Web/serverFarms`), `snet-pe` (`/26`), and `snet-sqlmi` (`/26`, delegated to `Microsoft.Sql/managedInstances` with vended `nsg-sqlmi` and `rt-sqlmi`) are referenced by `resourceId()` only.
+- **VNet-routed container startup.** The web app sets `outboundVnetRouting.allTraffic: true` and `outboundVnetRouting.imagePullTraffic: true`, booting initially from pinned placeholder `mcr.microsoft.com/dotnet/samples:aspnetapp-10.0` (`WEBSITES_PORT=8080`) over hub firewall rule `app-to-mcr` before switching to its private ACR copy in `postprovision`.
+- **Exact application configuration contract.** App Service settings preserve the `.NET` configuration hierarchy (`Storage__BlobServiceUri`, `Storage__ContainerName=teaching-materials`, `ServiceBus__FullyQualifiedNamespace`, `ServiceBus__QueueName=notifications`, `KeyVault__VaultUri`, `APPLICATIONINSIGHTS_CONNECTION_STRING`, and `AZURE_CLIENT_ID`) with zero stored secrets.
+
+## Pinned SKU manifest (`sku-manifest-v1`, revision 3)
+
+All five creative SKU choices were pinned by the brief in Step 1 (`02-Requirements`), priced by `cost-estimate-subagent` in Step 2 (`03-Architect`), and reconciled against live Azure Policy and AVM defaults in Step 4 (`05-IaC Planner`):
+
+| Manifest `id` | Azure service | Base SKU and capacity | Zonal | Approved regions | Required capabilities (`requires[]`) | Monthly retail estimate |
+| --- | --- | --- | --- | --- | --- | ---: |
+| `app-service-plan` | App Service Plan (Linux) | `P0v3`, capacity `1` | Disabled | `swedencentral`, `germanywestcentral` | `vnet-integration`, `managed-identity` | `$64.97` |
+| `container-registry` | Container Registry | `Premium`, capacity `1` | Platform-auto | `swedencentral`, `germanywestcentral` | `private-endpoints`, `managed-identity` | `$50.69` |
+| `service-bus` | Service Bus Namespace | `Premium`, `1` MU | Platform-auto | `swedencentral`, `germanywestcentral` | `private-endpoints`, `managed-identity` | `$677.08` |
+| `sql-managed-instance` | SQL Managed Instance | `GP_Gen5`, `4` vCores, `64` GB (`BasePrice` AHB) | Disabled | `swedencentral`, `germanywestcentral` | `managed-identity` | `$497.68` |
+| `storage-account` | Storage Account (`StorageV2`) | `Standard_LRS`, `Hot` | Disabled | `swedencentral`, `germanywestcentral` | `private-endpoints` | `$1.08` |
+
+Key Vault Standard (`$0.15/month`) and four Standard Private Endpoints (`$29.30/month`) sit outside `sku-manifest-v1` creative-SKU scope and bring the verified workload total to **`$1,320.95/month`**. See [SKU manifest](/concepts/how-it-works/sku-manifest/) for schema rules.
+
+## Explore this track
+
+- [Architecture and retail pricing](/showcases/regulated-delivery/architecture-and-pricing/): inspect the WAF pillar trade-offs, retail meter lines, SQL MI license comparison, and weekday schedule projection.
+- [Architecture decisions and network design](/showcases/regulated-delivery/design-and-adrs/): inspect the spoke network diagram and `ADR-0001` through `ADR-0008`.
+- [Policy reconciliation and lab risk contract](/showcases/regulated-delivery/governance-and-risk/): inspect the `19` Deny blockers and the hash-bound `risk-envelope-v1` authorization records.
+- [Implementation plan and AVM Bicep modules](/showcases/regulated-delivery/plan-and-bicep/): inspect the dependency and runtime diagrams, all `10` Bicep modules, PowerShell hooks, and ARM Provider validation.

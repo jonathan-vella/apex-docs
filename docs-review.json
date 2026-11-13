@@ -1,12 +1,12 @@
 {
-  "reviewedOn": "2026-10-20",
+  "reviewedOn": "2026-11-13",
   "evidence": "source-review",
   "apex": {
     "repository": "jonathan-vella/apex",
-    "commit": "d1cea2d1c04f9302827e683adafaeb079cd0b2b1"
+    "commit": "7c195a1c8e06a5d0c3aa305d1870356e5829df92"
   },
   "accelerator": {
     "repository": "jonathan-vella/apex-accelerator",
-    "commit": "b5c31fa5b07400cbb1379bf4447d6ecafdea6f57"
+    "commit": "9e7432ca90a9db86e9f85f28d3afd6db78d97c19"
   }
 }

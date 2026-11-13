@@ -22,9 +22,7 @@ mean that every command, client configuration or Azure operation was executed.
 An execution-tested claim needs its own recorded environment, inputs and result.
 The site's build date and page modification dates are not execution evidence.
 
-The dated [case study](/demo/) and preserved downloads are historical material,
-not compatibility promises. The footer links here and identifies the guidance
-baseline separately from the documentation build.
+The [showcases](/showcases/) and preserved downloads illustrate completed outputs at their recorded revisions rather than live tenant guarantees. The site footer links here and identifies the guidance baseline separately from the documentation build.
 
 ## Identify what your project contains
 
@@ -33,43 +31,25 @@ Run these read-only commands in your template-derived repository:
 ```bash
 git status --short
 git rev-parse HEAD
-git log -5 --oneline -- .github/agents .github/skills .devcontainer .vscode
+git log -5 --oneline -- .github/agents .github/skills .devcontainer .mcp.json
 ```
 
-The first command shows local changes; the second identifies your project commit.
-That commit is not necessarily an APEX release or upstream revision. Use the
-merged sync PR and its source comparison to identify which upstream changes
-your repository received. If that history is unavailable, compare the relevant
-files directly rather than assuming your project matches current main.
-
-Before updating, preserve your work through your normal reviewed Git process.
-Do not include secrets, local credentials or raw diagnostic logs in a commit.
-Resolve local changes before applying an upstream update.
+The first command shows uncommitted work; the second prints your repository commit. Use your merged `Upstream Sync` pull requests to see which `apex` revisions your repository has already adopted, and commit or stash local changes before applying upstream updates.
 
 ## Review the sync mechanism in your repository
 
-<p>The reviewed template's <a href={`https://github.com/${review.accelerator.repository}/blob/${review.accelerator.commit}/.github/workflows/weekly-upstream-sync.yml`}>Upstream Sync workflow</a> proposes scheduled updates through a PR. Manual runs default to a dry run. It does not automatically merge them.</p>
+<p>The reviewed template's <a href={`https://github.com/${review.accelerator.repository}/blob/${review.accelerator.commit}/.github/workflows/weekly-upstream-sync.yml`}>Upstream Sync workflow</a> proposes scheduled updates through a pull request. Manual workflow dispatches default to a dry run and never merge automatically.</p>
 
-Read the workflow in your own repository first. It may have changed since you
-created the project, and a template-derived repository is not continuously
-identical to its template.
+Inspect `.github/workflows/weekly-upstream-sync.yml` in your own repository first. At the reviewed baseline, sync mirrors upstream framework files while honoring `EXCLUDE_PATHS` and `SYNC_EXCEPTIONS`:
 
-At the reviewed baseline, the sync mirrors upstream files except for declared
-exclusions, exceptions and seed rules:
-
-| Content | What to review |
+| Path group | Sync behavior |
 |---|---|
-| Agents, skills, instructions, prompts, hooks and container/editor configuration | Upstream can replace these files. Preserve intentional local changes explicitly. |
-| `agent-output/`, generated `infra/bicep/` and `infra/terraform/` | These are excluded, but shared `infra/*/AGENTS.md` files are explicit sync exceptions. |
-| Root `AGENTS.md` and shared repository configuration | Do not assume these are protected just because generated workload files are excluded. |
-| `.github/workflows/` | These are handled separately. Review workflow changes and permissions before intentionally using `npm run sync:workflows`. |
-| Private data and locally seeded indexes | Read the actual exclusion and seed lists. Do not copy private data into an upstream contribution. |
+| `.github/agents/`, `.github/skills/`, `.github/instructions/`, `.github/prompts/`, `.devcontainer/`, and `.mcp.json` | Replaced by upstream; preserve intentional local edits explicitly. |
+| `agent-output/`, `infra/bicep/{project}/`, and `infra/terraform/{project}/` | Preserved in `EXCLUDE_PATHS`, except shared `infra/bicep/AGENTS.md` and `infra/terraform/AGENTS.md` in `SYNC_EXCEPTIONS`. |
+| `.github/data/` | Preserves adopter-owned tenant data (such as `governance-policy-baseline.json.gz`), while syncing `.github/data/alz-corp-policy-baseline.json.gz` through `SYNC_EXCEPTIONS`. |
+| `.github/workflows/` | Excluded from automatic file overwrite; preview upstream workflow updates with `npm run sync:workflows` and apply intentionally with `npm run sync:workflows -- --apply --ref <commit-sha>`. |
 
-The owner intentionally deleted APEX `.github/hooks/` runtime hooks in the
-October 18 migration. Preserve that retirement when reviewing an older baseline
-or a sync diff; do not restore or replace the hooks to match the table. This
-does not retire Git Lefthook, pre-commit security checks, or unrelated CI.
-See the [retirement record](/guides/hooks/).
+Runtime `.github/hooks/` chat hooks remain retired upstream. Do not recreate `.github/hooks/` during sync reviews; Git Lefthook, `gitleaks`, and CI workflows remain active. See [Copilot hooks](/concepts/how-it-works/workflow-engine/#copilot-hooks).
 
 Do not replace this review with a bulk copy of APEX main or a destructive Git
 reset. A dry run helps inspect the proposed update; it is not proof that the

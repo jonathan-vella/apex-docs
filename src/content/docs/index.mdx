@@ -1,6 +1,6 @@
 ---
 title: APEX
-description: Plan, generate, and verify Azure infrastructure with GitHub Copilot agents and human approval.
+description: Assess existing Azure environments or deliver policy-compliant Bicep and Terraform with GitHub Copilot agents, verified pricing, and human approval gates.
 template: splash
 ---
 
@@ -13,14 +13,14 @@ import AgentChat from "../../components/AgentChat.astro";
     <h1 class="landing-hero__title">
       <span>Agentic Platform Engineering for Azure</span>
     </h1>
-    <p class="landing-hero__tagline">Use GitHub Copilot agents to capture requirements, assess costs and policy, and generate Bicep or Terraform. Review the evidence and approve each handoff before deployment.</p>
+    <p class="landing-hero__tagline">Assess existing Azure workloads or deliver policy-compliant Bicep and Terraform with GitHub Copilot agents, verified pricing, and human approval gates.</p>
 
     <div class="landing-hero__actions">
       <a class="sl-link-button primary not-content" href="getting-started/quickstart/">
         Get started
       </a>
-      <a class="sl-link-button minimal not-content" href="https://github.com/jonathan-vella/apex-accelerator">
-        Use the template
+      <a class="sl-link-button minimal not-content" href="showcases/">
+        Explore showcases
       </a>
     </div>
 
@@ -35,28 +35,25 @@ import AgentChat from "../../components/AgentChat.astro";
 
 <section class="landing-section scenario-frame not-content">
   <div class="scenario-frame__head">
-    <div class="section-label">How it works</div>
-    <h2>Review the plan before deploying</h2>
-    <p>Each main agent owns a step. You select the agent and approve the next action.</p>
+    <div class="section-label">Two workflows</div>
+    <h2>Assess existing estates or build regulated platforms</h2>
+    <p>Coordinate specialists through <code>01-Orchestrator</code> in VS Code, inspect independent Challenger findings, and approve each stage before moving forward.</p>
   </div>
 
   <div class="scenario-frame__body">
     <div class="scenario-frame__columns">
       <div class="scenario-panel">
-        <div class="scenario-panel__label">The workflow</div>
-        <p>Start with requirements and architecture, then discover governance
-        constraints and approve an implementation plan. Generate and validate
-        the code before authorizing deployment. Record the observed result in
-        as-built documentation.</p>
+        <div class="scenario-panel__label">Standalone WAF assessment</div>
+        <p>Run <code>/waf-assess-existing</code> against read-only Azure subscriptions, local IaC, or both. APEX produces a five-pillar Well-Architected report, existing-state SVG diagrams, Cost Management analysis, and a prioritized action register.</p>
       </div>
 
       <div class="scenario-panel scenario-panel--tasks">
-        <div class="scenario-panel__label">What you get</div>
+        <div class="scenario-panel__label">Regulated IaC delivery</div>
         <ul class="scenario-checklist">
-          <li>Bicep or Terraform code based on an approved implementation plan.</li>
-          <li>Architecture decisions, cost estimates, and discovered policy constraints.</li>
-          <li>Validation results and the reviews required by each step's contract.</li>
-          <li>As-built records that distinguish provisioning, health checks, and unresolved issues.</li>
+          <li>Requirements, SKU manifest, and retail-priced architecture trade-offs.</li>
+          <li>Azure Policy discovery or shared Corp assumptions before planning.</li>
+          <li>AVM-first Bicep or Terraform code verified by static and preflight gates.</li>
+          <li>Gated deployment and as-built records grounded in observed Azure state.</li>
         </ul>
       </div>
     </div>
@@ -68,6 +65,8 @@ flowchart LR
   classDef step fill:#0078d4,stroke:#0078d4,color:#fff,rx:6,ry:6
   classDef gate fill:#fef3c7,stroke:#d97706,color:#7c2d12,rx:6,ry:6
   classDef opt  fill:#1e3a5f,stroke:#0078d4,color:#dbeafe,rx:6,ry:6,stroke-dasharray:4 3
+
+  A0[Existing Azure or IaC]:::opt --> A1[Standalone WAF + Cost<br/>+ Diagram + Register]:::step --> AG{{Bundle acceptance}}:::gate
 
   S1[Step 1<br/>Requirements]:::step --> S2[Step 2<br/>Architecture]:::step
   S2 --> S3[Step 3<br/>Design]:::opt
@@ -96,29 +95,34 @@ flowchart LR
   <div class="scenario-frame__body">
     <CardGrid>
       <LinkCard
-        title="April 2026 case study"
-        description="Read the catering workload's historical outputs, including its deployment limitations."
-        href="demo/"
+        title="Brownfield WAF showcase"
+        description="Inspect a four-subscription Azure assessment across 211 resources, Cost Management charts, and an 18-item action register."
+        href="showcases/waf-assessment/"
       />
       <LinkCard
-        title="Get started"
-        description="Set up from the Accelerator template and run your first agent workflow."
+        title="Regulated delivery showcase"
+        description="Explore the Contoso University CoE platform in an ALZ-lite spoke with 8 ADRs, lab risk contracts, and 10 AVM Bicep modules."
+        href="showcases/regulated-delivery/"
+      />
+      <LinkCard
+        title="Quickstart"
+        description="Create a repository from the Accelerator template and launch your first delivery or assessment workflow."
         href="getting-started/quickstart/"
       />
       <LinkCard
-        title="How it works"
-        description="Understand agent ownership, skills, and human handoffs."
-        href="concepts/how-it-works/"
+        title="Standalone WAF guide"
+        description="Copy a variable-based starter prompt to review live Azure subscriptions or offline IaC."
+        href="guides/waf-assessment/"
       />
       <LinkCard
-        title="Prompt guide"
-        description="Scoped examples for main agents and supported skill invocations."
-        href="guides/prompt-guide/"
+        title="Architecture Explorer"
+        description="Inspect agents, helper subagents, skills, instructions, validators, and workflow edges interactively."
+        href="reference/architecture-explorer/"
       />
       <LinkCard
-        title="Troubleshooting"
-        description="Common issues, diagnostic decision tree, and solutions."
-        href="guides/troubleshooting/"
+        title="APEX MicroHack"
+        description="Run the one-day hands-on team challenge from requirements capture through multi-region DR."
+        href="https://microhack.apexops.pro/"
       />
     </CardGrid>
   </div>

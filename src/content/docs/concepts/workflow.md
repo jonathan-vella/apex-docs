@@ -1,125 +1,50 @@
 ---
 title: "Run the workflow"
-description: "Choose the Azure delivery workflow or a standalone WAF assessment with scoped evidence, independent reviews and owner approval."
+description: "Choose the Azure delivery workflow or a standalone WAF assessment with scoped evidence, independent reviews, and human approval gates."
 ---
 
 <span id="agent-and-skill-workflow"></span>
 
 ## Overview
 
-APEX helps you turn requirements into an Azure infrastructure plan, Bicep or
-Terraform code, and deployment evidence. The step walkthrough below explains the
-retained domain workflow. The current body migration keeps named main and leaf
-agents. The broader role-consolidation proposal is separate.
+APEX supports two distinct workflow profiles inside the VS Code **Copilot** session target:
 
-For WAF findings without implementation, use a
-[standalone assessment](#standalone-waf-assessment).
+1. **Infrastructure delivery workflow.** Moves a workload from requirements through Well-Architected evaluation, Azure Policy discovery, IaC planning, Bicep or Terraform generation, deployment, and as-built documentation.
+2. **Standalone WAF assessment (`workflow_mode=assessment`).** Evaluates an existing Azure workload, local IaC, or both, producing a five-pillar WAF report, an existing-state architecture diagram, a Cost Management report with visual charts, and a prioritized action register without generating IaC or deploying resources.
 
-:::note[Reloaded VS Code session and real-Azure E2E verified]
-The owner authorized migration execution and evidence-based packet
-progression in [APEX PR #779](https://github.com/jonathan-vella/apex/pull/779),
-superseding the earlier `PLAN_THEN_APPROVE` hold. The earlier
-[`a315279`](https://github.com/jonathan-vella/apex/tree/a315279aa5d09bfc7657c14536c1776cadcd6069)
-candidate remains historical. The Explorer keeps its separate generated source pin.
+New projects default to the `practical-v1` workflow contract, which binds material user inputs to request receipts, scopes complete stage work packages, and enforces independent `challenger-review-subagent` reviews before human stage approvals. Existing projects keep their recorded workflow contract until the owner explicitly adopts `practical-v1`.
 
-On October 19, after reloading the VS Code window (`7735cb43-97f0-4d6e-9a31-8edd63dcc75b`),
-the owner-authorized `cp-harness-01` run completed `Steps 1 → 2 → 3.5 → 4 → 5 → 6 → 7 → Post-Lessons`
-with five structured `challenger-review-subagent` receipts, strict `--verify-cache`
-validation, live Bicep deployment to `rg-cp-harness-01-dev` (`swedencentral`, 32 resources),
-Step 7 as-built documentation, and lessons-learned capture (`LL-001`–`LL-004` applied). See
-[review evidence below](#review-finalization-and-recovery).
-:::
+Start with the [quickstart](/getting-started/quickstart/) if you have not created a workload repository from `apex-accelerator`, or go directly to the [WAF assessment guide](/guides/waf-assessment/) to audit an existing workload.
 
-The owner-reported October 18 body migration is in progress, not a final
-source or runtime certification. Main agents retain direct selection and native
-questions. Active definitions omit UI `handoffs:` metadata and no longer require
-worker-ready handshakes, nonce exchanges, verifier commands, or log preflight.
-See the [current body contract](/concepts/how-it-works/agents/#current-agent-body-migration)
-for native task handling, observed limitations, and preserved review requirements.
+### Runtime and approval boundaries
 
-Start with the [quickstart](/getting-started/quickstart/) if you have not created
-a repository from the Accelerator template.
+APEX targets the **Copilot** session target in VS Code. Active agent definitions omit fixed model pins and UI `handoffs:` buttons so model selection stays runtime-managed and `01-Orchestrator` coordinates approved steps through native tasks.
 
-### Proposed routine engineering and owner boundary
+Keep these safety boundaries in mind:
 
-The target runtime is the Copilot session target, Copilot SDK/Agent Host, inside
-VS Code only. Local, CLI, cloud-agent, and other IDE product runtimes are out of
-scope. Running a CLI tool inside an authorized VS Code task does not change that.
-
-The proposal uses an optional short APEX engineering lead or native Agent for
-routine repository work, on-demand domain skills, a native bounded independent
-reviewer, and one separately permissioned deploy operator with Bicep and
-Terraform adapters. See the
-[planning section](/concepts/how-it-works/agents/#proposed-simplification-and-planning-gate)
-for the PRD, backlog, roadmap, retained contracts, and issue mapping.
-
-For example, the owner can scope a routine documentation fix to an approved
-feature branch during the authorized migration. Native Autopilot would edit,
-test, repair within bounds, commit, push,
-update the PR or issue, and address scoped reviewer feedback without repeatedly
-asking for permission. It may answer blocking questions within that scope.
-This describes the intended behavior, not an accepted runtime result. Packet
-progression requires evidence for each packet; permission to proceed cannot
-stand in for pilot or final release acceptance.
-
-A successful `ask_user` call or form response is not proof of a human decision;
-Autopilot may have supplied it. `APEX_UNATTENDED=1` neither proves native Autopilot
-selection nor grants approval. Consequential permission, expense, security,
-and requirements changes and deployment approval require a genuine independent
-owner boundary. Native agent roles and tool allowlists alone are not credential
-or security isolation.
-
-The owner also retired APEX `.github/hooks/` runtime hooks. Do not restore or
-replace them as part of setup. Their tool-call protection is gone, not silently
-replaced by native tool restrictions. Native permission boundaries still need
-verification. Azure security, governance, SKU, AVM, and cost-provenance requirements
-remain in force. This retirement does not remove Git Lefthook, pre-commit checks,
-secret scanning, CI, or azd lifecycle hooks. See the
-[runtime-hook retirement record](/guides/hooks/).
+- A form response or `ask_user` result records captured answers, not independent human authorization when Autopilot is active. Consequential scope, cost, policy-exception, and deployment approvals remain human-controlled.
+- Runtime `.github/hooks/` chat hooks remain retired. Do not restore them during setup. Deterministic protection runs through `apex-recall` gates, validation scripts, Git Lefthook pre-commit and pre-push checks, `gitleaks`, and CI workflows. See [Copilot hooks](/concepts/how-it-works/workflow-engine/#copilot-hooks).
 
 ### Formalized workflow engine
 
-The earlier candidate's [workflow graph](https://github.com/jonathan-vella/apex/blob/a315279aa5d09bfc7657c14536c1776cadcd6069/.github/skills/apex-workflow-engine/templates/workflow-graph.json)
-records step dependencies, expected artifacts, and review defaults for that design.
-`apex-recall` records project state. Neither a graph edge nor a completed-state
-field grants permission to deploy. The proposal retains durable decisions,
-atomic writes, and historical compatibility. Native session SQL and todos do not
-replace cross-project approval storage.
+The machine-readable [workflow graph](https://github.com/jonathan-vella/apex/blob/7c195a1c8e06a5d0c3aa305d1870356e5829df92/.github/skills/apex-workflow-engine/templates/workflow-graph.json) defines step order, required artifacts, return edges, and review lenses for both delivery and standalone assessment runs. `apex-recall` persists session state, material decisions, review audits, and gate readiness under `agent-output/<project>/`. Neither a graph edge nor a completed step record authorizes cloud writes on its own.
 
 ## Standalone WAF assessment
 
-For step-by-step walkthroughs and copy-paste prompts for both `evidence_only` and `requirements_led` scenarios, see the [WAF assessment guide](/guides/waf-assessment/).
+For copy-paste starter prompts and variable presets, follow the [WAF assessment guide](/guides/waf-assessment/) or inspect the [WAF assessment showcase](/showcases/waf-assessment/).
 
-Request a standalone assessment when you want findings about an existing workload
-without an implementation workflow. Choose either `evidence_only`, which starts
-with scoped evidence and no business interview, or `requirements_led`, which first
-captures known business objectives, critical flows, targets and constraints.
-Evidence-only runs do not manufacture a completed Requirements step.
+Select `workflow_mode=assessment` (via `/waf-assess-existing` in `01-Orchestrator`) when you want an evidence-backed review of an existing workload without entering the delivery pipeline:
 
-The source is a separate choice: `iac`, `azure` or `combined`. Static IaC describes
-declared intent, not verified deployed state. Before any reads, the owner authorizes
-the allowed files or Azure boundaries and read categories. Billing, utilization
-and optional policy observations need their own captured scope. The assessment
-does not grant access or broaden existing permissions.
+- **`evidence_only`** starts directly from scoped code, diagrams, or read-only Azure inventory with no business interview and no synthetic `01-requirements.md`.
+- **`requirements_led`** runs a focused seven-question `02-Requirements` intake (with an `Unknown` choice on every field) to score the workload against explicit availability, recovery, performance, compliance, and budget targets.
 
-This section documents the standalone contract introduced in
-[jonathan-vella/apex#823](https://github.com/jonathan-vella/apex/pull/823).
-The APEX source links use revision
-[`3d027d41810e`](https://github.com/jonathan-vella/apex/tree/3d027d41810e33c0d2f08b17ed18f7adf2f21e3a).
-The commands below are source-reviewed examples, not evidence of an Azure
-assessment or deployment test.
+The evidence source is chosen independently: `iac` (local Bicep, Terraform, `azure.yaml`, and diagrams with no Azure sign-in), `azure` (authorized read-only subscriptions), or `combined` (both, surfacing deployment drift). Static IaC represents declared intent rather than verified runtime state; unverified properties remain `unknown` or `Not assessed`.
 
 ### Start and resume an assessment
 
-Run product commands from your APEX project repository, not from apex-docs.
-Initialize only a genuinely new project. For an existing project, recover its
-state with `show` and `handoff` before making any lifecycle change.
+Run `apex-recall` commands inside an APEX workload repository, not `apex-docs`. Initialize only a new project; recover existing projects with `show` and `handoff` first.
 
-The interactive owner records the actual scope response in
-`agent-output/example/_meta/assessment-scope.json`. Use the source
-[`assessmentRequest` schema](https://github.com/jonathan-vella/apex/blob/3d027d41810e33c0d2f08b17ed18f7adf2f21e3a/tools/schemas/session-state.schema.json)
-for the scenario, source, allowed scope, reporting settings and real approval
-receipt. Suggested defaults and task responses are not owner authorization.
+After capturing the owner's upfront scope approval in `agent-output/example/_meta/assessment-scope.json` (matching [`assessmentRequest`](https://github.com/jonathan-vella/apex/blob/7c195a1c8e06a5d0c3aa305d1870356e5829df92/tools/schemas/session-state.schema.json)), `01-Orchestrator` starts the assessment lifecycle:
 
 ```bash
 apex-recall init example --json
@@ -129,62 +54,32 @@ apex-recall show example --json
 apex-recall handoff example --json
 ```
 
-In the show response, `.session.assessment_run` holds the route and current phase.
-`.session.assessment_readiness` reports validation, not permission.
-`.session.assessment_cost_plan` derives the billing plan from captured reporting
-settings. Do not edit recall state directly or complete numeric delivery steps
-to create assessment approvals.
+In `show --json`, `.session.assessment_run` tracks the active assessment phase (`scope`, optional `requirements`, `evidence`, `analysis`, `diagram`, `review`, `acceptance`, `terminal`), `.session.assessment_readiness` reports current validation, and `.session.assessment_cost_plan` reflects captured Cost Management periods. Never call numeric delivery `complete-step` commands on a standalone assessment.
 
-Requirements-led discovery has no separate Requirements approval or new review
-cycle. Architect produces the analysis and cost report; Design renders the
-existing-state diagram. The bundle needs comprehensive WAF review and a separate
-cost-feasibility review before final owner acceptance. Missing evidence remains
-unknown or Not assessed, not a control failure, compliance claim or zero cost.
-Partial evidence still needs valid artifacts and both reviews.
+Within the approved scope, `01-Orchestrator` runs evidence collection (`collect-assessment-evidence.py` with secret and tag-value redaction), `03-Architect` WAF and Cost Management analysis, visual chart rendering (`render-assessment-charts.py` when `visual_charts: true`, setting `assessment-bundle-v3`), `04-Design` existing-state diagram generation, and both mandatory `challenger-review-subagent` lenses (`comprehensive` WAF and `cost-feasibility`) before presenting one final acceptance prompt.
 
 ### Assessment bundle and Action Register
 
-Both scenarios produce the WAF report, existing-state diagram and cost report.
-New Azure and combined runs also require the Assessment Action Register. An
-IaC-only run includes it only when explicitly requested with
-`"action_register": true` in the scope request.
-
-Paths below are relative to `agent-output/example/`. The project root stays
-Markdown-only.
+Paths below are relative to `agent-output/example/`:
 
 | Output | Purpose |
 | --- | --- |
-| `01-assessment-brief.md` | Authorized scope, scenario and reporting settings |
-| `01-requirements.md` | Business context for requirements-led runs only |
-| `contracts/assessment-evidence.json` | Collection coverage and evidence locators |
-| `02-architecture-assessment.md` | WAF findings, confidence and evidence gaps |
-| `assets/03-des-diagram.{py,png,svg}` | Diagram source and inspected existing-state views |
-| `03-cost-management-report.md` and `contracts/03-cost-management.json` | Cost evidence, labelled estimates and exclusions |
-| `contracts/assessment-action-register.json` | Canonical register actions, financial bases and scenarios |
-| `04-assessment-action-register.md` and `assets/04-assessment-action-register.xlsx` | Matching generated action and financial summaries |
-| `_meta/action-register-derived.json` and `_meta/action-register-export.json` | Exact calculated values and export integrity receipt |
-| `reviews/challenge-findings-*.json`, `README.md` and `00-handoff.md` | Attributed reviews, status and resume or terminal information |
+| `README.md` and `00-handoff.md` | Executive bundle index, current phase, and resume or terminal status |
+| `01-assessment-brief.md` | Upfront scope receipt, scenario, source, and reporting periods |
+| `01-requirements.md` | Captured business objectives and NFR targets (`requirements_led` only) |
+| `contracts/assessment-evidence.json` | Coverage inventory and redacted evidence locators |
+| `02-architecture-assessment.md` and `assets/02-waf-posture.svg` | Five-pillar WAF findings, posture chart, confidence labels, and gaps |
+| `assets/03-des-diagram.{py,png,svg}` | Reproducible Python source plus 4K PNG and editable SVG topology diagrams |
+| `03-cost-management-report.md`, `assets/03-cost-trends.svg`, `assets/03-cost-drivers.svg`, and `contracts/03-cost-management.json` | Actual/Amortized Cost history and forecast (separate views and currencies), or labelled IaC retail estimates |
+| `contracts/assessment-action-register.json` | Canonical remediation actions, financial bases, and target windows |
+| `04-assessment-action-register.md` and `assets/04-assessment-action-register.xlsx` | Synchronized Markdown and three-sheet Excel workbook (`Action Register`, `Financial Summary`, `Basis & Evidence`) |
+| `reviews/challenge-findings-*.json` | Independent `comprehensive` WAF and `cost-feasibility` review receipts |
 
-The register's `04-` prefix does not mean delivery Step 4. Its workbook contains
-Action Register, Financial Summary and Basis & Evidence sheets. Actions link to
-findings and evidence, with priorities, affected resources, qualitative effort,
-dependencies and proposed target windows. Status and Comments are separate.
-Acceptance does not show that remediation has started or finished.
-
-The workbook is a generated recommendation snapshot, not a manual Excel tracker.
-Update the structured source and regenerate Markdown and Excel together. Do not
-hand-edit calculated amounts or treat workbook status edits as authoritative
-evidence. The export receipt proves integrity checks, not owner approval.
-See [proposed recurring cost changes](/reference/cost-governance/#assessment-costs-and-proposed-recurring-changes)
-for additions, savings, net change and actual-billing limits.
+The `04-` prefix on the Action Register does not indicate delivery Step 4. New `azure` and `combined` runs include the register automatically; `iac` runs include it when `"action_register": true` is set in scope. See [assessment costs and proposed recurring changes](/reference/cost-governance/#assessment-costs-and-proposed-recurring-changes).
 
 ### Offline register CLI
 
-The [register helper contract](https://github.com/jonathan-vella/apex/blob/3d027d41810e33c0d2f08b17ed18f7adf2f21e3a/.github/skills/apex-azure-artifacts/references/assessment-action-register.md)
-defines the canonical input and export checks. Run these commands from the APEX
-repository with its tooling dependencies already installed through your approved
-feed. Replace `<current-ISO-timestamp>` with the actual current timezone-qualified
-ISO timestamp at millisecond precision, not the report's old clock.
+The [action-register contract](https://github.com/jonathan-vella/apex/blob/7c195a1c8e06a5d0c3aa305d1870356e5829df92/.github/skills/apex-azure-artifacts/references/assessment-action-register.md) validates evidence links, calculates recurring additions, savings, and net monthly change, and renders synchronized Markdown and Excel outputs offline:
 
 ```bash
 node tools/scripts/assessment-action-register.mjs validate \
@@ -205,279 +100,94 @@ node tools/scripts/assessment-action-register.mjs validate-export \
   --as-of '<current-ISO-timestamp>'
 ```
 
-These commands use retained local evidence and need no Azure credentials or
-workbook service. `calculate` returns the derived values; `render` publishes both
-views and their integrity files locally. The Node calculator is the arithmetic
-authority. Do not invoke the Python renderer directly to bypass its checks.
-Use `render --overwrite` only after confirming that mismatched outputs are owned
-generated snapshots. An interrupted or failed export is not a delivered bundle.
-Changed source or exports need validation and current independent reviews within
-the existing allowance.
+Always edit `contracts/assessment-action-register.json` and regenerate both views through the Node CLI rather than hand-editing spreadsheet cells.
 
 ### Original runs and explicit adoption
 
-New graph 3.2 runs persist `assessment-bundle-v2` and their register selection.
-An original run without `bundle_contract` remains `assessment-bundle-v1`.
-Updating APEX, resuming a run or adding register files does not opt it in.
-
-To adopt the register for an existing assessment, prepare an adoption request
-with unchanged scenario, source, scope and reporting, `"action_register": true`,
-and `review_links` to the original required review-cycle IDs. Preview it first:
+Earlier runs remain on their recorded `bundle_contract` until explicitly adopted. Preview adoption first with `--dry-run`:
 
 ```bash
 apex-recall assessment example --action adopt \
   --request agent-output/example/_meta/assessment-adoption.json --dry-run --json
 ```
 
-Inspect missing outputs, frozen inputs, stale reviews, consumed calls and remaining
-allowance. A preview grants no permission. Actual adoption uses the same command
-without `--dry-run` only after its own new positive owner receipt.
-Adoption preserves prior approvals, acceptance, numeric step history and review
-provenance. Later phases return to analysis for the changed bundle; no review
-allowance resets. Exhausted allowance needs a separately authorized extension.
-Adoption permits no new Azure reads.
+Actual adoption requires a new positive owner receipt, preserves prior step history and consumed review allowances, and authorizes no new Azure reads.
 
 ### Acceptance is terminal
 
-The final choices are Accept assessment bundle, Revise reports, or Stop without
-accepting. Record the actual acceptance separately from reviewed bytes. An
-accepted assessment has no next deployment owner.
-
-Findings and target windows are recommendations, not remediation approval.
-Assessment acceptance does not start formal Governance, policy-feasibility
-approval, IaC planning, CodeGen or deployment. Implementation needs a separately
-requested workflow with its own prerequisites and owner approvals.
+At final review, the owner selects **Accept assessment bundle**, **Revise reports**, or **Stop without accepting**. Accepting the bundle sets the assessment to `terminal` and never triggers Governance, IaC planning, code generation, or deployment. To remediate findings later, start a separate delivery project and pass `02-architecture-assessment.md` and `04-assessment-action-register.md` as input context.
 
 ## Agent architecture
 
 ### Select policy evidence before Architecture
 
-Delivery projects using `corp-policy-v1` select current tenant evidence or explicitly accepted
-standard Corp assumptions after Requirements approval. The shared baseline ships separately from
-private tenant snapshots. The assumed route needs no real subscription identifiers or manually prepared JSON.
+New delivery projects use `corp-policy-v1` to separate early architecture assumptions from private tenant snapshots. After Step 1 approval, the owner chooses either target-verified Azure Policy discovery or explicit acceptance of the pinned Azure Landing Zones Corp baseline (`.github/data/alz-corp-policy-baseline.json.gz`).
 
-Assumptions can support qualified Architecture approval. Current target-verified policies remain required
-before IaC planning completion, CodeGen and deployment. Existing projects adopt through an actual source choice;
-their approvals and review histories do not reset. See
-[Architecture policy evidence](/concepts/workflow/step-2/#choose-policy-evidence-before-architecture)
-and [private Governance capture](/concepts/workflow/step-3-5/#private-scope-and-evidence).
+Accepting shared Corp assumptions allows Step 2 Architecture approval without target tenant or subscription IDs (`assumed_corp_not_tenant_verified`). Completing Step 4 IaC planning, running Step 5 CodeGen, and executing Step 6 deployment require `current` target-verified policy evidence. See [Step 2 policy selection](/concepts/workflow/step-2/#choose-policy-evidence-before-architecture) and [Step 3.5 private capture](/concepts/workflow/step-3-5/#private-scope-and-evidence).
 
 ### Requirements capture and revision
 
-Select `02-Requirements` to establish workload goals, constraints, budget, region,
-and IaC choice. It asks missing material questions directly through its native
-question tool; you do not need to route those questions through Orchestrator.
-Capture known constraints and distinguish workload intent from implementation
-details. The [guided discovery candidate](/concepts/workflow/step-1/#guided-discovery-candidate)
-adds menus, Greenfield branching, and answer preservation. Exact runtime choices,
-IDs, and tag bindings can remain explicit unknowns for the downstream step that
-owns them when intent is clear. That step must resolve them before its consuming
-gate. Deferral is not approval or permission to guess.
-Later changes must return to the affected step rather than leave downstream
-artifacts describing different requirements.
+`02-Requirements` captures workload goals, compliance frameworks, regional residency, budget, IaC track (`bicep` or `terraform`), and initial SKU pins or `observed-current` SKUs. When directly selected, `02-Requirements` asks missing material questions through native `ask_user`. When delegated by `01-Orchestrator`, it returns a validated `USER_INPUT_REQUIRED` payload and receives the full captured-answer ledger on continuation so settled inputs are never asked twice.
 
 ### Review finalization and recovery
 
-On October 19, the owner approved adapting the existing
-`challenger-review-subagent` into one shared read-only structured JSON leaf.
-Automatic producers, authorized `01-Orchestrator` calls, and optional manual
-`10-Challenger` reviews use the same leaf and the existing
-`one-shot-review.md` contract. After reloading VS Code so updated agent
-definitions attached from disk (`7735cb43-97f0-4d6e-9a31-8edd63dcc75b`), all
-five mandatory `cp-harness-01` reviews completed through this contract and passed
-strict `--verify-cache` validation. The site's generated source and guidance-review
-pins remain unchanged until post-merge pin refresh.
+Automatic workflow gates and optional manual `10-Challenger` runs share the read-only `challenger-review-subagent` leaf under [`one-shot-review.md`](https://github.com/jonathan-vella/apex/blob/7c195a1c8e06a5d0c3aa305d1870356e5829df92/.github/skills/apex-azure-defaults/references/one-shot-review.md):
 
-The interactive review owner captures current review metadata before invoking
-the actual synchronous native task with `APEX_REVIEW`. The leaf reads the
-bounded inputs and returns schema-conforming JSON findings and its verdict. It
-does not write files, run shell commands, ask questions, or delegate. This reuses
-the existing agent identity, not a new agent. Active definitions have no model
-pins, and callers leave model, effort, and context overrides unset.
+1. The interactive parent freezes immutable inputs with `validate-challenger-findings.mjs --metadata`, runs `record-review.mjs --preflight`, and logs `apex-recall review-audit ... --attempt-outcome started`.
+2. The parent dispatches `challenger-review-subagent` synchronously with no model or reasoning-effort overrides, passing either inline `APEX_REVIEW` JSON or a hash-bound `APEX_REVIEW_FILE` envelope (`request_path` plus `request_sha256`) when a request carries large `supporting_inputs` lists.
+3. The leaf reads only supplied artifacts and checklists, runs no shell commands or writes, and returns raw schema-conforming JSON findings.
+4. `record-review.mjs` stamps finding IDs, severity counts, and verified input hashes into `challenge-findings-*.json`, and `apex-recall` blocks `complete-step` or `transition --complete` if required reviews are missing, stale, or hold unresolved `must_fix` findings.
 
-The review owner records the actual attributed task output centrally through
-`record-review.mjs`, producing `challenge-findings-*.json`. The recorder derives
-finding IDs and severity counts. Strict schema, freshness, attribution, and
-provenance validation still follow. New receipts must identify the actual
-structured leaf and hash both its definition and the shared one-shot contract.
-Capturing metadata or receiving valid-looking JSON alone does not complete review.
-
-Current manual batch payloads use `lenses`. The old `batch_lenses` alias belongs
-only to historical inputs.
-
-For deep review, set `prior_findings` to `null` on the first pass. On later
-passes, provide a compact array of actual findings. Retain each finding's ID,
-severity, claim, and source receipt. Do not supply strings or parent-invented
-resolutions. Passing prior findings does not resolve them or rewrite their history.
-
-If a delegated producer lacks nested task capability, it returns
-`REVIEW_REQUIRED`. Its authorized Orchestrator invokes the same leaf as a sibling
-task and records the actual result under the existing review budgets and checks.
-Selecting `10-Challenger` is optional, not a required detour or automatic fallback.
-Built-in `rubber-duck` retains its critic-prose role. It is neither a mandatory
-JSON-producing dependency nor an automatic fallback.
-
-The October 18 owner-supplied `cp-harness-01` retry reached an earlier sibling
-reviewer dispatch. Recording then failed because the reviewer ran a shell command that
-the execution safety check blocked. No review sidecar or approval resulted.
-That earlier path confirms dispatch for that retry, not a completed review of
-the new shared-leaf candidate.
-
-On October 19, model-backed tests in Copilot CLI 1.0.98 confirmed custom-agent
-selection, delegated answer continuation, and an actual parent/sibling review
-dispatch on a disposable fixture. That reviewer returned prose and reported a
-configured output-format conflict. The unchanged recorder rejected it, and no
-valid review receipt resulted. This is a CLI observation, not evidence of the
-same behaviour in the supported VS Code client.
-
-That failure remains historical evidence. It neither validates nor disproves
-the new native structured-leaf path. Do not parse critic prose into findings,
-override the built-in reviewer's role, substitute an inline self-review, or
-rewrite a failed attempt to make it pass. Failed commands remain blocking even
-if later output is JSON. Do not reset counters or treat the cutover as permission
-to launch another project review.
-
-In earlier pre-reload verification on October 19, an existing VS Code
-conversation invoked the cached file-output role twice before the window was
-reloaded. After the owner reloaded the VS Code window (`7735cb43-97f0-4d6e-9a31-8edd63dcc75b`)
-and authorized live Azure deployment, the full `cp-harness-01` workflow executed
-`Steps 1 → 2 → 3.5 → 4 → 5 → 6 → 7 → Post-Lessons` in VS Code Copilot:
-
-- Five synchronous `challenger-review-subagent` dispatches (`Step 1 Requirements`,
-  `Step 2 Architecture`, `Step 2 Cost Feasibility`, `Step 3.5 Governance`, and
-  `Step 4 IaC Plan`) returned raw JSON, were recorded via `record-review.mjs`,
-  and passed `validate-challenger-findings.mjs --verify-cache` with zero errors.
-- Live Bicep deployment `cp-harness-01-dev-deploy` provisioned 32 resources in
-  `rg-cp-harness-01-dev` (`swedencentral`) after traversing one `step-6b -> step-5b`
-  return edge (`restorePolicyDays: 6 < deleteRetentionPolicyDays: 7`) and passing
-  L3 policy precheck (`PROCEED`).
-- Step 7 as-built documentation (`07-*.md`, `$127.69/month` with `0.00%` drift,
-  and five diagram/chart sets) and `09-lessons-learned.{json,md}` (`LL-001`–`LL-004`
-  applied to repository skills, subagents, and validators) completed cleanly.
-
-Historical file-output receipts and historical `rubber-duck` readers remain
-compatible. Keep their original bytes, identities, findings, and attempt history.
-Historical event extractors and receipt readers provide read-only compatibility;
-legacy schemas without `reviewer` remain supported. The new recorder publishes
-structured-leaf receipts only. Do not record new built-in reviewer receipts.
-Do not relabel historical evidence as a new structured-leaf receipt or rehash it
-under the new contract. The cutover changes neither the review matrix nor its
-lenses, step gates, budgets, security requirements, or separate owner approvals.
-It grants no implicit apply permission.
-
-Requirements review also follows the current workflow stage. It checks business
-intent, measurable outcomes, contradictions, and security constraints. Documented
-later-stage design tasks are not defects solely because they remain open.
-Recommendations must not invent user targets or weaken the security baseline.
-
-Missing reviewer capability or failed or invalid execution evidence stops
-progress for human recovery, without an automatic reviewer substitution.
-`10-Challenger` remains an optional interactive coordinator for a separately
-selected manual review, not a required recovery hop. Read findings, resolve the
-required changes, and obtain the separate owner approval. Review filenames and old
-approval text do not prove that the current inputs were reviewed. Neither stage
-completion nor this dispatch correction completes a mandatory review.
-
-If state or index updates fail, follow
-[session recovery](/guides/session-debugging/) instead of resetting JSON fields.
+Under `practical-v1`, each required artifact and lens has an ordinary budget of one initial dispatch and at most one closure dispatch after batched owned repairs. If a delegated step worker lacks nested task access, it returns `REVIEW_REQUIRED` and `01-Orchestrator` runs `challenger-review-subagent` automatically as a sibling task. If state or lock files block recovery, follow [session debugging](/guides/session-debugging/).
 
 ### Governance closure
 
-`04g-Governance` discovers effective policy constraints, including inherited
-assignments. Reconcile discovered constraints before planning. An empty policy
-array can skip the reconciliation review; missing access or a failed query does
-not establish that there are no constraints.
+`04g-Governance` discovers effective Azure Policy assignments, definitions, and exemptions across subscription and inherited management-group scopes using `discover.py --retain-rule-evidence`. An empty policy array can skip the `governance-reconciliation` review, whereas a failed or unauthorized query blocks progress.
 
 ### Planning feasibility
 
-`05-IaC Planner` connects the approved architecture, SKU evidence, and governance
-constraints to the code-generation contract. Resolve infeasible choices before
-CodeGen rather than expecting the deployment agent to substitute a service or SKU.
+`05-IaC Planner` reconciles the approved architecture, `sku-manifest.json`, and `04-governance-constraints.json` into `04-implementation-plan.md`, `04-iac-contract.json`, `04-policy-property-map.json`, and `04-environment-manifest.json`. Module and SKU incompatibilities are resolved during planning rather than substituted silently during deployment.
 
 ### The orchestrator pattern
 
-Select `01-Orchestrator` to coordinate approved steps, or select a main step
-agent directly. Architect, Design, and Governance can ask their own missing
-material questions. A delegated main worker instead returns `USER_INPUT_REQUIRED`
-with `request_id`, `phase`, `message`, `requestedSchema.properties`, and its
-missing inputs to the interactive parent. Workers do not call user tools.
-
-For Requirements, the parent sends the complete captured-answer ledger with
-every new task or supported continuation, not just the latest response. Preserve
-known answers and explicit unknowns across calls. The parent owns question
-presentation and review dispatch when the delegated worker cannot invoke the
-required reviewer.
-
-The historical
-[worker-readiness contract](https://github.com/jonathan-vella/apex/blob/a315279aa5d09bfc7657c14536c1776cadcd6069/.github/skills/apex-workflow-engine/references/worker-readiness.md)
-contains conflicting direct-dispatch and pre-dispatch handshake requirements.
-It is not the current migrated body contract. Active bodies and shared caller
-guidance no longer require those rituals. Old verifiers remain diagnostic and
-historical. Native tasks use the available result contract; same-task continuation
-is possible only when the actual returned handle supports it. One-shot calls
-do not imply a universal continuation API.
-
-Interactive gates present `00-handoff.md` and require human approval
-before advancing. Required approvals cover the actual action and current scope;
-unresolved authority stops the run. Preserve `apex-recall` checkpoints and fresh
-review evidence. The proposed routine Autopilot scope above does not make
-ordinary question responses independent owner approval.
-No UI handoff control is required or promised. Use the native task result or
-explicitly select the named next agent. The handoff file remains durable evidence,
-not frontmatter or approval.
+Select `01-Orchestrator` to drive the multi-step pipeline, or select an interactive step owner directly. Before each transition, `01-Orchestrator` updates `00-handoff.md` and `apex-recall` checkpoints so any interrupted run can resume deterministically via `apex-recall handoff <project> --json`.
 
 <span id="agent-delegation-graph"></span>
 
-The migrated body contract lets `01-Orchestrator` dispatch approved main step workers; step workers invoke
-only their declared leaf subagents (`challenger-review-subagent` in the approved
-structured-review candidate, `cost-estimate-subagent`, and
-validate/preview subagents). Direct user selection of individual step agents
-remains supported; note that sending an idle cross-chat message may clear
-selected-agent metadata, so resume directly in the selected Orchestrator chat.
+`01-Orchestrator` dispatches main step workers; step workers call only their authorized leaf subagents (`challenger-review-subagent`, `cost-estimate-subagent`, `bicep-validate-subagent`, `bicep-whatif-subagent`, `terraform-validate-subagent`, `terraform-plan-subagent`, and `policy-precheck-subagent`). Leaf subagents never delegate further or prompt the user.
 
 ## Agent roster
 
 ### Primary orchestrator
 
-The roster below describes retained step ownership. `01-Orchestrator` coordinates
-approved step dispatch. Direct main-agent selection remains supported.
-This body migration does not retire the roster or certify every dispatch path.
+`01-Orchestrator` is human-selected (`disable-model-invocation: true`) and coordinates step routing, question presentation for delegated workers, sibling Challenger reviews, and atomic `apex-recall transition` updates.
 
-### Core agents (by workflow step)
+### Core agents by workflow step
 
-| Step | Owner | Main result |
+| Step | Owner | Primary outputs |
 |---|---|---|
-| [1: Requirements](/concepts/workflow/step-1/) | `02-Requirements` | Requirements and initial SKU manifest |
-| [2: Architecture](/concepts/workflow/step-2/) | `03-Architect` | Architecture assessment and cost evidence |
-| [3: Design, optional](/concepts/workflow/step-3/) | `04-Design` | Diagrams and decision records |
-| [3.5: Governance](/concepts/workflow/step-3-5/) | `04g-Governance` | Effective policy constraints |
-| [4: IaC plan](/concepts/workflow/step-4/) | `05-IaC Planner` | Implementation plan and machine-readable contracts |
-| [5: IaC code](/concepts/workflow/step-5/) | `06b-Bicep CodeGen` or `06t-Terraform CodeGen` | Code and `05-iac-handoff.json` |
-| [6: Deploy](/concepts/workflow/step-6/) | `07b-Bicep Deploy` or `07t-Terraform Deploy` | Deployment and policy-precheck evidence |
-| [7: As-built](/concepts/workflow/step-7/) | `08-As-Built` | Operational documentation based on observed results |
+| [1: Requirements](/concepts/workflow/step-1/) | `02-Requirements` | `01-requirements.md` and `sku-manifest.{json,md}` (rev 1) |
+| [2: Architecture](/concepts/workflow/step-2/) | `03-Architect` | `02-architecture-assessment.md`, `03-des-cost-estimate.md`, and `sku-manifest.{json,md}` (rev 2) |
+| [3: Design, optional](/concepts/workflow/step-3/) | `04-Design` | `03-des-diagram.{py,png,svg}` and `03-des-adr-*.md` |
+| [3.5: Governance](/concepts/workflow/step-3-5/) | `04g-Governance` | `04-governance-constraints.{md,json}` (and private snapshots when configured) |
+| [4: IaC plan](/concepts/workflow/step-4/) | `05-IaC Planner` | `04-implementation-plan.md`, `04-iac-contract.json`, `04-policy-property-map.json`, `04-environment-manifest.json`, and diagrams |
+| [5: IaC code](/concepts/workflow/step-5/) | `06b-Bicep CodeGen` or `06t-Terraform CodeGen` | `infra/bicep/{project}/` or `infra/terraform/{project}/` plus `05-iac-handoff.json` |
+| [6: Deploy](/concepts/workflow/step-6/) | `07b-Bicep Deploy` or `07t-Terraform Deploy` | `06-deployment-summary.md` and `06-policy-precheck.json` |
+| [7: As-built](/concepts/workflow/step-7/) | `08-As-Built` | `07-*.md` operational, inventory, cost, compliance, and DR suite |
 
 ### Validation subagents
 
-An owning agent can use the helper tools and subagents permitted by its definition.
-Inspect the [Architecture Explorer](/reference/architecture-explorer/) for the
-pinned declarations. A main agent, including Challenger, must not be treated as
-one of those helpers.
+Leaf subagents execute bounded pricing, lint, preview, policy-precheck, or structured review tasks for their parent agent. Inspect the full relationship graph in the [Architecture Explorer](/reference/architecture-explorer/).
 
 ### Standalone agents
 
-Use diagnostic and context-review agents for their declared tasks. They do not
-replace the workflow's approvals or authorize mutations outside the selected task.
+`09-Diagnose` investigates live Azure workload health using KQL and AppLens diagnostics, `10-Challenger` supports optional manual review sessions, and `11-Context Optimizer` audits Copilot debug logs and prompt token budgets without modifying agent files directly.
 
 ## Approval gates
 
-Before approving a transition, check the proposed artifact, unresolved findings,
-and what the next agent will do. Stop if requirements, costs, policy evidence,
-or resource scope are unclear.
+Every delivery stage gate requires clean or explicitly exception-authorized review evidence and human approval before advancing. For non-production labs at Step 4, APEX supports signed Ed25519 `risk-envelope-v1` risk authorizations paired with separate human `risk-gate-approval-v1` files while preserving the original `NEEDS_REVISION` findings unchanged.
 
-Deployment requires explicit authorization for the proposed changes. A request
-to validate code is not permission to provision infrastructure. Routing diagnostics,
-an earlier candidate's `EXECUTE_VERIFIED` result, model metadata, or an export archive do not establish
-approval. Live cleanup needs its own authorized scope and observed results.
+Step 6 deployment always requires explicit authorization for the exact tenant, subscription, environment, and previewed change set. Validation or what-if previews never authorize `az` or `terraform apply`.
 
 ## Workflow steps
 
@@ -485,120 +195,90 @@ approval. Live cleanup needs its own authorized scope and observed results.
 
 ### Step 1: requirements
 
-Capture the workload and constraints in `01-requirements.md`. Review the requirements
-before architecture. The step also starts the SKU manifest.
+Capture workload scope, NFR targets, residency, budget, IaC choice, and initial SKU pins or `observed-current` SKUs in `01-requirements.md` and `sku-manifest.{json,md}`.
 
 <span id="step-2-architecture-️-oracle"></span>
 
 ### Step 2: architecture
 
-Assess the design and cost feasibility. Review architecture and the cost estimate
-independently. The cost artifact is `03-des-cost-estimate.md`, despite this being
-Step 2.
+Evaluate the design against all five Azure WAF pillars, select policy source (`corp-policy-v1`), produce evidence-backed retail pricing via `cost-estimate-subagent`, and pass separate `comprehensive` and `cost-feasibility` reviews.
 
 <span id="step-3-design-artifacts--artisan--optional"></span>
 
 ### Step 3: design
 
-Create optional diagrams and decision records when they help explain the design.
-Skipping this step does not skip governance.
+Generate reproducible Python architecture diagrams and WAF-mapped Architecture Decision Records when visual or ADR artifacts are needed before Governance.
 
 <span id="step-35-governance-️-warden"></span>
 
 ### Step 3.5: governance
 
-Discover and reconcile the policy constraints that apply to the target scope.
-Preserve both the human-readable and machine-readable constraint artifacts.
+Discover effective subscription and management-group Azure Policy assignments (`discover.py --retain-rule-evidence`), project SKU allowlists, and pass `governance-reconciliation` review when policies apply.
 
 <span id="step-4-planning--strategist"></span>
 
 ### Step 4: planning
 
-Approve the implementation plan, resource choices, policy mapping, and deployment
-environment contract. CodeGen should not have to invent missing decisions.
+Produce the phased implementation plan, AVM module pins, CAF naming checks, policy-property map, and environment manifest against current target-verified policy evidence.
 
 <span id="step-5-implementation-️-forge"></span>
 
 ### Step 5: code generation
 
-Select the CodeGen agent for the chosen IaC track. Review the generated code,
-deterministic validation results, and handoff artifact before deployment.
+Generate AVM-first Bicep or Terraform modules, pass lint and security-baseline validators, and seal `05-iac-handoff.json`.
 
 <span id="step-6-deployment--envoy"></span>
 
 ### Step 6: deployment
 
-Confirm scope, authorization, and current validation evidence. Check resource
-provisioning and application health separately. Report failures rather than
-substituting resources without approval.
+Verify phase scope, run `policy-precheck-subagent` and `what-if` or `terraform plan`, obtain explicit apply approval, deploy in ordered phases, and verify resource and application health separately.
 
 <span id="step-7-documentation--chronicler"></span>
 
 ### Step 7: as-built documentation
 
-Describe what exists, how it was verified, and what remains unresolved. A successful
-resource deployment does not establish a working application or compliance.
+Generate the `07-*.md` operational suite from deployed state, calculate bidirectional SKU and cost drift against `sku-manifest.json`, and optionally record [Post-Lessons](/concepts/workflow/post-lessons/).
 
 ## Complexity classification
 
-Complexity can inform a review plan. It does not silently enable deep review or
-change the default review policy.
+Workload complexity informs architecture trade-offs, not review depth. Multi-pass rotating Challenger reviews run only when the owner explicitly sets `decisions.review_depth = "deep"` or invokes `10-Challenger` directly.
 
 ### Adversarial review matrix
 
-This matrix describes the existing review requirements, not an approved
-simplified target.
-
-| Step | Default Challenger review |
+| Step | Mandatory `challenger-review-subagent` review |
 |---|---|
-| Requirements | One comprehensive review |
-| Architecture | One comprehensive architecture review plus a separate cost-feasibility review |
-| Design | Optional |
-| Governance | One reconciliation review when constraints exist |
-| Plan | One comprehensive review |
-| CodeGen | None by default; explicit opt-in |
-| Deploy | None |
-
-Deep architecture or plan review requires explicit opt-in. The independent
-architecture cost-estimate review remains required. Deterministic validators
-still apply when no adversarial review runs. The proposal has one independent
-technical review path. Only an owner decision can change the currently mandatory
-separate architecture cost-feasibility review. No plan update repairs review
-counters, hashes, history, or unresolved findings.
+| Step 1: Requirements | 1x `comprehensive` |
+| Step 2: Architecture | 1x `comprehensive` plus 1x separate `cost-feasibility` (`deep` opt-in adds rotating passes) |
+| Step 3: Design | Opt-in (`comprehensive` on ADRs; skipped when Step 3 is skipped) |
+| Step 3.5: Governance | 1x `governance-reconciliation` (skipped only when the verified policy list is empty) |
+| Step 4: IaC plan | 1x `comprehensive` (`deep` opt-in) |
+| Step 5: IaC code | Opt-in (deterministic lint, contract, and security validators always run) |
+| Step 6: Deploy | None (`policy-precheck-subagent` and deployment preview gate apply) |
 
 ## Agents vs skills
 
-An agent owns a selected task. A skill supplies task-specific instructions.
-A helper subagent performs permitted delegated work. A handoff asks the human
-to approve the next scope; the proposed Orchestrator then dispatches its worker.
-Direct agent selection remains an alternative, not a mandatory handoff step.
+Main agents own interactive conversations, domain deliverables, and phase checkpoints. Skills under `.github/skills/apex-*/SKILL.md` provide on-demand procedures, scripts, and templates without granting extra tool or cloud permissions. Leaf subagents run isolated, stateless checks or pricing queries on behalf of their parent agent.
 
 ## Quick reference
 
-### Using the orchestrator (recommended)
+<span id="using-the-orchestrator-recommended"></span>
 
-Select `01-Orchestrator`, identify your project and current goal, and inspect the
-proposed next step.
+### Using the orchestrator
+
+Select `01-Orchestrator` in VS Code Copilot Chat to start a delivery project, run `/waf-assess-existing`, or send `resume <project>` to continue from the last recorded `apex-recall` checkpoint.
 
 ### Direct agent invocation
 
-Select the named custom agent in Copilot Chat when you know which step owns the task.
-Provide the project and current evidence rather than asking it to skip dependencies.
+Select `02-Requirements`, `03-Architect`, `04-Design`, `04g-Governance`, `05-IaC Planner`, `06b-Bicep CodeGen`, `06t-Terraform CodeGen`, `07b-Bicep Deploy`, `07t-Terraform Deploy`, or `08-As-Built` directly when working on a single step whose upstream prerequisites are already satisfied.
 
 ### Skill invocation
 
-Use a user-invocable skill for its declared purpose. A skill request does not bypass
-the owning step's contract or approval requirements.
+Invoke user-invocable workflow skills such as `/apex-workflow-start`, `/apex-github-operations`, or `/apex-debug-log-export` inside Copilot Chat. Invoking a skill loads its instructions into the current chat without bypassing step gates or cloud authorization.
 
 ## Artifact naming convention
 
-Most workflow records live in `agent-output/{project}/`. IaC lives under
-`infra/bicep/{project}/` or `infra/terraform/{project}/`. Artifact prefixes are
-historical conventions and do not always match the producing step number.
-Use each [step guide](#core-agents-by-workflow-step) for exact outputs.
+Project deliverables live in `agent-output/{project}/`, while generated IaC lives under `infra/bicep/{project}/` or `infra/terraform/{project}/`. Numeric filename prefixes (`01-` through `09-`) follow historical artifact slots. For example, Step 2 writes `03-des-cost-estimate.md`, Step 3.5 writes `04-governance-constraints.{md,json}`, and standalone assessments write `04-assessment-action-register.md`. Check each step page for exact filenames.
 
 ## Next steps
 
-Read the [technical deep dive](/concepts/workflow-deep-dive/) for context and state
-details. The [April 2026 case study](/demo/) shows historical artifacts, not a
-validated current tutorial.
+Read the [workflow deep dive](/concepts/workflow-deep-dive/) for context surfaces and Azure Landing Zones integration, or inspect completed deliverables in the [showcases](/showcases/).

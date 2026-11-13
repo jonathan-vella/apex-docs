@@ -5,10 +5,7 @@ description: "Selected product skills, their invocation boundaries, and validati
 
 ## Skills
 
-Skills load according to their invocation flags. Eligible skills can load automatically;
-manual-only skills require explicit invocation. Skills inherit the caller's model/tools,
-not a new agent identity or permissions. See [Repository Slash Prompts](../repository-prompts/)
-for Local adapters and manual Host entries.
+Skills load according to their frontmatter invocation flags: eligible skills load on demand into an agent's context, while manual-only skills require explicit slash invocation. Skills inherit the calling agent's model and tools without granting new permissions. See [workflow prompts](../workflow-prompts/) for active chat entry points and the [Architecture Explorer](/reference/architecture-explorer/) for the complete pinned skill catalog.
 
 ### apex-agent-authoring
 
@@ -113,15 +110,20 @@ deployment and escalate conflicts.
 Use apex-azure-quotas to check whether Standard_D4s_v5 is available in swedencentral.
 ```
 
-### apex-azure-cost-optimization
+### apex-azure-governance-discovery
 
-Finds savings from actual cost and utilization data. It queries and forecasts costs
-through the Azure Resource Manager MCP tools, prices alternatives through Azure MCP `pricing_get`,
-and writes reports to `agent-output/{project}/`. It falls back to the REST APIs only when an
-MCP tool is unavailable, and storage findings start from Azure Advisor recommendations.
+Discovers effective Azure Policy assignments (including management-group inheritance), definitions, and exemptions via `discover.py --retain-rule-evidence`, classifies policy effects, and supports both shared ALZ Corp baseline rendering (`governance_baseline.py --alz-default`) and private tenant snapshots (`corp-policy-v1`).
 
 ```text
-Use apex-azure-cost-optimization to show last month's cost by service for rg-myapp-prod.
+@workspace How does apex-azure-governance-discovery classify DeployIfNotExists and Modify policies?
+```
+
+### apex-azure-cost-optimization
+
+Analyzes historical spend, current-month forecasts, and resource utilization to surface savings opportunities. Queries actual and amortized spend directly through authenticated Azure Cost Management Query and Forecast REST APIs (`az rest`), correlates Azure Monitor metrics and Azure Advisor recommendations, and prices alternative SKUs through Azure MCP `pricing_get`.
+
+```text
+Use apex-azure-cost-optimization to show last month's ActualCost by service for rg-myapp-prod.
 ```
 
 ### apex-azure-cloud-migrate
@@ -246,74 +248,59 @@ strategies, known issues, and governance-to-code property mapping.
 
 ### apex-workflow-engine
 
-Machine-readable workflow DAG for the multi-step pipeline. Defines node
-types, edge conditions, gates, and fan-out patterns. Owns shared workflow entry and
-recovery. On Host, select `01-Orchestrator`, invoke `apex-host-workflow-start`, and
-explicitly choose `resume` to recover an existing project. It does not approve or
-advance gates automatically. Site writing procedures belong to apex-docs.
+Machine-readable workflow DAG (`workflow-graph.json`) defining delivery and standalone WAF assessment (`workflow_mode=assessment`) nodes, return edges, Challenger review requirements, `practical-v1` stage packages, and `apex-recall` recovery contracts.
 
 ```text
 @workspace Show the workflow graph edges and gate conditions.
 ```
 
+### apex-workflow-start
+
+User-invocable entry skill (`/apex-workflow-start`) for initializing a new APEX project or running `resume <project>` inside `01-Orchestrator`.
+
+```text
+/apex-workflow-start resume patient-portal
+```
+
+### apex-debug-log-export
+
+User-invocable skill (`/apex-debug-log-export`) that packages redacted VS Code Copilot session logs (`~/.copilot/session-state/<sessionId>/events.jsonl`) into `.apex-logs/` archives without uploading them. See [debug log export](/guides/apex-debug-log-export/).
+
 ## Subagents
 
 :::note[Not user-invocable]
-The owning agent calls permitted helpers for bounded tasks. Main agents,
-including Challenger, are not part of this helper delegation. See
-[Workflow Prompts](/reference/prompts/workflow-prompts/) for end-user scenarios.
+Parent step agents invoke permitted leaf subagents for stateless checks, previews, pricing, and reviews. Leaf subagents are never selected directly in the chat picker. See [workflow prompts](/reference/prompts/workflow-prompts/) for user-facing prompts.
 :::
 
-Check the selected parent's tool and helper declarations. A listed relationship
-does not establish that a helper ran. Use the pinned
-[Explorer](/reference/architecture-explorer/) for the full inventory.
+Inspect the [Architecture Explorer](/reference/architecture-explorer/) for exact parent-to-subagent edges.
 
 ### bicep-validate-subagent
 
-Runs `bicep lint` and `bicep build` to validate template syntax, then reviews
-templates against AVM standards, naming conventions, security baselines, and
-best practices. Returns a structured PASS/FAIL + APPROVED/NEEDS_REVISION result.
+Runs `bicep lint` and `bicep build`, then checks AVM module usage, CAF naming, security baseline rules, and governance property mappings. Returns a structured `PASS`/`FAIL` and `APPROVED`/`NEEDS_REVISION` verdict.
 
 ### bicep-whatif-subagent
 
-Runs `az deployment group what-if` to preview deployment changes. Analyzes
-policy violations, resource changes, and cost impact. Returns a structured
-change summary.
+Runs `az deployment group what-if` (`--no-pretty-print --output json`) to preview resource changes, unexpected `Ignore` entries, policy impacts, and destructive operations.
 
 ### terraform-validate-subagent
 
-Runs `terraform fmt -check` and `terraform validate`, then reviews
-configs against AVM-TF standards, CAF naming conventions, security baselines,
-and governance compliance. Returns a structured PASS/FAIL + APPROVED/NEEDS_REVISION
-result.
+Runs `terraform fmt -check` and `terraform validate`, then checks AVM-TF module pins, CAF naming, security baseline rules, and governance compliance. Returns a structured `PASS`/`FAIL` and `APPROVED`/`NEEDS_REVISION` verdict.
 
 ### terraform-plan-subagent
 
-Runs `terraform plan` to preview infrastructure changes. Classifies resources
-into create/update/destroy/replace, highlights destructive operations,
-and returns a structured change summary.
+Runs `terraform plan` to classify resources into create, update, destroy, or replace actions, highlighting destructive operations in a structured summary.
+
+### policy-precheck-subagent
+
+Runs live L3 Azure Policy prechecks against `04-governance-constraints.json` and deployment previews before Step 6 execution, returning a deterministic `deploy_gate` (`PROCEED` or `BLOCK`).
 
 ### cost-estimate-subagent
 
-Queries Azure MCP `pricing_get` for retail SKU pricing, one decision per call for candidate comparisons. Compares regions
-and returns a structured cost breakdown.
+Queries Azure MCP `pricing_get` (with constrained direct Retail Prices API fallback) to produce reproducible `cost-estimate-v2` monthly workload estimates, Mode C candidate SKU comparisons, Mode B `sku-manifest.json` price writebacks, or `retail-rate-quote-v1` unit-rate quotes when monthly usage is unknown.
 
 ### challenger-review-subagent
 
-The owner-approved October 19 candidate adapts this existing agent into the shared
-read-only structured JSON leaf. Automatic producers, authorized Orchestrator
-calls, and optional manual `10-Challenger` reviews use the same leaf and
-`one-shot-review.md` contract through a synchronous native `APEX_REVIEW` task.
-The leaf reads bounded inputs and returns schema-conforming findings and its
-verdict. It does not write files, run shell commands, ask questions, or delegate.
-
-The interactive owner captures metadata before the task, records the actual
-attributed output through `record-review.mjs`, then runs strict schema,
-freshness, and provenance validation. New receipts identify the actual structured
-leaf and hash its definition and the shared contract. Built-in `rubber-duck`
-retains its critic-prose role, not a required JSON-producing role or fallback.
-Final source and native runtime evidence remain pending. See
-[review finalization and recovery](/concepts/workflow/#review-finalization-and-recovery).
+Shared read-only structured JSON reviewer invoked synchronously via `APEX_REVIEW` or hash-bound `APEX_REVIEW_FILE` (`request_path` plus `request_sha256`) across all mandatory and opt-in workflow lenses. Reads bounded artifacts and checklists without shell access, file writes, or delegation, and returns raw JSON findings recorded and hash-verified by `record-review.mjs`. See [review finalization and recovery](/concepts/workflow/#review-finalization-and-recovery).
 
 ## When validation fails
 
@@ -361,31 +348,25 @@ tasks do not imply a universal continuation API. See the
 
 **Bicep track**:
 
-1. Run **Requirements** → review and approve `01-requirements.md`
-2. Run **Architect** → review WAF scores and cost estimate
-3. Run **IaC Planner** → review governance constraints and plan
-4. Run **Bicep CodeGen** → review generated templates
-5. Run **Bicep Deploy** → review what-if before approving deployment
-6. Run **As-Built** → generate post-deployment documentation
-
-## Next steps
-
-- [Workflow Prompts](/reference/prompts/workflow-prompts/). follow the step-by-step workflow templates
-- [Troubleshooting](/guides/troubleshooting/). recover from validation, auth, and setup failures
-- [Validation & Linting](/reference/validation-reference/). understand the checks behind each gate
+1. Run `02-Requirements` and approve `01-requirements.md`
+2. Run `03-Architect` and approve WAF scores and cost estimate
+3. Run `04g-Governance` and `05-IaC Planner` to approve governance constraints and the plan
+4. Run `06b-Bicep CodeGen` and review generated modules and `05-iac-handoff.json`
+5. Run `07b-Bicep Deploy` and review policy precheck and `what-if` before approving apply
+6. Run `08-As-Built` to generate post-deployment documentation
 
 **Terraform track**:
 
-1. Run **Requirements** → review and approve `01-requirements.md`
-2. Run **Architect** → review WAF scores and cost estimate
-3. Run **IaC Planner** → review governance constraints and plan
-4. Run **Terraform CodeGen** → review generated configs
-5. Run **Terraform Deploy** → review plan output before applying
-6. Run **As-Built** → generate post-deployment documentation
+1. Run `02-Requirements` and approve `01-requirements.md`
+2. Run `03-Architect` and approve WAF scores and cost estimate
+3. Run `04g-Governance` and `05-IaC Planner` to approve governance constraints and the plan
+4. Run `06t-Terraform CodeGen` and review generated configs and `05-iac-handoff.json`
+5. Run `07t-Terraform Deploy` and review policy precheck and `terraform plan` before approving apply
+6. Run `08-As-Built` to generate post-deployment documentation
 
 ### Recovering from errors
 
-If an agent produces incorrect output, use specific follow-up prompts:
+If an agent produces a conflict with your environment, state the exact constraint to change:
 
 ```text
 The VNet address space conflicts with our on-premises range (10.0.0.0/8).
@@ -394,17 +375,18 @@ Change the hub VNet to 172.16.0.0/16 and spoke VNets to 172.17.0.0/16.
 
 ### Working with existing infrastructure
 
-Agents can work with existing deployments, not just greenfield projects:
+To evaluate an existing Azure workload or local IaC without deploying changes, select `01-Orchestrator` and run `/waf-assess-existing` using the starter prompt in the [WAF assessment guide](/guides/waf-assessment/). You can also point `08-As-Built` directly at an existing resource group for operational documentation:
 
 ```text
-I have an existing resource group rg-legacy-app-prod with 15 resources.
-Generate as-built documentation for this infrastructure.
+Generate 07-* as-built documentation and SKU inventory for the existing resource group rg-legacy-app-prod.
 ```
 
-```text
-Review the existing Bicep templates in infra/bicep/legacy-app/
-and suggest improvements for WAF alignment.
-```
+## Next steps
+
+- [Workflow prompts](/reference/prompts/workflow-prompts/) for step-by-step starter templates
+- [WAF assessment guide](/guides/waf-assessment/) for standalone reviews of existing workloads
+- [Troubleshooting](/guides/troubleshooting/) for validation, auth, and setup diagnostics
+- [Validation reference](/reference/validation-reference/) for repository checks behind each gate
 
 ## References
 

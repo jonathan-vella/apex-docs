@@ -111,10 +111,10 @@ Remove filler, decorative emphasis, and generic claims. Explain who does what
 and what the reader should observe. Keep necessary caveats and exact technical
 terms. A shorter sentence is not better if it omits a prerequisite.
 
-Historical records need a different treatment. Edit introductions, captions,
-and explanations for clarity, but preserve dates, measurements, original
-findings, and quoted output. Label verbatim records and record their exemption
-from prose changes in the review notes.
+Historical records and artifact showcases need explicit boundaries. Edit
+introductions, captions, and surrounding explanations for clarity, while
+preserving dates, measurements, review findings, and verbatim contract outputs in
+the [showcases](/showcases/).
 
 ## Tooling
 
@@ -137,10 +137,10 @@ Do not assume a native Windows preview proves the full build is supported.
 Run `npm run check:external-links` when links change. Distinguish confirmed
 missing pages from authentication restrictions and network failures.
 
-`npm run check:docs` checks metadata, article heading levels and the casing of
-known agent, helper and skill names in headings and inline code. It checks
-historical metadata but exempts generated demo bodies. It does not rewrite prose,
-validate every identifier or replace the explicit Unslop review.
+`npm run check:docs` checks frontmatter metadata, article heading levels, and the
+casing of known agent, subagent, and skill identifiers in headings and inline code
+across maintained guides and `/showcases/` pages. It does not rewrite prose,
+validate every identifier, or replace the explicit Unslop review.
 
 The browser suite includes selected axe checks in both themes on desktop and
 mobile. Automated results do not establish complete accessibility conformance.

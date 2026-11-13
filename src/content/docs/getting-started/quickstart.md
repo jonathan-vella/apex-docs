@@ -1,104 +1,129 @@
 ---
 title: "Quickstart"
-description: "Create an APEX project from the Accelerator template and start a human-approved infrastructure workflow."
+description: "Create an APEX project from the Accelerator template, open the Azure Linux 4 dev container, and start either infrastructure delivery or a standalone WAF assessment."
 ---
 
 Start from the [APEX Accelerator template](https://github.com/jonathan-vella/apex-accelerator),
-not the documentation repository. You will create a repository, open its development
-container, and ask the Requirements agent to capture your workload.
+not the documentation repository. You will create a workload repository, open its development
+container in VS Code, and start `01-Orchestrator` for either regulated infrastructure delivery
+or a standalone Well-Architected Framework assessment.
 
-This walkthrough uses x86-64 Windows with WSL2 and VS Code Dev Containers.
-Docker Desktop dev containers are validated on x86-64 and ARM64, including
-Windows with WSL2, and Linux hosts are supported. It does not deploy Azure
-resources.
+Docker Desktop dev containers are validated on x86-64 and ARM64, including Windows with WSL2,
+and Linux hosts are supported. GitHub Codespaces is not separately validated. This walkthrough
+does not deploy Azure resources.
 
-If you already have a project, use [Updating APEX](/guides/updating-apex/) to
-compare its configuration with this guidance before following new instructions.
+If you already have an APEX project, read [Updating APEX](/guides/updating-apex/) to compare
+your repository revision with this guidance before applying new instructions.
 
 ## Prerequisites
 
 | Requirement | Check |
 |---|---|
-| GitHub account and access to Copilot in VS Code | Confirm that Chat works and your account or organization permits the models selected by the APEX agents. |
-| VS Code with WSL and Dev Containers extensions | Open the repository through the WSL extension. |
-| WSL2 and a running Docker-compatible engine | Use Docker Desktop with integration enabled for your WSL distribution. |
-| Git in WSL | Run `git --version`. |
-| Azure access for scoped discovery and deployment | Prepare the correct tenant, subscription, and permissions before work that requires them. |
+| GitHub account and Copilot access in VS Code | Confirm that VS Code Copilot Chat responds under your individual or organization plan. |
+| VS Code with Dev Containers (plus WSL on Windows) | Open the repository from your Linux or WSL filesystem. |
+| Running Docker-compatible engine | Use Docker Desktop with WSL2 integration enabled on Windows. |
+| Git | Run `git --version` in your Linux or WSL terminal. |
+| Mode-specific Azure access | Offline IaC assessment and shared-policy Architecture need no Azure sign-in. Live reads and deployments need scoped RBAC. |
 
-Copilot has individual and organization plans. Check [current plan entitlements](https://docs.github.com/en/copilot/get-started/plans)
-and your organization's model policy rather than assuming a Business or Enterprise
-license is always required.
+Check [GitHub Copilot plan entitlements](https://docs.github.com/en/copilot/get-started/plans)
+and your organization's model policy. Active APEX agent definitions do not pin fixed models;
+the VS Code Copilot runtime and your picker selection control the active model.
 
-A GitHub PAT is optional. It is not a substitute for Copilot sign-in or Azure authentication.
-See [GitHub authentication](/getting-started/dev-containers/#step-4-github-authentication)
-if the container cannot use your existing credentials.
+A GitHub Personal Access Token is optional and never replaces Copilot sign-in or Azure
+authentication. See [GitHub authentication](/getting-started/dev-containers/#step-4-github-authentication)
+if the container cannot use your host credentials.
 
 ## Step 1: create your repository from the template
 
-Open the [template](https://github.com/jonathan-vella/apex-accelerator), select
+Open [apex-accelerator](https://github.com/jonathan-vella/apex-accelerator), select
 **Use this template**, and create a repository under your account or organization.
-Choose its visibility according to your requirements. A template creates a new
-repository, not a fork.
+Choose repository visibility to match your governance requirements. Using the template
+creates a clean repository history rather than a fork.
 
 ## Step 2: clone and open
 
-Run these commands in WSL. Replace the example owner and repository.
-Keep the checkout in the Linux filesystem rather than under `/mnt/c`.
+Clone the new repository inside your Linux or WSL filesystem. On Windows, do not clone
+under `/mnt/c`.
 
-```bash
+```bash title="WSL or Linux terminal"
 mkdir -p ~/src
 cd ~/src
 git clone https://github.com/YOUR-OWNER/YOUR-REPOSITORY.git
-code YOUR-REPOSITORY
+cd YOUR-REPOSITORY
 ```
+
+:::caution[Microsoft employees: launch VS Code with CFS package feeds first]
+Corporate devices must install container packages through Microsoft-approved feeds.
+Before opening the repository or building the container, connect to the corporate network
+or VPN, **fully exit all VS Code windows**, and run the host launcher from your checkout:
+
+- Windows PowerShell: `.\.devcontainer\open-microsoft.ps1`
+- Linux, macOS, or WSL: `bash .devcontainer/open-microsoft.sh`
+
+Running the launcher inside an already-open VS Code terminal does not pass the feed
+variables to Docker image builds. Everyone else can run `code .` directly. See
+[Package sources](/getting-started/dev-containers/#package-sources).
+:::
 
 ## Step 3: open in dev container
 
-Use the VS Code command palette to select **Dev Containers: Reopen in Container**.
-Wait for setup to finish, then inspect the setup output for failures.
+Open the command palette in VS Code (`F1` or `Ctrl+Shift+P`) and select
+**Dev Containers: Reopen in Container**. Wait for the Azure Linux 4 container build
+and `post-create.sh` script to finish, then check the terminal log for errors.
 
-The project container provides the IaC and diagnostic tools expected by its agents.
-Its configuration differs from the smaller apex-docs container, which only builds
-this documentation site. See [container setup](/getting-started/dev-containers/).
+The container loads the workspace-root `.mcp.json` (`github` and `azure-mcp` at
+`@azure/mcp@3.0.0`), CLI binaries, Python diagram libraries, and `apex-recall`.
+See [dev container setup](/getting-started/dev-containers/).
 
-Review the template's initialization instructions before running:
+Initialize repository metadata from the dev container terminal:
 
-```bash
+```bash title="Dev container terminal"
 npm run init
 ```
 
-Initialization adapts the copied repository. Review the resulting diff.
-Use `npm run sync:workflows` when intentionally synchronizing workflow files;
-it is not a substitute for reviewing their permissions or cloud configuration.
+Review the diff produced by `npm run init`. To inspect upstream GitHub Actions workflow
+templates later, run `npm run sync:workflows` (which previews changes by default and only
+writes files when passed `-- --apply --ref <commit-sha>`).
 
 <span id="step-4-set-up-azure-optional"></span>
 
-## Step 4: decide which Azure access you need
+## Step 4: match Azure access to your workflow
 
-You can read the documentation and discuss requirements without provisioning anything.
-Scoped governance discovery, subscription-specific evidence, and deployment require
-Azure access. Do not call a workflow verified when those checks have not run.
+APEX does not require subscription write access up front. Match Azure sign-in to the task
+you intend to run:
 
-Read [Azure setup](/getting-started/azure-setup/) before running setup automation.
-The product's `npm run setup` can create identities, role assignments, federated
-credentials, and GitHub configuration. It is not a harmless prerequisite check.
+| Workflow task | Required Azure access | Setup command |
+|---|---|---|
+| Standalone WAF assessment of local IaC (`Source: iac`) | None | No Azure sign-in required |
+| Delivery Step 1 and Step 2 using shared ALZ Corp policy assumptions (`corp-policy-v1`) | None for early Architecture; target-verified policy reads required before Step 4 completion, CodeGen, and deployment | No Azure sign-in required to start |
+| Live Azure WAF assessment (`Source: azure` or `combined`) or tenant-verified policy discovery (`04g-Governance`) | `Reader` and `Cost Management Reader` on target subscriptions (plus Management Group `Reader` for inherited policies) | `az login --tenant <TENANT_ID>` |
+| Step 6 deployment (`07b-Bicep Deploy` / `07t-Terraform Deploy`) and GitHub Actions OIDC pipelines | `Contributor` or `Owner` on target subscriptions, plus Entra app registration for CI | `az login` or `npm run setup` |
+
+Read [Azure setup](/getting-started/azure-setup/) before running `npm run setup`. That wizard
+creates Microsoft Entra ID registrations, federated credentials, role assignments, and GitHub
+repository environments.
 
 <span id="step-5-configure-gh_token-for-the-dev-container"></span>
 
 ## Step 5: check GitHub authentication
 
-Run `gh auth status` inside the container if your task needs GitHub CLI operations.
-Use your organization's approved authentication method. If you choose an optional
-`GH_TOKEN`, provide it to the host VS Code process before creating the container.
-Terminal-only settings do not supply `${localEnv:GH_TOKEN}`.
+If your work uses `gh` CLI commands for issues or pull requests, verify authentication inside
+the container:
 
-Never commit a token or paste one into a documentation example.
+```bash title="Dev container terminal"
+gh auth status
+```
+
+Git operations normally use credentials forwarded by VS Code from the host. If you supply an
+optional `GH_TOKEN`, set it in the host environment before launching VS Code so
+`${localEnv:GH_TOKEN}` resolves during container creation. Integrated terminal settings do not
+populate `${localEnv:GH_TOKEN}`. Never commit tokens or paste secrets into chat.
 
 ## Step 6: verify setup
 
-Run the checks in the container terminal:
+Run these checks in the dev container terminal:
 
-```bash
+```bash title="Dev container terminal"
 git --version
 az --version
 bicep --version
@@ -107,41 +132,31 @@ pwsh --version
 apex-recall --help
 ```
 
-Check only the authentication needed by your next task. A tool reporting its version
-does not prove that it can access your tenant or subscription.
+Tool versions confirm the container build succeeded; they do not verify cloud permissions.
 
 <span id="step-7-enable-subagent-orchestration"></span>
 
-## Step 7: understand agent handoffs
+## Step 7: understand how Copilot agents coordinate
 
-In the current source migration, select a main workflow agent directly or use
-`01-Orchestrator` to coordinate approved step dispatch. Requirements, Architect,
-Design, and Governance retain native questions when directly selected. You do
-not need Orchestrator merely to answer their missing material questions.
+APEX targets the **Copilot** session target inside VS Code. Select `01-Orchestrator` from the
+agent picker to coordinate multi-step work, or select an interactive step owner (`02-Requirements`,
+`03-Architect`, `04-Design`, or `04g-Governance`) directly.
 
-Use the native task result or explicitly select the named next agent in Copilot
-Chat. Active definitions deliberately omit `handoffs:` metadata; do not wait for
-a handoff button. Keep `00-handoff.md` as the durable record of scope and inputs.
-Read it before approving a transition. A delegated main worker returns
-`USER_INPUT_REQUIRED` to its interactive parent rather than asking you directly.
+Keep three runtime rules in mind:
 
-The [body migration and runtime evidence](/concepts/how-it-works/agents/#current-agent-body-migration)
-are distinct. The reported source migration is not certified runtime behavior
-or enforcement of declared tools. Removed worker-ready and log-preflight rituals
-are not setup prerequisites. Reviews and approval gates still apply.
+- Active agent definitions omit UI `handoffs:` buttons and model pins. `01-Orchestrator`
+  dispatches specialist workers through native tasks and records state in `apex-recall` and
+  `agent-output/<project>/00-handoff.md`.
+- When a delegated worker needs missing material answers, it returns `USER_INPUT_REQUIRED` to
+  its interactive parent so you answer one validated question form. When a worker needs an
+  independent review without nested task access, it returns `REVIEW_REQUIRED` so
+  `01-Orchestrator` runs `challenger-review-subagent` automatically.
+- Human approval gates remain mandatory before advancing delivery stages or executing Step 6
+  deployments. See [agents and delegation](/concepts/how-it-works/agents/).
 
-## Step 8: start the orchestrator
+<span id="step-8-start-the-orchestrator"></span>
 
-Open Copilot Chat and select `01-Orchestrator` from the available custom agents.
-Describe your goal, IaC preference, environment, region constraints, and budget.
-For example:
-
-```text
-Help me start requirements for a development workload on Azure.
-Use Bicep. I need a small web application with persistent data.
-Ask about region, policy constraints, availability, and budget before choosing services.
-Do not deploy anything.
-```
+## Step 8: start your first workflow
 
 <span id="option-a-orchestrator-recommended"></span>
 <span id="option-b-direct-agent-invocation"></span>
@@ -150,31 +165,60 @@ Do not deploy anything.
 <span id="direct-agent-invocation"></span>
 <span id="skill-invocation"></span>
 
-The Orchestrator should identify the next main agent and the evidence it needs.
-You can also select `02-Requirements` directly when you are starting requirements.
-It should ask about missing material inputs through its available native question
-tool, rather than insist that you select Orchestrator first.
-If the agent list is missing, check that you opened your template-derived repository
-and that VS Code loaded its customization files.
+Open VS Code Copilot Chat, confirm the session target is **Copilot**, and select
+`01-Orchestrator` from the agent picker. Pick one of the two starter prompts below.
+
+### Path A: deliver new or modernized infrastructure
+
+```text title="Copilot Chat (select agent: 01-Orchestrator)"
+Start a new Azure delivery project named orders-api-dev.
+Use Bicep in swedencentral for a Linux web API with Azure SQL Database.
+Ask me for any missing availability, residency, policy-source, and budget inputs before drafting architecture.
+Do not deploy anything.
+```
+
+You can also run `/apex-workflow-start` or select `02-Requirements` directly to capture
+`01-requirements.md` and initial SKU pins first.
+
+### Path B: assess an existing Azure or IaC workload
+
+```text title="Copilot Chat (select agent: 01-Orchestrator)"
+/waf-assess-existing
+Project: checkout-iac-audit
+Scenario: evidence_only
+Source: iac
+Visual charts: true
+Action register: true
+
+IaC and diagrams:
+- Paths: infra/bicep/checkout/
+```
+
+For live Azure subscriptions or guided `requirements_led` target discovery, copy the full
+variable-based prompt from the [WAF assessment guide](/guides/waf-assessment/).
 
 ## Step 9: follow the workflow
 
-Use [Run the workflow](/concepts/workflow/) for the step sequence, reviews, outputs,
-and approvals. Choose Bicep or Terraform during requirements; the planning,
-generation, and deployment agents depend on that choice.
+In the delivery workflow, `01-Orchestrator` guides each step through independent
+`challenger-review-subagent` checks and waits for your explicit approval before advancing.
+In a standalone WAF assessment, `01-Orchestrator` confirms scope once, runs evidence
+collection, 5-pillar WAF scoring, existing-state diagram generation, Cost Management reporting,
+and dual independent reviews automatically, then presents the completed bundle for acceptance.
 
 ### What you've created
 
-Your first checkpoint is an understandable requirements artifact and its review,
-not a successful-looking chat response. Later deployment needs explicit approval,
-current validation evidence, resource checks, and application-health checks.
+Every project writes auditable Markdown reports, JSON contracts, diagrams, and review sidecars
+under `agent-output/<project>/`. Inspect real examples in the [showcases](/showcases/) before
+running your own workload.
 
 ### If a step fails
 
-Preserve the error and use
-[troubleshooting](/guides/troubleshooting/). Do not reset session state to force a
-step forward.
+Preserve the terminal or chat error output and check [troubleshooting](/guides/troubleshooting/)
+or [session debugging](/guides/session-debugging/). Use `apex-recall handoff <project> --json`
+to inspect blocked prerequisites rather than editing session state by hand.
 
 ### Next steps
 
-Read the [workflow overview](/concepts/workflow/) before selecting the next agent.
+- [WAF assessment guide](/guides/waf-assessment/) for read-only Azure and offline IaC reviews
+- [Workflow overview](/concepts/workflow/) for delivery Steps 1 through 7 and standalone routing
+- [Showcases](/showcases/) for completed assessment and regulated Bicep delivery artifacts

@@ -24,7 +24,7 @@ export const impactAreas = [
   {
     title: "Skills, prompts, hooks and integrations",
     pattern: /^\.github\/(skills\/|prompts\/|hooks\/|plugins\/|copilot-instructions\.md$)/,
-    docs: ["concepts/how-it-works/skills-and-instructions.md", "concepts/how-it-works/mcp-integration.md", "reference/prompts/skills-subagents.md", "reference/prompts/repository-prompts.md", "guides/hooks.md"],
+    docs: ["concepts/how-it-works/skills-and-instructions.md", "concepts/how-it-works/mcp-integration.md", "concepts/how-it-works/workflow-engine.md", "guides/waf-assessment.mdx", "reference/prompts/skills-subagents.md", "reference/prompts/workflow-prompts.md"],
   },
 ];
 

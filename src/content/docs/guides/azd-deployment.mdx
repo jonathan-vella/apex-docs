@@ -44,40 +44,36 @@ APEX uses the contracts in `agent-output/{project}/`. It does not require a gene
 `.azure/plan.md`. The generic preparation flow in `apex-azure-prepare` explicitly
 returns APEX requests to their step owner.
 
-## Azd workflow
+<span id="azd-workflow"></span>
+
+## azd workflow
 
 ### 1. Prepare
 
-Requirements, Architecture, Governance, and Plan establish the approved inputs.
-CodeGen produces the IaC, required manifest, and `05-iac-handoff.json`.
-Do not ask Deploy to repair or regenerate those artifacts.
+Requirements, Architecture, Governance, and `05-IaC Planner` establish the approved inputs. `06b-Bicep CodeGen` or `06t-Terraform CodeGen` generates the IaC modules, `infra/{bicep|terraform}/{project}/azure.yaml`, and `05-iac-handoff.json`. Never place `azure.yaml` at the multi-project repository root, and do not ask Deploy to regenerate missing CodeGen artifacts.
 
 ### 2. Validate
 
-Select `07b-Bicep Deploy` or `07t-Terraform Deploy` and request the intended scope.
-For example:
+Select `07b-Bicep Deploy` or `07t-Terraform Deploy` and state a validation-only scope:
 
 ```text
 Validate the APEX project payment-gateway without preview or deployment.
-Check the current handoff and environment manifest. Report unperformed checks
-and missing prerequisites. Do not create resources or regenerate code.
+Check the current 05-iac-handoff.json and 04-environment-manifest.json.
+Report any missing prerequisites and do not create Azure resources.
 ```
 
-Validation reuse requires matching current inputs, scope, and tool evidence.
-An old PASSED status or the presence of `azure.yaml` is not sufficient.
+Validation reuse requires matching current file hashes, recorded Step 6 phase scope (`policy_source` `current`), and tool output.
 
 ### 3. Deploy
 
-For an explicitly requested deployment, the agent resolves the approved environment,
-checks policy, presents the current preview, and obtains apply approval.
-Changed inputs or a changed preview require fresh approval.
+For an explicitly requested deployment, the deploy agent verifies Step 6 phase scope, runs `policy-precheck-subagent` and `bicep-whatif-subagent` or `terraform-plan-subagent`, presents the previewed changes, and waits for explicit human apply approval:
 
 ```text
-Prepare to deploy the approved payment-gateway project to its recorded target.
-Show the current preview and policy results, then wait for apply approval.
+Prepare to deploy the approved payment-gateway project to its recorded dev target.
+Show the current preview and policy precheck results, then wait for my apply approval.
 ```
 
-Provisioning success does not prove application health. Record both outcomes.
+Resource provisioning and application health are verified separately after deployment completes.
 
 ### Environment preflight
 
@@ -115,40 +111,34 @@ Follow the phases in the approved implementation plan. Preview, obtain approval,
 apply, and verify one phase at a time. A phase name or a previous phase's success
 does not authorize the next phase.
 
-## Azd hooks
+<span id="azd-hooks"></span>
 
-Review lifecycle hooks in `azure.yaml` before running azd. A hook can create
-resources, change access, or run migrations. Its effects belong in the requested
-scope and approval.
+## azd hooks
 
-Do not append `|| true` to suppress role-assignment errors. Inspect the actual
-result, confirm the intended assignment when it already exists, and surface
-unexpected failures. Idempotency means repeated execution preserves the intended
-result, not that all errors are ignored.
+Review lifecycle hooks in `azure.yaml` before running `azd`. A hook can create resources, modify RBAC, or run schema migrations, so its effects belong inside the approved deployment scope.
 
-## Azure.YAML schema
+Do not append `|| true` to suppress role-assignment or script errors. Inspect the actual exit status, confirm existing idempotent assignments explicitly, and surface unexpected failures.
 
-The manifest declares the infrastructure provider and path, optional application
-services, and hooks. Their values must match the generated project and the approved
-handoff. Terraform parameter mapping must match the actual variable definitions.
+<span id="azureyaml-schema"></span>
 
-Use the [official schema](https://learn.microsoft.com/azure/developer/azure-developer-cli/azd-schema)
-for syntax. Do not add placeholder services or hooks merely to copy an example.
+## azure.yaml schema
+
+The manifest declares `infra.provider`, `infra.path`, optional `services`, and lifecycle `hooks` matching the generated project directory and `05-iac-handoff.json`. Consult the [official `azure.yaml` schema reference](https://learn.microsoft.com/azure/developer/azure-developer-cli/azd-schema) for syntax details.
 
 ## Troubleshooting
 
 | Failure | Next step |
 |---|---|
-| `azure.yaml` not found | Check the working directory; return a missing expected manifest to CodeGen. |
-| Missing parameter or environment value | Resolve it against the environment manifest and owner decisions. |
-| Preview fails despite Azure CLI login | Check azd authentication separately. |
-| Terraform backend is missing | Report the blocker; do not bootstrap during validation-only or preview-only work. |
-| Policy or preview evidence is stale | Repeat the affected check against current inputs before approval. |
-| A hook fails | Preserve the error and repair its cause through the owning step. |
+| `azure.yaml` not found | Check that your working directory is `infra/{bicep\|terraform}/{project}/`, or return to CodeGen if the manifest was omitted. |
+| Missing parameter or environment value | Reconcile against `04-environment-manifest.json` and recorded owner decisions. |
+| Preview fails despite `az login` | Check `azd auth login --check-status` separately because `az` and `azd` maintain distinct token caches. |
+| Terraform backend is missing | Report the blocker; never bootstrap remote state during validation-only or preview-only requests. |
+| Policy or preview evidence is stale | Re-run `policy-precheck-subagent` and preview against the current IaC tree before requesting approval. |
+| A lifecycle hook fails | Preserve the error output and fix the root cause in the owning step. |
 
 ## Related
 
-- [Deployment step](/concepts/workflow/step-6/)
+- [Step 6: Deploy](/concepts/workflow/step-6/)
 - [Security baseline](/reference/security-baseline/)
 - [Azure authentication troubleshooting](/guides/troubleshooting/#6-azure-authentication-issues)
-- [Pinned deployment contract](https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/skills/apex-iac-common/references/deploy-shared-workflow.md)
+- [Shared deployment workflow](https://github.com/jonathan-vella/apex/blob/7c195a1c8e06a5d0c3aa305d1870356e5829df92/.github/skills/apex-iac-common/references/deploy-shared-workflow.md)

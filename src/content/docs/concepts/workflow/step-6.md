@@ -14,27 +14,20 @@ A request for a plan or validation does not authorize deployment.
 
 ## Agents
 
-- [`07b-Bicep Deploy`](https://github.com/jonathan-vella/apex/blob/main/.github/agents/07b-bicep-deploy.agent.md)
-  owns Bicep deployment and its what-if preview.
-- [`07t-Terraform Deploy`](https://github.com/jonathan-vella/apex/blob/main/.github/agents/07t-terraform-deploy.agent.md)
-  owns Terraform deployment and its plan preview.
-- The permitted `policy-precheck-subagent` supplies policy and governance evidence.
-  Its `PROCEED` result is evidence for the deployment decision, not user authorization.
+- [`07b-Bicep Deploy`](https://github.com/jonathan-vella/apex/blob/main/.github/agents/07b-bicep-deploy.agent.md) owns Bicep deployment and dispatches `bicep-whatif-subagent` for `what-if` previews.
+- [`07t-Terraform Deploy`](https://github.com/jonathan-vella/apex/blob/main/.github/agents/07t-terraform-deploy.agent.md) owns Terraform deployment and dispatches `terraform-plan-subagent` for plan previews.
+- `policy-precheck-subagent` cross-checks live Azure Policy state against `04-governance-constraints.json` and returns a deterministic `deploy_gate` (`PROCEED` or `BLOCK`). A `PROCEED` gate is readiness evidence, not human deployment approval.
 
 ## Pre-deploy gates
 
-Confirm the tenant, subscription, target environment, resource scope, and approved
-plan. Check `04-environment-manifest.json`, `05-iac-handoff.json`, current code,
-and the required governance evidence.
+Before any cloud write, the deploy agent verifies:
 
-Run the required deterministic checks, preview, and policy precheck. Reuse prior
-validation only when its evidence covers the current inputs and meets the
-freshness and scope requirements. A stored `security_validation_status: PASSED`
-string is not sufficient by itself.
+- Recorded Step 6 phase scope from granted owner authorization, confirming tenant ID, subscription ID, target environment, `policy_source` (`current`), and `azure_read_scope`.
+- Intact tree and contract hashes across `04-environment-manifest.json`, `05-iac-handoff.json`, and generated IaC files.
+- Fresh `policy-precheck-subagent` (`PROCEED`) and `bicep-whatif-subagent` or `terraform-plan-subagent` preview results covering the exact current inputs.
+- When deploying a lab workload under an explicit `risk-envelope-v1` exception, verified `--risk-authorization`, `--risk-approval`, and `--deployment-context` (`non-production-lab` only, with cleanup owner and teardown deadline).
 
-The [shared deployment contract](https://github.com/jonathan-vella/apex/blob/a656e66d83cfae8d525ce0d2012b124599b37252/.github/skills/apex-iac-common/references/deploy-shared-workflow.md)
-defines the checks. Resolve missing evidence through the owning step rather than
-regenerating the project through a generic application-preparation workflow.
+See the [shared deployment workflow](https://github.com/jonathan-vella/apex/blob/7c195a1c8e06a5d0c3aa305d1870356e5829df92/.github/skills/apex-iac-common/references/deploy-shared-workflow.md) for phased execution and circuit-breaker rules. If Azure reports a SKU quota or regional capacity conflict during deployment, the agent halts under the block-with-escalation rule rather than substituting a SKU silently.
 
 ## Invocation
 

@@ -1,6 +1,6 @@
 ---
 title: "Step 1: Requirements"
-description: "Gather Azure platform-engineering requirements with the 02-Requirements agent."
+description: "Capture functional, non-functional, compliance, budget, and initial SKU inputs with the 02-Requirements agent."
 sidebar:
   order: 1
   label: "Step 1: Requirements"
@@ -8,9 +8,7 @@ sidebar:
 
 ## Purpose
 
-Capture the functional, non-functional, compliance, and budget constraints for a new Azure workload
-through an interactive conversation. Step 1 also produces the empty `sku-manifest.{json,md}`
-artifact that downstream steps mutate.
+Capture the functional, non-functional, compliance, regional, and budget requirements for an Azure workload through guided discovery. Step 1 writes `01-requirements.md` and initializes `sku-manifest.{json,md}` (revision 1).
 
 ## Agent
 
@@ -19,123 +17,50 @@ artifact that downstream steps mutate.
 ## Invocation
 
 ```text
-Select: 02-Requirements in Copilot Chat
+Select: 01-Orchestrator or 02-Requirements in Copilot Chat
 Output: agent-output/{project}/01-requirements.md
         agent-output/{project}/sku-manifest.{json,md} (rev 1)
 ```
 
 ## What gets captured
 
-- What the workload must do.
-- Performance, availability, security, and scale targets.
-- Regulatory, organizational, and residency constraints.
-- Monthly budget and cost limits.
-- Any SKUs the owner has already selected.
+- Business objectives, critical user flows, and IaC track (`bicep` or `terraform`).
+- Availability, recovery (`RTO` and `RPO`), performance, and scale targets.
+- Regulatory frameworks, organizational guardrails, and data residency (`swedencentral` by default).
+- Monthly budget ceiling or cost optimization priorities.
+- Partial or complete user SKU pins, plus `observed-current` SKUs when modernizing an existing workload (`services[]` may remain empty after preference capture when `03-Architect` will select SKUs in Step 2).
 
-## Review
+<span id="guided-discovery-candidate"></span>
 
-One independent `comprehensive` review is mandatory before approval. The workflow
-uses the shared read-only `challenger-review-subagent` through the
-existing one-shot review contract and an actual synchronous native `APEX_REVIEW`
-task. After reloading VS Code (`7735cb43-97f0-4d6e-9a31-8edd63dcc75b`), Step 1
-and all downstream mandatory gates completed structured `challenger-review-subagent`
-reviews and passed strict `--verify-cache` validation during the `cp-harness-01`
-end-to-end run.
-If the delegated Requirements worker cannot launch that review, it returns
-`REVIEW_REQUIRED`. Orchestrator automatically runs the same independent review as
-a sibling task and records its actual result. Selecting `10-Challenger` manually
-is not the normal route. Missing reviewer capability or failed or invalid review
-evidence stops progress for human recovery, without an automatic fallback.
+## Guided discovery and question batching
 
-The leaf returns schema-conforming JSON. It cannot write files, run shell commands,
-ask questions, or delegate. The interactive owner captures metadata before the
-task, records its actual attributed output centrally through `record-review.mjs`,
-then validates schema, freshness, and provenance. New receipts identify the actual
-leaf and hash both its definition and the shared `one-shot-review.md` contract.
-The recorder derives IDs and severity counts from the findings.
-Built-in `rubber-duck` is not a required JSON producer or fallback.
-A shell safety block still invalidates that interaction.
-The October 18 `cp-harness-01` retry reached automatic sibling dispatch but failed
-recording for that reason. It did not produce a valid review or approval.
-
-Resolve required findings and obtain owner approval before Step 2. See
-[review finalization and recovery](/concepts/workflow/#review-finalization-and-recovery)
-for the review and evidence limits.
-
-The delegated question wrapper is also a native tool contract, not general JSON
-Schema. `requestedSchema` contains only `properties`. Root `type`, `required`,
-and `additionalProperties` do not belong there; unresolved names go in
-the delegated envelope's `needed_inputs`. Direct tool calls contain only
-`message` and `requestedSchema`. The parent permits one schema-only correction for the same
-request, then stops on another malformed response without repeating settled
-questions.
-
-## Guided discovery candidate
-
-:::note[Reloaded VS Code acceptance verified]
-The guided discovery source (`977a90fa`) and shared structured-review cutover
-were verified on October 19 in a reloaded VS Code Agent Host session
-(`7735cb43-97f0-4d6e-9a31-8edd63dcc75b`) during the full `cp-harness-01`
-end-to-end run (`Steps 1 → 2 → 3.5 → 4 → 5 → 6 → 7 → Post-Lessons`). See the
-[reported review evidence](/concepts/workflow/#review-finalization-and-recovery).
-Earlier history remains unchanged.
-:::
-
-October 19 model-backed CLI probes found and rejected an unsupported form wrapper.
-After the producer/parent guidance correction, a fresh CLI session using the same
-prompt returned a valid wrapper. Exact-session continuation also preserved custom
-answers and moved to workload questions without repeating the business intake.
-These bounded observations do not establish full discovery or review recording
-in the supported VS Code client.
-
-The candidate groups discovery into `business`, `migration`, `workload`, and
-`access` stages. It offers guided choices for industry, business category,
-workload type, concrete goals, and timeline ranges. Business category and
-employee count are not interchangeable. A custom or freeform answer belongs in the
-same native question field, not a second `*_other` field.
-
-Only Migration or Modernization work asks for migration details. Greenfield
-work skips those questions. Explicit negations do not reverse the intended
-branch: "not greenfield, migrating an existing workload" keeps migration
-follow-ups, while "no migration or modernization" skips them.
-The helper preserves the captured answer text.
-Later questions guide non-functional requirements,
-user scale, budget, availability, and recovery needs. Private-access choices
-include "Not sure" so the design can establish a secure path without requiring
-the owner to supply network implementation details.
-
-Monitoring questions establish responsibility scope, not named accountable
-contacts or identity principals. Capture any known constraints. Exact runtime
-choices, resource IDs, and tag bindings can remain open for Architecture,
-Governance, or IaC Planner when the workload intent is clear. Those steps must
-resolve each unknown before the gate that consumes it. An unknown is neither an
-approval nor permission to invent a value or relax private-data access and
-private DNS requirements.
-
-Orchestrator passes the complete captured-answer ledger, including known answers
-and explicit unknowns, to every new or continued Requirements worker task. It
-does not send only the latest form response. The worker asks for missing inputs
-without discarding earlier answers.
-
-The read-only form helper runs from the APEX repository root against an existing
-captured-answer JSON file:
+`02-Requirements` uses `tools/scripts/requirements-discovery.mjs` to group intake into `business`, `migration`, `workload`, and `access` stages (or `--stage business --assessment-mode requirements_led` during a standalone WAF assessment):
 
 ```bash
 node tools/scripts/requirements-discovery.mjs --stage business --answers captured-answers.json
 ```
 
-Use `business`, `migration`, `workload`, or `access` for `--stage`. The helper
-returns JSON and does not write project state. A complete stage means no required
-fields are missing for that stage. It does not complete Step 1, supply answers,
-make decisions, satisfy review, or approve a handoff.
+Key discovery rules under `practical-v1`:
+
+- Only missing material inputs appear in `ask_user`. Native fields accept custom text directly, so separate companion `*_other` or unconditional note fields are prohibited (`validate_question_batching.py`).
+- Migration follow-ups appear only when the workload involves migration or modernization; greenfield runs skip them.
+- Each form carries an APEX-local `request_id` recorded in `agent-output/{project}/_meta/` and bound to returned answers via `apex-recall decide --input-record`.
+- When `01-Orchestrator` delegates to `02-Requirements`, the worker returns `USER_INPUT_REQUIRED` (`message` plus `requestedSchema.properties` only) and receives the complete captured-answer ledger on continuation so settled answers and explicit `Unknown` choices are preserved.
+
+## Review
+
+One independent `comprehensive` review via `challenger-review-subagent` is mandatory before Step 1 completion (standalone `requirements_led` assessments skip this intermediate gate and review the final bundle instead).
+
+`02-Requirements` or `01-Orchestrator` captures metadata, runs `record-review.mjs --preflight`, dispatches `challenger-review-subagent` synchronously, and records `challenge-findings-requirements.json`. Requirements review evaluates business intent, measurable targets, and security constraints without treating open downstream architecture details as defects.
+
+Resolve any `must_fix` findings and obtain human approval before advancing to Step 2.
 
 ## Hand-off
 
-After approving the requirements, select the handoff to
-[Step 2: Architecture](/concepts/workflow/step-2/).
+After approving `01-requirements.md`, transition via `apex-recall transition` to [Step 2: Architecture](/concepts/workflow/step-2/).
 
 ## See also
 
 - [Workflow overview](/concepts/workflow/)
-- [Workflow deep dive](/concepts/workflow-deep-dive/)
-- [Agent architecture](/concepts/how-it-works/agents/)
+- [SKU manifest lifecycle](/concepts/how-it-works/sku-manifest/)
+- [Agents and delegation](/concepts/how-it-works/agents/)

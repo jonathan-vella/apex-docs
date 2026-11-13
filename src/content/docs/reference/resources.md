@@ -1,10 +1,9 @@
 ---
-title: "Resources & Downloads"
-description: "Preserved presentation and case-study downloads, with limits on their currency."
+title: "Resources and downloads"
+description: "Download preserved APEX presentation decks and workshop archives, or jump to current showcases and repositories."
 ---
 
-These downloads are preserved reference material. Their presence does not establish
-that their contents match the current workflow.
+These downloads are preserved presentation and event archives. For current end-to-end artifacts matching the active APEX contracts, browse the [showcases](/showcases/).
 
 ---
 
@@ -12,19 +11,21 @@ that their contents match the current workflow.
 
 ### APEX
 
-The imported APEX presentation remains available at its original URL. Its contents
-have not been refreshed or verified as part of the documentation update. Check
-claims against the [current workflow](/concepts/workflow/) before presenting it.
+Download the APEX overview deck (or the earlier pre-rename `agentic-infraops.PPTX` archive preserved for existing links). Check workflow details against the [current workflow overview](/concepts/workflow/) before presenting.
 
 <a
   href="/downloads/apex.PPTX"
   download
   class="sl-link-button primary not-content"
-  style="display:inline-block;margin-bottom:1rem;">Download APEX.PPTX</a>
+  style="display:inline-block;margin-right:0.75rem;margin-bottom:1rem;">Download APEX.PPTX</a>
 
-> **Tip:** After downloading, open the file in Microsoft PowerPoint or upload it to
-> [PowerPoint for the Web](https://www.microsoft.com/en-us/microsoft-365/powerpoint)
-> to view it in the browser without any local software.
+<a
+  href="/downloads/agentic-infraops.PPTX"
+  download
+  class="sl-link-button secondary not-content"
+  style="display:inline-block;margin-bottom:1rem;">Download agentic-infraops.PPTX (archive)</a>
+
+> **Tip:** Open the `.PPTX` file in Microsoft PowerPoint or upload it to [PowerPoint for the Web](https://www.microsoft.com/en-us/microsoft-365/powerpoint) to view it in your browser.
 
 ---
 
@@ -34,13 +35,7 @@ claims against the [current workflow](/concepts/workflow/) before presenting it.
 
 ### BMIT 2026: Il-Pastizzeria ta' Mario
 
-This archive accompanies the April 2026
-[Il-Pastizzeria ta' Mario case study](/demo/). Its contents are preserved, not
-revalidated as a current deployment package.
-
-This download is a historical session snapshot, not the current skill distribution.
-Its original skill names and artifacts are preserved. Use the current repository
-for `apex-` skill names and the latest workflow guidance.
+This historical archive preserves the April 2026 BMIT session snapshot (`Il-Pastizzeria ta' Mario`). For current standalone WAF assessment and regulated Bicep delivery artifacts, inspect the [showcases](/showcases/) instead.
 
 <a
   href="/downloads/bmit-2026.zip"
@@ -48,15 +43,13 @@ for `apex-` skill names and the latest workflow guidance.
   class="sl-link-button primary not-content"
   style="display:inline-block;margin-bottom:1rem;">Download bmit-2026.zip</a>
 
-Do not run the archive's setup or deployment scripts without inspecting them.
-The recorded run provisioned resources, but production and staging returned
-HTTP 503. The archive is not a verified successful application deployment.
+Do not run setup or deployment scripts inside `bmit-2026.zip` without inspecting them first; the archive uses pre-rename skill identifiers and captures a historical run whose staging and production endpoints returned HTTP 503.
 
 ---
 
 ## Quick access URL
 
-To share a direct download link:
+Share a direct link to the presentation deck:
 
 ```text
 https://apexops.pro/downloads/apex.PPTX
@@ -64,15 +57,15 @@ https://apexops.pro/downloads/apex.PPTX
 
 ## First steps
 
-- Start with [Quickstart](../../getting-started/quickstart/) if you are new to APEX
-- Use [Prompt Guide](../../guides/prompt-guide/) if you want ready-to-run workflow prompts
+- Start with the [quickstart](../../getting-started/quickstart/) or the [WAF assessment guide](../../guides/waf-assessment/)
+- Browse the [showcases](/showcases/) and [prompt guide](../../guides/prompt-guide/)
 
 ## Get help
 
-- [Troubleshooting](../../guides/troubleshooting/) for setup, auth, and deployment issues
-- [Validation & Linting](../validation-reference/) to understand repository checks and gates
+- [Troubleshooting](../../guides/troubleshooting/) for container, MCP, auth, and deployment issues
+- [Validation reference](../validation-reference/) for repository checks and gates
 
 ## Community
 
-- [Contributing](../../project/contributing/) if you want to improve the project
+- [Contributing](../../project/contributing/) to submit changes across `apex`, `apex-accelerator`, or `apex-docs`
 - [GitHub repository](https://github.com/jonathan-vella/apex) for issues, discussions, and releases

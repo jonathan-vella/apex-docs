@@ -65,12 +65,17 @@ indicator identifies your WSL distribution before opening the container.
 ### Step 3: open in dev container
 
 Create your repository from the Accelerator template first, following the
-[quickstart](/getting-started/quickstart/). Use **Dev Containers: Reopen in
-Container** from the command palette.
+[quickstart](/getting-started/quickstart/).
 
-Wait for the lifecycle scripts to finish. Read any reported error rather than
-assuming a visible editor means setup completed. Rebuild when the repository's
-container definition changes.
+Microsoft employees on corporate devices must connect to the corporate VPN, fully
+exit all VS Code windows, and launch VS Code from the host checkout using
+`.\.devcontainer\open-microsoft.ps1` on Windows PowerShell or
+`bash .devcontainer/open-microsoft.sh` on Linux, macOS, or WSL before building the
+container. Everyone else can open the repository with `code .`.
+
+Use **Dev Containers: Reopen in Container** from the command palette. Wait for the
+lifecycle scripts to finish and inspect any reported error rather than assuming a
+visible editor means setup completed. Rebuild when `.devcontainer/` changes.
 
 ### Step 4: GitHub authentication
 
@@ -136,76 +141,87 @@ scripts before adopting an alternative.
 
 ## What's included
 
-The product container declares Azure CLI, Bicep, Terraform, PowerShell, Python,
-Node.js, GitHub CLI, and Azure Developer CLI tooling. Its lifecycle scripts install
+The container declares Azure CLI, Bicep, Terraform, PowerShell, Python, Node.js,
+GitHub CLI, `azqr`, and Azure Developer CLI tooling. Its lifecycle scripts install
 project dependencies and `apex-recall`. VS Code loads the repository's agents,
-skills, instructions, and MCP configuration. The owner intentionally deleted
-APEX `.github/hooks/` runtime hooks in the October 18 migration. Do not restore
-them or add replacement hooks during setup. That decision does not retire
-Git Lefthook, pre-commit security checks, or CI. See the
-[retirement and protection limits](/guides/hooks/).
+skills, instructions, and workspace-root `.mcp.json` (`github` and `azure-mcp` at
+`@azure/mcp@3.0.0`).
+
+Runtime `.github/hooks/` hooks were retired and removed from APEX. Do not restore
+them or add replacement chat hooks during setup. Git Lefthook pre-commit and
+pre-push checks, `gitleaks`, and CI workflows remain active. See
+[Copilot hooks retirement](/concepts/how-it-works/workflow-engine/#copilot-hooks).
 
 Use the configuration in your template-derived repository as the setup authority.
-APEX main can contain changes that the template has not yet incorporated. Do not
-install a duplicate Azure MCP extension merely because an older guide recommends it.
+Do not install duplicate MCP extensions or create a legacy `.vscode/mcp.json` file
+when `.mcp.json` is already present at the workspace root.
 
 ## Base image and tool installation
 
-APEX main replaced the Ubuntu development container with the Azure Linux 4 preview
-image, pinned by digest ([apex#793](https://github.com/jonathan-vella/apex/pull/793),
-a breaking change). A project created from the Accelerator receives it through the
-upstream sync pull request, so your project may still have the previous Ubuntu
-container. Check which one you have:
+APEX and `apex-accelerator` use the Azure Linux 4 preview base image, pinned by
+digest ([apex#793](https://github.com/jonathan-vella/apex/pull/793)). If you created
+your project before that update and have not merged an upstream sync pull request,
+check which base image your checkout uses:
 
 ```bash
 head -n 1 .devcontainer/Dockerfile
 ```
 
-An `azurelinux` image is the new container; an `ubuntu` image is the previous one.
+An `azurelinux` line indicates the current container; an `ubuntu` line indicates the
+older base.
 
-What changed:
+Key details of the Azure Linux 4 image:
 
-- The image is a preview. Its package manager is `dnf`, not `apt`.
-- Azure CLI is installed in an isolated Python environment by a local Feature.
-- GitHub CLI, Terraform, Bicep, and `azd` are checksum-verified standalone binaries.
-- `dos2unix` and the preinstalled Az PowerShell module bundle were removed.
-  PowerShell and the pinned script analyzer remain.
+- The package manager is `dnf`, not `apt`.
+- Azure CLI runs in an isolated Python environment installed by a local Feature.
+- GitHub CLI, Terraform, Bicep, `azqr`, and `azd` install as checksum-verified standalone binaries.
+- `dos2unix` and the preinstalled Az PowerShell module bundle were removed; PowerShell and PSScriptAnalyzer remain.
 
-The product's CI builds the image natively on amd64 and arm64 on GitHub-hosted
-Linux runners. This automated build coverage is separate from the project owner's
-manual Docker Desktop validation on x86-64 and ARM64, including Windows with WSL2.
-Codespaces has not been separately validated. Rebuild, then check the startup output
-and the tools in [step 5](#step-5-verify-setup) in your own environment.
+Product CI builds the image natively on `amd64` and `arm64` Linux runners, and the
+owner validated Docker Desktop dev containers on x86-64 and ARM64 including Windows
+with WSL2. GitHub Codespaces is not separately validated. Rebuild and run the checks
+in [step 5](#step-5-verify-setup) after updating.
 
 ## Package sources
 
-This section applies once your project has the updated container configuration.
-Earlier configurations set npm, pip, and uv to a Microsoft package proxy for every
-user. Whether that proxy is reachable from your network is not verified here, so check
-the package sources first if an npm or Python install fails during setup.
+The dev container uses public registries by default (`registry.npmjs.org` for npm,
+`pypi.org` for pip and uv). Microsoft maintainers opt in to the corporate CFS feed
+proxy before VS Code starts, and any organization can point the container at an
+internal mirror.
 
-The updated container uses the public registries by default (`registry.npmjs.org` for
-npm, `pypi.org` for pip and uv). Microsoft maintainers opt in to the Microsoft proxy,
-and anyone can point the container at their own registry or mirror. Set these on the
-**host** before VS Code starts, then rebuild the container:
+Microsoft employees can set the host environment variables for a single VS Code
+session without altering global host settings by closing all VS Code windows,
+connecting to corporate VPN, and running the host launcher from the repository root:
+
+```powershell title="Windows PowerShell (host)"
+.\.devcontainer\open-microsoft.ps1
+```
+
+```bash title="Linux, macOS, or WSL (host)"
+bash .devcontainer/open-microsoft.sh
+```
+
+Under the hood, the launcher populates these host variables before starting VS Code:
 
 | Host variable | Microsoft proxy value | Default |
 | --- | --- | --- |
 | `APEX_NPM_REGISTRY_HOST_PATH` | `packagefeedproxy.microsoft.io/npm/` | `registry.npmjs.org/` |
 | `APEX_PIP_INDEX_HOST_PATH` | `packagefeedproxy.microsoft.io/pypi/simple/` | `pypi.org/simple/` |
 
-Values are a host and path without `https://`; the prefix is fixed in the container
-configuration. Dev Containers reads them from the host VS Code process, the same way it
-reads `GH_TOKEN`, so the terminal caution above applies here too.
+Values omit `https://` because the scheme is fixed in `.devcontainer/Dockerfile` and
+`devcontainer.json`. Dev Containers reads `${localEnv:...}` from the host VS Code
+process, so setting them inside an integrated terminal has no effect on image builds.
 
-At every start the container prints the npm, pip, and uv sources separately as
-`Microsoft CFS`, `public`, `custom`, or `unset`, and warns when only part of a Microsoft
-opt-in is set. It never prints a URL, because a custom one can carry credentials.
+At startup, `post-start.sh` prints each package source label (`Microsoft CFS`,
+`public`, `custom`, or `unset`) and warns on partial Microsoft opt-in without printing
+raw URLs that might embed credentials. If container startup fails with an SSL
+`HandshakeFailure` against `files.pythonhosted.org` on a corporate network, exit all
+VS Code windows and relaunch via `open-microsoft.ps1` or `open-microsoft.sh`, then
+rebuild the container.
 
-The minimum release age and Microsoft-proxy-only rules in the product repository are
-Microsoft's supply-chain policy for its own maintainers. If you use a different
-registry, apply your organization's own controls, such as a minimum release age or an
-allowlisted mirror. Do not disable TLS verification to get past a download failure.
+Microsoft's 7-day upstream release-age and CFS-feed rules apply to Microsoft
+maintainers' environments. Other organizations apply their own mirror and quarantine
+policies. Never disable TLS verification to bypass a download error.
 
 ## Migrate a customized container
 
@@ -271,4 +287,4 @@ container setup.
 - [Quickstart](/getting-started/quickstart/)
 - [Troubleshooting](/guides/troubleshooting/)
 - [Product dev container guide](https://github.com/jonathan-vella/apex/blob/main/.devcontainer/README.md)
-- [Pinned Accelerator configuration](https://github.com/jonathan-vella/apex-accelerator/blob/a77442889129b26a2a89c0d5faa5f1d35a84965c/.devcontainer/devcontainer.json)
+- [Pinned Accelerator configuration](https://github.com/jonathan-vella/apex-accelerator/blob/9e7432ca90a9db86e9f85f28d3afd6db78d97c19/.devcontainer/devcontainer.json)

@@ -1,72 +1,45 @@
 ---
 title: "Prompt guide"
-description: "Choose the owning APEX agent and give it a scoped task with the required evidence."
+description: "Select 01-Orchestrator or a step-owning APEX agent in VS Code Copilot Chat and structure clear, bounded prompts."
 ---
 
 import { CardGrid, LinkCard } from "@astrojs/starlight/components";
 
-Complete the [quickstart](/getting-started/quickstart/), select the owning main
-agent, and state the intended scope. A prompt example does not authorize cloud
-changes or bypass a required review.
+Confirm the VS Code Copilot session target is **Copilot**, select `01-Orchestrator` (or the owning step agent), and state your project name, IaC track, and scope boundary. Prompt examples never bypass required reviews or authorize cloud deployments on their own.
 
 <CardGrid>
   <LinkCard title="Prompting practices" href="/reference/prompts/best-practices/"
-    description="Provide constraints, evidence, and explicit stopping points." />
+    description="Supply constraints, file context, and explicit stopping points." />
   <LinkCard title="Workflow prompts" href="/reference/prompts/workflow-prompts/"
-    description="Examples for each main-agent step, including Governance." />
-  <LinkCard title="Repository slash prompts" href="/reference/prompts/repository-prompts/"
-    description="Resume, requested commits, and local debug-log export." />
+    description="Copy-paste prompts for 01-Orchestrator, /waf-assess-existing, resume, and each delivery step." />
+  <LinkCard title="WAF assessment guide" href="/guides/waf-assessment/"
+    description="Variable-based starter prompt and presets for read-only Azure and offline IaC reviews." />
   <LinkCard title="Skills and subagents" href="/reference/prompts/skills-subagents/"
-    description="Invocation boundaries and the purpose of validation helpers." />
+    description="User-invocable workflow skills and stateless leaf subagents." />
 </CardGrid>
 
 ## Quick reference
 
 ### Agents
 
-Use the [current roster](/concepts/workflow/#core-agents-by-workflow-step).
-The body-migration candidate lets Orchestrator dispatch approved main workers;
-the owner can also select main agents directly.
-One planner handles both tracks. CodeGen and Deploy have separate Bicep and
-Terraform agents. `10-Challenger` is human-selected for optional manual review.
-The shared-review candidate uses the read-only `challenger-review-subagent` for
-automatic and optional manual reviews. See the
-[review contract and pending runtime evidence](/concepts/workflow/#review-finalization-and-recovery).
+`01-Orchestrator` coordinates the end-to-end delivery pipeline and standalone WAF assessments (`resume <project>` continues any interrupted run). You can also select step owners (`02-Requirements`, `03-Architect`, `04-Design`, `04g-Governance`, `05-IaC Planner`, `06b-Bicep CodeGen`, `06t-Terraform CodeGen`, `07b-Bicep Deploy`, `07t-Terraform Deploy`, `08-As-Built`) or standalone specialists (`09-Diagnose`, `10-Challenger`, `11-Context Optimizer`) directly from the agent picker. See the [workflow roster](/concepts/workflow/#core-agents-by-workflow-step).
 
 ### Skills
 
-Skills provide reusable instructions. Their flags control automatic selection and
-slash-menu visibility; they do not grant tools or permissions. Consult the pinned
-[Explorer](/reference/architecture-explorer/) and your checkout's `SKILL.md` files.
-
-Published site writing belongs to apex-docs and its checked-in `unslop` skill.
-The historical product `apex-docs-writer` is retired.
+Skills under `.github/skills/apex-*/SKILL.md` load domain procedures on demand into the active agent's context without changing permissions or bypassing gates. User-invocable skills include `/apex-workflow-start`, `/apex-github-operations`, and `/apex-debug-log-export`. Inspect the full inventory in the [Architecture Explorer](/reference/architecture-explorer/).
 
 ### Subagents
 
-Allowed parents call bounded helpers for pricing, validation, or previews.
-A helper's result is evidence to evaluate, not approval to continue automatically.
-See the [helper reference](/reference/prompts/skills-subagents/#subagents).
+Step agents invoke stateless leaf subagents (`challenger-review-subagent`, `cost-estimate-subagent`, `bicep-validate-subagent`, `bicep-whatif-subagent`, `terraform-validate-subagent`, `terraform-plan-subagent`, and `policy-precheck-subagent`) for structured reviews, retail pricing, lint checks, previews, and policy prechecks. Leaf subagents are never selected directly in chat. See [skills and subagents](/reference/prompts/skills-subagents/#subagents).
 
 ### Prompt files
 
-Local `.prompt.md` files adapt shared procedures to VS Code. Check configured
-discovery locations and the actual prompt file. Attaching text does not select
-its intended main agent automatically.
-
-Host entries are separate manual skills. Select the owner first and verify runtime
-support. Static discovery tests cannot establish model entitlement or successful
-execution in another client.
+Legacy Local slash-adapter `.prompt.md` files were retired when APEX standardized on the VS Code **Copilot** session target; only `.github/prompts/waf-assess-existing.prompt.md` (`/waf-assess-existing`) remains active. Always select `01-Orchestrator` in the agent picker before running `/waf-assess-existing`.
 
 #### Core workflow prompts
 
-Use [workflow prompts](/reference/prompts/workflow-prompts/) for current examples.
-For resume, the Local adapter is `/apex-resume-workflow`; the Host entry is
-`apex-host-workflow-start` with an explicit `resume` operation.
+Open [workflow prompts](/reference/prompts/workflow-prompts/) for starter prompts covering `01-Orchestrator` delivery, `resume <project>`, `/waf-assess-existing`, and direct step-agent invocations.
 
 #### Utility prompts
 
-Use the [repository prompt reference](/reference/prompts/repository-prompts/) for
-commit and debug-log operations. These are separate from workflow start/resume.
-Retired docs-gardening adapters and branch-specific Sensei tooling are not normal
-main-branch setup requirements.
+Routine repository operations use user-invocable skills rather than separate `.prompt.md` adapters: `/apex-workflow-start` for starting or resuming projects, `/apex-github-operations` for `gh` CLI-first commits, branches, and pull requests, and `/apex-debug-log-export` for [debug log export](/guides/apex-debug-log-export/).

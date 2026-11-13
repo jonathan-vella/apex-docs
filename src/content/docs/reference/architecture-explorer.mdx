@@ -62,12 +62,7 @@ The view uses category colors and text labels. The generated categories include:
 | `usesMcp`    | Agent uses an MCP server (referenced in body).              |
 | `references` | Skill references another skill (e.g. routing/delegation).   |
 
-The drawer shows source relationships, not proof that a tool or skill ran.
-The site's pin predates the current body migration, which deliberately omits
-active `handoffs:` metadata. A `handsOff` edge does not promise a visible button.
-Native task results, explicit selection, and the durable `00-handoff.md` artifact
-are distinct from those historical metadata edges. See the
-[current migration contract](/concepts/how-it-works/agents/#current-agent-body-migration).
+The drawer displays static source relationships from `apex-source.json` rather than a live session trace. Active agent definitions omit UI `handoffs:` buttons and fixed model pins; step progression uses native task dispatch, explicit agent selection, and `agent-output/{project}/00-handoff.md`. See [agent architecture](/concepts/how-it-works/agents/).
 
 ## Data source
 

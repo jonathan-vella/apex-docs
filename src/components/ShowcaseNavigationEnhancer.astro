@@ -1,0 +1,192 @@
+---
+// ShowcaseNavigationEnhancer appends a bottom Previous / Showcases hub / Next
+// pager inside `.sl-markdown-content` on `/showcases/<track>/...` pages.
+import { showcasesHub, showcaseTracks } from "../data/showcases.mjs";
+---
+
+<script define:vars={{ showcasesHub, showcaseTracks }}>
+  const normalizePath = (value) => {
+    if (!value) return "/";
+    return value.endsWith("/") && value.length > 1 ? value.slice(0, -1) : value;
+  };
+
+  const escapeHtml = (value) =>
+    String(value)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#39;");
+
+  const buildPagerCard = (directionLabel, targetPage, boundaryText) => {
+    if (!targetPage) {
+      return `
+        <div class="showcase-pager__card is-boundary">
+          <span class="showcase-pager__eyebrow">${escapeHtml(directionLabel)}</span>
+          <strong class="showcase-pager__title">${escapeHtml(boundaryText)}</strong>
+        </div>
+      `;
+    }
+
+    return `
+      <a class="showcase-pager__card" href="${escapeHtml(targetPage.href)}">
+        <span class="showcase-pager__eyebrow">${escapeHtml(directionLabel)}</span>
+        <strong class="showcase-pager__title">${escapeHtml(targetPage.shortTitle || targetPage.label)}</strong>
+      </a>
+    `;
+  };
+
+  const initShowcasePager = () => {
+    const currentPath = normalizePath(window.location.pathname);
+    let activeTrack = null;
+    let pageIndex = -1;
+
+    for (const track of showcaseTracks) {
+      const idx = track.pages.findIndex(
+        (page) => normalizePath(page.href) === currentPath,
+      );
+      if (idx !== -1) {
+        activeTrack = track;
+        pageIndex = idx;
+        break;
+      }
+    }
+
+    if (!activeTrack || pageIndex === -1) {
+      document.documentElement.removeAttribute("data-showcase-track");
+      return;
+    }
+
+    document.documentElement.dataset.showcaseTrack = activeTrack.id;
+
+    const content = document.querySelector(".main-pane .sl-markdown-content");
+    if (!content || content.dataset.showcaseEnhanced === "true") {
+      return;
+    }
+    content.dataset.showcaseEnhanced = "true";
+
+    const previousPage = pageIndex > 0 ? activeTrack.pages[pageIndex - 1] : null;
+    const nextPage =
+      pageIndex < activeTrack.pages.length - 1
+        ? activeTrack.pages[pageIndex + 1]
+        : null;
+
+    const pagerMarkup = `
+      <nav class="showcase-pager not-content" aria-label="Showcase track navigation">
+        ${buildPagerCard("Previous", previousPage, "Start of track")}
+        <a class="showcase-pager__card is-hub" href="${escapeHtml(showcasesHub.href)}">
+          <span class="showcase-pager__eyebrow">Showcases hub</span>
+          <strong class="showcase-pager__title">${escapeHtml(showcasesHub.title)}</strong>
+        </a>
+        ${buildPagerCard("Next", nextPage, "End of track")}
+      </nav>
+    `;
+
+    content.insertAdjacentHTML("beforeend", pagerMarkup);
+  };
+
+  if (!window.__showcaseEnhancerBound) {
+    document.addEventListener("astro:page-load", initShowcasePager);
+    window.__showcaseEnhancerBound = true;
+  }
+
+  initShowcasePager();
+</script>
+
+<style is:global>
+  .showcase-pager {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.85rem;
+    margin-top: 2rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid #30363d;
+  }
+
+  .showcase-pager__card {
+    display: grid;
+    gap: 0.3rem;
+    padding: 0.9rem 1rem;
+    border-radius: 0.75rem;
+    border: 1px solid #30363d;
+    background: #161b22;
+    color: #f0f6fc;
+    text-decoration: none;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+  }
+
+  a.showcase-pager__card:hover,
+  a.showcase-pager__card:focus-visible {
+    border-color: #6cb8f7;
+    background: #1c2128;
+  }
+
+  .showcase-pager__card.is-boundary {
+    background: #0d1117;
+    border-style: dashed;
+  }
+
+  .showcase-pager__eyebrow {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #b1bac4;
+  }
+
+  a.showcase-pager__card .showcase-pager__title {
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: #6cb8f7;
+  }
+
+  .showcase-pager__card.is-boundary .showcase-pager__title {
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: #b1bac4;
+  }
+
+  :root[data-theme="light"] .showcase-pager {
+    border-top-color: #cbd5e1;
+  }
+
+  :root[data-theme="light"] .showcase-pager__card {
+    border-color: #cbd5e1;
+    background: #f8fafc;
+    color: #0f172a;
+  }
+
+  :root[data-theme="light"] a.showcase-pager__card:hover,
+  :root[data-theme="light"] a.showcase-pager__card:focus-visible {
+    border-color: #0064b0;
+    background: #f1f5f9;
+  }
+
+  :root[data-theme="light"] .showcase-pager__card.is-boundary {
+    background: #ffffff;
+  }
+
+  :root[data-theme="light"] .showcase-pager__eyebrow {
+    color: #475569;
+  }
+
+  :root[data-theme="light"] a.showcase-pager__card .showcase-pager__title {
+    color: #004578;
+  }
+
+  :root[data-theme="light"] .showcase-pager__card.is-boundary .showcase-pager__title {
+    color: #475569;
+  }
+
+  @media (max-width: 52rem) {
+    .showcase-pager {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .showcase-pager__card {
+      transition: none;
+    }
+  }
+</style>

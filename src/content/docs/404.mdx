@@ -1,6 +1,6 @@
 ---
 title: "Page not found"
-description: "The page you're looking for doesn't exist"
+description: "The requested documentation page could not be found."
 template: splash
 ---
 
@@ -9,37 +9,42 @@ import { LinkCard, CardGrid } from "@astrojs/starlight/components";
 <div style="text-align: center; padding: 3rem 1rem;">
   <p style="font-size: 4rem; margin: 0; opacity: 0.3;">404</p>
   <p style="font-size: 1.25rem; color: var(--sl-color-gray-2); margin: 1rem 0 2rem;">
-    This page doesn't exist. It may have been moved or removed.
+    This page does not exist. It may have moved or been retired.
   </p>
   <p style="font-size: 0.9rem; color: var(--sl-color-gray-3);">
-    Press <kbd>/</kbd> to search the docs, or jump into one of the entry points below.
+    Press <kbd>/</kbd> to search the documentation, or open one of the entry points below.
   </p>
 </div>
 
 <CardGrid>
   <LinkCard
     title="Home"
-    description="Back to the landing page"
+    description="Return to the landing page."
     href="/"
   />
   <LinkCard
     title="Quickstart"
-    description="Get started with APEX"
+    description="Create a project from the Accelerator template and open the dev container."
     href="/getting-started/quickstart/"
   />
   <LinkCard
+    title="WAF assessment guide"
+    description="Assess an existing Azure or IaC workload with a single starter prompt."
+    href="/guides/waf-assessment/"
+  />
+  <LinkCard
+    title="Showcases"
+    description="Inspect end-to-end WAF assessment and regulated delivery outputs."
+    href="/showcases/"
+  />
+  <LinkCard
     title="Workflow"
-    description="Walk through the agentic Steps 1–7"
+    description="Review the multi-step delivery and standalone assessment workflows."
     href="/concepts/workflow/"
   />
   <LinkCard
     title="FAQ"
-    description="Find answers to common questions"
+    description="Find answers to common setup and workflow questions."
     href="/reference/faq/"
-  />
-  <LinkCard
-    title="Historical case study"
-    description="Read the April 2026 Il-Pastizzeria ta' Mario records"
-    href="/demo/"
   />
 </CardGrid>

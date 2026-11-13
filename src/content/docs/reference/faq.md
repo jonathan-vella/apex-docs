@@ -1,148 +1,90 @@
 ---
 title: "FAQ"
-description: "Answers about APEX setup, workflow ownership, IaC tracks, customization, and recovery."
+description: "Answers about APEX setup, runtime-managed models, standalone WAF assessments, IaC tracks, and multi-project repositories."
 ---
 
 ## General
 
-### How do i start?
+### How do I start?
 
-Create a repository from
-[apex-accelerator](https://github.com/jonathan-vella/apex-accelerator)
-and follow the [quickstart](/getting-started/quickstart/).
-APEX owns the product. This apex-docs repository owns the published site.
+Create a workload repository from [apex-accelerator](https://github.com/jonathan-vella/apex-accelerator) and follow the [quickstart](/getting-started/quickstart/), or copy a starter prompt from the [WAF assessment guide](/guides/waf-assessment/) to review an existing workload. `apex` owns the product agents, skills, and validators; `apex-docs` owns this documentation site.
+
+### Can APEX assess an existing Azure workload without deploying anything?
+
+Yes. Select `01-Orchestrator` in VS Code Copilot Chat and run `/waf-assess-existing` (`workflow_mode=assessment`). You can inspect live Azure subscriptions read-only (`Source: azure`), local Bicep/Terraform and diagrams with no Azure sign-in (`Source: iac`), or both (`Source: combined`). One run produces a five-pillar WAF report, an existing-state diagram, a Cost Management report with visual charts, and a prioritized Excel and Markdown action register, then terminates without entering Governance or deployment. See the [WAF assessment guide](/guides/waf-assessment/) and [WAF assessment showcase](/showcases/waf-assessment/).
 
 ### Is generated code ready for production?
 
-Not by generation alone. Review requirements, architecture, policy, the implementation
-plan, generated code, and the actual deployment preview. Complete the required checks
-for your environment. Record application health separately from resource provisioning.
-The [historical case study](/demo/) shows why that distinction matters.
+Not from code generation alone. Review requirements, WAF and cost assessments, target-verified Azure Policy constraints, the Step 4 implementation plan, `validate:iac-security-baseline` results, and the live `what-if` or `terraform plan` preview before approving deployment. Verify resource provisioning and application health separately. Inspect the [regulated delivery showcase](/showcases/regulated-delivery/) for a complete artifact trail.
 
-### Which Copilot plan and model do i need?
+### Which Copilot plan and model do I need?
 
-Use a Copilot plan and organization configuration that provide the required custom
-agent and model access. Model declarations are in `.github/agents/*.agent.md`.
-They do not grant access to a model. Check your actual entitlement and
-[GitHub's plan comparison](https://github.com/features/copilot/plans).
-This site does not require Business or Enterprise by assertion.
+Use a GitHub Copilot individual or organization plan that enables VS Code Copilot Chat and custom agents; see [GitHub Copilot plans](https://github.com/features/copilot/plans). Active `.github/agents/*.agent.md` definitions intentionally omit fixed `model:` and `reasoning-effort:` pins so you and the VS Code Copilot runtime control model selection (including Auto and HydraFusion).
 
-### Do i need Azure access?
+### Do I need Azure access to start?
 
-You can explore prompts and draft requirements without a subscription. Public retail
-pricing does not require scoped cost-management access. Effective policy discovery,
-target-specific validation, deployment, and live diagnostics require appropriate
-Azure access. Offline drafts are not fully verified deployment inputs.
+It depends on your workflow mode:
+
+- **No Azure sign-in needed:** Offline IaC WAF assessments (`Source: iac`), public retail pricing lookups (`pricing_get`), and Step 1 + Step 2 Architecture using shared ALZ Corp policy assumptions (`corp-policy-v1`).
+- **Read-only `az login` needed:** Live Azure WAF assessments (`Source: azure` or `combined`, requiring `Reader` and `Cost Management Reader`) and interactive `04g-Governance` policy discovery (which is mandatory before completing Step 4 planning, CodeGen, and deployment).
+- **Write access needed:** Step 6 deployments (`Contributor` or `Owner`) and CI/CD OIDC setup (`npm run setup`). See [Azure setup](/getting-started/azure-setup/).
 
 ## IaC tracks
 
-### Should i choose Bicep or Terraform?
+### Should I choose Bicep or Terraform?
 
-Bicep is Azure's resource-definition language and uses ARM-managed deployment state.
-Terraform uses providers and a state backend. Choose according to your team's
-operating model and governance requirements.
+Choose Bicep for Azure-native declarative deployments with no external state file, or Terraform when your organization standardizes on HCL and remote state backends. Step 1 records `decisions.iac_tool` (`bicep` or `terraform`). Steps 1 through 4 (including `05-IaC Planner`) are shared, while Steps 5 and 6 use `06b-Bicep CodeGen` / `07b-Bicep Deploy` or `06t-Terraform CodeGen` / `07t-Terraform Deploy`.
 
-Requirements records `iac_tool` as `Bicep` or `Terraform`. Both tracks use
-`05-IaC Planner`. CodeGen and Deploy have track-specific main agents, which the
-owner selects. See the [workflow](/concepts/workflow/).
+### Can I change tracks later?
 
-### Can i change tracks later?
-
-Treat it as a requirements change. Record the decision through the owning agent,
-review affected architecture and module choices, then regenerate the plan, contracts,
-code, and handoff as needed. Do not change one field and assume every prior approval
-remains valid. Existing Terraform state or deployed resources need an explicit
-migration plan.
+Treat switching tracks as an upstream decision change: reopen planning (`apex-recall start-step <project> 4 --force`), regenerate `04-*` contracts, CodeGen modules, and `05-iac-handoff.json`, and obtain fresh Plan approval. Existing Terraform state or deployed Azure resources require a separate migration plan.
 
 ## Usage
 
 ### Does APEX work offline?
 
-Copilot requires network access. Tool calls also depend on their service endpoints.
-You can read local files offline, but missing pricing, policy, or validation evidence
-must remain missing. Do not substitute remembered prices or call unavailable checks
-successful.
+VS Code Copilot Chat requires network connectivity to GitHub Copilot, and `azure-mcp` / Azure CLI calls require access to their respective public or Azure endpoints. When a pricing or policy endpoint is unreachable, APEX fails closed and records the blocker rather than guessing prices or assuming empty policy sets.
 
-### What is the difference between an agent and a skill?
+### What is the difference between an agent, a skill, and a subagent?
 
-A main agent owns a workflow step and its handoffs. A skill contains reusable
-instructions and references. Invocation flags control how a skill may be selected.
-Neither a skill nor source metadata grants additional tools or permissions.
+A main agent (`.github/agents/*.agent.md`) owns an interactive conversation, domain artifacts, and phase checkpoints. A skill (`.github/skills/apex-*/SKILL.md`) loads reusable procedures, scripts, and templates into the calling agent's context without changing permissions. A leaf subagent (`.github/agents/_subagents/*.agent.md`) runs one stateless validation, preview, pricing, or Challenger review task on behalf of its parent agent. See [agent architecture](/concepts/how-it-works/agents/) and [skills and instructions](/concepts/how-it-works/skills-and-instructions/).
 
-See [agents](/concepts/how-it-works/agents/) and
-[skills and instructions](/concepts/how-it-works/skills-and-instructions/).
+### How do I resume an interrupted project?
 
-### How do i resume?
+Open a new VS Code Copilot Chat in the **Copilot** session target, select `01-Orchestrator`, and send `resume <project>` (or run `/apex-workflow-start resume <project>`). `01-Orchestrator` runs `apex-recall show <project> --json` and `apex-recall handoff <project> --json` to continue from the active step or assessment phase without repeating answered questions. See [session state debugging](/guides/session-debugging/).
 
-Select `01-Orchestrator`, name the project, and ask it to inspect current state
-and artifacts. It recommends the next handoff; you select the main agent.
-Use [session state debugging](/guides/session-debugging/) for corruption,
-conflicts, stale indexes, or authorized recovery.
+### Is there a hands-on workshop?
 
-### Is there a hands-on exercise?
-
-The [MicroHack](https://microhack.apexops.pro/) is a separate learning resource.
-Check its environment requirements and revision before following deployment steps.
-The April 2026 case study on this site is a historical record, not a current
-copy-and-run tutorial.
+Yes. The [APEX MicroHack](https://microhack.apexops.pro/) provides a guided multi-challenge workshop covering governance policies, architecture, Bicep/Terraform delivery, and live diagnostics. You can also browse completed reference runs in the [showcases](/showcases/).
 
 ## Customization & multi-project
 
-### How do i customize an accelerator repository?
+### How do I customize an Accelerator repository?
 
-A repository created from the template belongs to you. Inspect its current sync
-workflow before editing files you want to retain.
+Inspect [`.github/workflows/weekly-upstream-sync.yml`](https://github.com/jonathan-vella/apex-accelerator/blob/9e7432ca90a9db86e9f85f28d3afd6db78d97c19/.github/workflows/weekly-upstream-sync.yml) before editing upstream-managed framework files:
 
-At the reviewed template revision, scheduled upstream sync proposes a pull request.
-Manual runs default to dry-run. The sync mirrors upstream content except for
-declared exclusions, shared-file exceptions, and seed rules. It does not merge
-local edits into upstream-owned files automatically.
-
-Both generated Bicep and Terraform project directories are excluded, but their
-shared `AGENTS.md` files are explicit sync exceptions. Workflow files remain
-separate and use `npm run sync:workflows`. Root `AGENTS.md`, agents, skills,
-and instructions are not generally protected customization locations.
-
-Read the actual
-[sync configuration](https://github.com/jonathan-vella/apex-accelerator/blob/a77442889129b26a2a89c0d5faa5f1d35a84965c/.github/workflows/weekly-upstream-sync.yml)
-and review each proposed diff. Do not rely on an old four-path exclusion list.
+- Workload outputs under `agent-output/{project}/`, `infra/bicep/{project}/`, `infra/terraform/{project}/`, and private `.github/data/governance-policy-baseline.json.gz` are preserved in `EXCLUDE_PATHS`.
+- Shared `infra/bicep/AGENTS.md`, `infra/terraform/AGENTS.md`, and `.github/data/alz-corp-policy-baseline.json.gz` are upstream-managed `SYNC_EXCEPTIONS`.
+- Consumer workflows in `.github/workflows/` are updated intentionally via `npm run sync:workflows` (preview by default; pass `-- --apply --ref <commit-sha>` to write). See [Updating APEX](/guides/updating-apex/).
 
 ### Can one repository contain multiple projects?
 
-Yes. Project artifacts live under `agent-output/{project}/`, and generated IaC
-lives under the matching track's project directory. These projects share agents,
-skills, and container configuration. Separate repositories provide separate
-permissions, lifecycle, and tooling configuration when your team needs them.
+Yes. Each workload uses its own isolated `agent-output/{project}/` and `infra/{bicep|terraform}/{project}/` directories (including per-project `azure.yaml` files rather than a repo-root `azure.yaml`). Use separate repositories when teams require distinct GitHub environment approvals or Azure OIDC identities.
 
 ## Troubleshooting
 
-### Why does orchestrator not delegate to the next main agent?
+### Why do I not see handoff buttons or automatic deployment?
 
-Check the selected agent's permissions and the actual native task result.
-The body-migration candidate permits `01-Orchestrator` to dispatch approved main
-workers; direct main-agent selection remains supported. The owner-approved
-shared-review candidate permits automatic producers and authorized Orchestrator
-calls to use `challenger-review-subagent`. It does not require manual
-`10-Challenger` selection. Missing capability or invalid evidence stops progress,
-without an automatic fallback. Do not add wildcard delegation permissions.
-See the [candidate contract and runtime limits](/concepts/how-it-works/agents/#current-agent-body-migration).
+Active APEX agents omit UI `handoffs:` buttons by design. `01-Orchestrator` dispatches step workers through native tasks in the **Copilot** session target, runs `challenger-review-subagent` automatically for required reviews, and pauses at human approval gates before advancing stages or deploying resources. See [agent architecture](/concepts/how-it-works/agents/).
 
 ### What if an agent produces incorrect output?
 
-Provide the exact error, affected artifact, and expected behavior to the owning
-step. A deployment agent must return code defects to CodeGen. Preserve required
-reviews after changes. Starting a new chat does not make stale approvals current.
+Report the exact error or constraint mismatch to the owning step agent (for example, return IaC compilation errors to CodeGen or module conflicts to `05-IaC Planner`) and re-run affected validators and Challenger reviews after repair.
 
-### What if MCP is unavailable?
+### What if an MCP server fails to start?
 
-Identify the failed server and required evidence. Work that does not depend on it
-may continue, but affected checks remain blocked or unperformed. Cost estimates
-must not substitute invented prices. Azure CLI authentication for governance is
-separate from pricing-tool availability.
+Verify workspace-root `.mcp.json` (`github` and `azure-mcp` at `@azure/mcp@3.0.0`), remove any deprecated `.vscode/mcp.json`, run `npm run lint:mcp-config`, and restart `azure-mcp` via **MCP: List Servers** in VS Code. Note that `azure-resource-manager-mcp` is retired; historical Cost Management queries use `az rest`.
 
-### Where do i report problems?
+### Where do I report problems?
 
-Use [APEX issues](https://github.com/jonathan-vella/apex/issues) for product defects
-and [apex-docs issues](https://github.com/jonathan-vella/apex-docs/issues) for site
-problems. Include the revision, failing command or agent, and redacted evidence.
-See [troubleshooting](/guides/troubleshooting/) for diagnosis.
+Open product defects in [APEX issues](https://github.com/jonathan-vella/apex/issues) and documentation issues in [apex-docs issues](https://github.com/jonathan-vella/apex-docs/issues), attaching the repository commit SHA and redacted error output. See [troubleshooting](/guides/troubleshooting/).

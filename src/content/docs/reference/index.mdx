@@ -1,39 +1,58 @@
 ---
 title: "Reference"
-description: "FAQ, glossary, validation catalog, downloads, and the interactive Architecture Explorer."
+description: "Security baseline, cost governance, validator catalog, prompt reference, Architecture Explorer, FAQ, glossary, and downloads."
 sidebar:
   order: 0
 ---
 
 import { CardGrid, LinkCard } from "@astrojs/starlight/components";
 
-Lookup material: definitions, validation lists, downloads, and the interactive
-Architecture Explorer.
+Reference contracts, validator inventories, prompt templates, definitions, and interactive architecture metadata.
 
 <CardGrid>
   <LinkCard
+    title="Architecture Explorer"
+    description="Inspect pinned agents, subagents, skills, instructions, validators, and MCP servers in an interactive timeline and grid."
+    href="/reference/architecture-explorer/"
+  />
+  <LinkCard
+    title="Security baseline"
+    description="Mandatory TLS, identity, private PaaS networking, private DNS, and conditional Azure Monitor rules."
+    href="/reference/security-baseline/"
+  />
+  <LinkCard
+    title="Cost governance"
+    description="Evidence-backed retail pricing, rate-only quotes, Cost Management separation, and parameterized budget alerts."
+    href="/reference/cost-governance/"
+  />
+  <LinkCard
+    title="Validation reference"
+    description="Lefthook hooks, repository and runtime IaC validators, focused test suites, and CI workflows."
+    href="/reference/validation-reference/"
+  />
+  <LinkCard
+    title="Workflow prompts"
+    description="Copy-paste starter prompts for 01-Orchestrator, /waf-assess-existing, resume, and step owners."
+    href="/reference/prompts/workflow-prompts/"
+  />
+  <LinkCard
+    title="Showcases"
+    description="Inspect end-to-end artifacts from a standalone WAF assessment and a regulated Bicep delivery run."
+    href="/showcases/"
+  />
+  <LinkCard
     title="FAQ"
-    description="Common questions about APEX, agents, and deployments."
+    description="Answers about setup, model selection, Azure permissions, IaC tracks, and multi-project repositories."
     href="/reference/faq/"
   />
   <LinkCard
     title="Glossary"
-    description="Definitions for AVM, RBAC, CAF, WAF, MCP, and other APEX terms."
+    description="Definitions for APEX contracts, WAF assessments, AVM, CAF, MCP, and Azure platform terms."
     href="/reference/glossary/"
   />
   <LinkCard
-    title="Validation & Linting"
-    description="Choose product checks or documentation-site checks for the task."
-    href="/reference/validation-reference/"
-  />
-  <LinkCard
-    title="Architecture Explorer"
-    description="Inspect the pinned product metadata in a workflow timeline or searchable grid."
-    href="/reference/architecture-explorer/"
-  />
-  <LinkCard
-    title="Resources & Downloads"
-    description="Templates, posters, and external links."
+    title="Resources and downloads"
+    description="Presentation decks, archived workshop bundles, and community links."
     href="/reference/resources/"
   />
 </CardGrid>

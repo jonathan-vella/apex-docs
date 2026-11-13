@@ -75,40 +75,45 @@ and creates the private subscription/path index without user-authored JSON.
 Its flags do not replace genuine owner authorization or the active agent's tool permissions.
 `XDG_STATE_HOME`, if configured, must be absolute and outside the repository.
 
-Governance resolves the private paths with `policy-source --show-private-scope`.
-It checks the current tenant with `policy-source --verify-tenant` before running deterministic discovery.
-A mismatch blocks the read. The agent must not switch credentials or select the active CLI subscription.
-Raw scope, snapshots, previews and diagnostics stay in the private store with owner-only permissions.
-Public artifacts contain anonymized summaries, not copied raw previews.
+Governance resolves the private paths with `policy-source --show-private-scope`
+and verifies the active CLI tenant with `policy-source --verify-tenant` before
+running deterministic discovery (`discover.py --retain-rule-evidence`, or
+`render_cached_governance.py --retain-rule-evidence` when a bound snapshot already
+retains verified full-rule evidence). `--retain-rule-evidence` preserves complete
+policy definitions, assignment lineage, parameters, and `Audit` or `Disabled` rules
+inside owner-only private snapshots (`subscription-1.json` and `04-policy-feasibility.json`)
+with `umask 077`. A tenant mismatch blocks the read; the agent never switches
+credentials or selects the active CLI subscription automatically. Public repository
+artifacts contain anonymized summaries rather than raw tenant previews.
 
-Recall binds the exact private snapshots through the existing `checkpoint --policy-feasibility` option.
-Python and Node contract resolvers select canonical Governance JSON in that store.
-Scope changes, missing files, partial coverage, expiry and changed evidence block reuse.
-All approved subscriptions need separate coverage. One subscription's snapshot cannot represent the others.
-Reviewers need actual authorized access to the required evidence or must report that limitation.
-The review primary remains the public anonymized summary. Tenant-backed reviews also freeze the private index
-and every subscription snapshot as opaque supporting references, with exact hashes. Governance includes its
-canonical private JSON. A reference has the form
-`apex-private-policy://<project>/<scope_ref>/subscription-1.json`.
-Request preflight derives the required set and supplies temporary read paths for authorized reviewer dispatch.
-Those paths and identifying native logs remain private. Public findings use opaque policy references.
-Omitting evidence or changing private bytes invalidates the review; an editorial mapping cannot waive that check.
+Recall binds the exact private snapshots through `checkpoint --policy-feasibility`.
+Python and Node contract resolvers select canonical `04-governance-constraints.json`
+in that private store. Scope changes, missing files, partial coverage, TTL expiry,
+and byte drift block reuse. Multi-subscription runs require separate snapshots for
+every authorized subscription.
 
-Before CodeGen or deployment starts, the owner records the target phase scope from actual stage/start authorization.
-It must consume the current policy-source and read inputs, and stay within their authorized environments.
-DEV-only policy evidence cannot authorize PROD entry. The owner reuses captured approval or asks only for missing
-operation authorization. An earlier phase's scope is not approval of the next phase.
+For independent reviews, the public anonymized summary remains the primary artifact,
+while the bound private index and subscription snapshots are frozen as opaque
+`supporting_inputs` (`apex-private-policy://<project>/<scope_ref>/subscription-1.json`)
+with exact SHA-256 hashes. `record-review.mjs --preflight` supplies transient read
+paths to `challenger-review-subagent` without persisting identifying values in
+repository findings.
+
+Before Step 5 CodeGen or Step 6 deployment starts, the owner records the target phase
+scope from granted authorization, binding `policy_source` and `azure_read_scope` for
+each target environment. Development-only policy evidence never authorizes production
+entry.
 
 ## Review
 
-One `governance-reconciliation` review is mandatory when constraints exist. Use
-the `10-Challenger` handoff. An empty policy array can skip this review, but failed
-or incomplete discovery does not establish that the scope has no constraints.
+One `governance-reconciliation` review via `challenger-review-subagent` is mandatory
+whenever policies apply. An empty verified policy array can skip this review, whereas
+failed or incomplete discovery blocks completion.
 
 :::note[Approval gate]
-The user must approve governance constraints before proceeding to Step 4 planning.
+Human approval of `04-governance-constraints.md` is required before advancing to Step 4 planning.
 :::
 
 ## Hand-off
 
-After approving the constraints, select [Step 4: IaC plan](/concepts/workflow/step-4/).
+After approving the governance constraints, transition to [Step 4: IaC plan](/concepts/workflow/step-4/).

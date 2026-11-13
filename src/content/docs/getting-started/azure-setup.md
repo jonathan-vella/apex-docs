@@ -1,18 +1,26 @@
 ---
 title: "Azure setup"
-description: "Review the Azure identity, permissions, and GitHub settings changed by the APEX setup wizard."
+description: "Match Azure permissions to your APEX workflow mode, or run the setup wizard to configure OIDC federation and GitHub environments."
 ---
 
-The product's `npm run setup` configures an automation identity and GitHub
-repository settings. It is not required to read documentation or draft requirements.
-It is also not a read-only environment check.
+Not every APEX workflow requires `npm run setup` or subscription write permissions.
+Choose the lightest Azure access that matches your task before running automation:
 
-:::caution[Review access and repository changes first]
-The wizard can create an Entra application, service principal, federated
-credentials, role assignments, GitHub secrets, variables, and environments.
-It also attempts to enable Pages and repository auto-merge. Review
-`tools/scripts/setup-azure.sh` in your checkout and obtain authorization for those
-changes before running it. Do not run it from apex-docs to configure this site.
+| Workflow mode | Azure sign-in needed? | Required Azure roles | How to authenticate |
+| --- | --- | --- | --- |
+| Standalone WAF assessment of local IaC (`Source: iac`) | No | None | None |
+| Delivery Step 1 and Step 2 using shared ALZ Corp policy assumptions (`corp-policy-v1`) | Not for Step 1 or Step 2; required before Step 4 completion, CodeGen, and deployment | None for assumed Step 2; target `Reader` before Step 4 completion | `apex-recall policy-source <project> --assumed-corp ...` |
+| Live Azure WAF assessment (`Source: azure` or `combined`) | Yes | `Reader` and `Cost Management Reader` on target subscriptions (plus Management Group `Reader` for inherited policies) | `az login --tenant <TENANT_ID>` |
+| Interactive target-verified policy discovery (`04g-Governance`) | Yes | `Reader` at Subscription and inherited Management Group scopes | `az login --tenant <TENANT_ID>` |
+| Interactive Step 6 deployment (`07b-Bicep Deploy` / `07t-Terraform Deploy`) | Yes | `Contributor` or `Owner` on target subscriptions | `az login` (and `azd auth login` when using `azd`) |
+| GitHub Actions CI/CD deployment and scheduled governance baseline | Yes (via OIDC) | Service principal with `Reader` at Management Group scope and `Contributor` at Subscription scope | `npm run setup` (or manual steps below) |
+
+:::caution[Review access and repository changes before running `npm run setup`]
+The setup wizard creates a Microsoft Entra ID application, service principal, OIDC
+federated credentials, Azure RBAC assignments, and GitHub secrets, variables, and
+environments. It also attempts to enable GitHub Pages and repository auto-merge.
+Inspect `tools/scripts/setup-azure.sh` in your project checkout and confirm
+authorization before executing it. Never run `npm run setup` inside `apex-docs`.
 :::
 
 ## Quick start
