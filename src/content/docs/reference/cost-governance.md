@@ -73,7 +73,8 @@ pricing documentation.
 ### Reproducible retail pricing
 
 The pricing worker resolves which product and billing rules apply. Deterministic helpers capture the evidence,
-validate native meters and calculate the amounts. New monthly outputs use `cost-estimate-v2`.
+validate native meters and calculate the amounts. New monthly outputs use `cost-estimate-v2`, or `cost-estimate-v2.2`
+when BCDR service recipes, Reservations, or named scenario comparisons apply.
 Each component must match its source product, SKU, billing region, currency, unit, tier and timestamp.
 A matching meter ID and an internally consistent total are not enough.
 The parent retains the original request independently of the result. Preflight freezes its raw hash and normalized
