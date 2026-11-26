@@ -29,9 +29,9 @@ Output: agent-output/{project}/04-governance-constraints.md
 
 ## What gets discovered
 
-- Policy assignments at subscription + management-group scope.
+- Policy assignments at subscription + management-group scope, recording ancestor management-group HTTP `403` access gaps in `unresolved_scopes` with `ancestor_scope_forbidden`.
 - Policy definitions and exemptions referenced by assignments.
-- Effect classification (`Deny`, `Audit`, `Modify`, `DeployIfNotExists`).
+- Effect classification (`Deny`, `Audit`, `Modify`, `DeployIfNotExists`), separating pure `requestContext().identity` `Deny` caller sign-in rules (`caller-identity`) from IaC resource blockers.
 - Property mapping through `bicepPropertyPath` and `azurePropertyPath` for downstream validation.
 - SKU allowlist projection via `derive-sku-allowlist.mjs`, written into
   `sku-manifest.sku_allowlist_snapshot`.

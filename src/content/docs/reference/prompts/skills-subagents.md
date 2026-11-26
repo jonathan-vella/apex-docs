@@ -112,10 +112,18 @@ Use apex-azure-quotas to check whether Standard_D4s_v5 is available in swedencen
 
 ### apex-azure-governance-discovery
 
-Discovers effective Azure Policy assignments (including management-group inheritance), definitions, and exemptions via `discover.py --retain-rule-evidence`, classifies policy effects, and supports both shared ALZ Corp baseline rendering (`governance_baseline.py --alz-default`) and private tenant snapshots (`corp-policy-v1`).
+Discovers effective Azure Policy assignments, including management-group inheritance, definitions, and exemptions via `discover.py --retain-rule-evidence`. Classifies policy effects, distinguishes pure `requestContext().identity` `Deny` sign-in requirements (`caller-identity`) from IaC resource blockers, records ancestor management-group HTTP `403` gaps as `unresolved_scopes`, and supports both shared ALZ Corp baseline rendering (`governance_baseline.py --alz-default`) and private tenant snapshots (`corp-policy-v1`).
 
 ```text
 @workspace How does apex-azure-governance-discovery classify DeployIfNotExists and Modify policies?
+```
+
+### apex-rfi-rfp
+
+Builds source-verified Azure RFI, RFP, and Best and Final Offer pursuit packages across four modes: `questionnaire_matrix`, `rom_architecture_pack`, `bafo_customer_schedule`, and `draft_audit_remediation`. It locks customer inputs with `SHA-256` manifests, routes primary retail pricing through `cost-estimate-subagent` using `cost-estimate-v2`, `cost-estimate-v2.2`, or `retail-rate-quote-v1`, checks retiring SKUs and Excel formula `<v>` caches, and requires two-part Purview clearance before external archive packaging. Pursuit outputs coexist under `agent-output/{project}/` without claiming numbered delivery-step completion or generating IaC.
+
+```text
+/apex-rfi-rfp Build a 1P partner-advisory ROM BoQ and compliance matrix from agent-output/contoso-rfp/rfi-docs/ targeting swedencentral.
 ```
 
 ### apex-azure-cost-optimization
@@ -206,7 +214,7 @@ guardrail wording; native slash discovery and editing behavior still require run
 ### apex-azure-artifacts
 
 Artifact template structures, H2 compliance rules, and documentation
-styling for all agent outputs (all steps).
+styling for all agent outputs across delivery steps, standalone assessments, and ad hoc pursuit packages in `pursuit-advisory-packages.md`.
 
 ```text
 @workspace What H2 headings are required in the implementation plan template?
@@ -296,7 +304,7 @@ Runs live L3 Azure Policy prechecks against `04-governance-constraints.json` and
 
 ### cost-estimate-subagent
 
-Queries Azure MCP `pricing_get` (with constrained direct Retail Prices API fallback) to produce reproducible `cost-estimate-v2` monthly workload estimates, Mode C candidate SKU comparisons, Mode B `sku-manifest.json` price writebacks, or `retail-rate-quote-v1` unit-rate quotes when monthly usage is unknown.
+Queries Azure MCP `pricing_get`, with constrained direct Retail Prices API fallback, to produce reproducible `cost-estimate-v2` and `cost-estimate-v2.2` monthly workload estimates covering BCDR, Reservations, and multi-scenario deltas, Mode C candidate SKU comparisons, Mode B `sku-manifest.json` price writebacks, or `retail-rate-quote-v1` unit-rate quotes when monthly usage is unknown.
 
 ### challenger-review-subagent
 
