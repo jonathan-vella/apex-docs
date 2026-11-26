@@ -46,8 +46,8 @@ IaC and diagrams:
 - Paths: {{IAC_AND_DIAGRAM_PATHS}}
 ```
 
-:::tip[Let `02-Requirements` help define business targets]
-You do not need to write SLA, RTO, RPO, compliance, or budget targets in your starter prompt. When you set `Scenario: requirements_led`, `01-Orchestrator` delegates to `02-Requirements`, which opens a guided form with preset options and an `Unknown` choice on every field. If you already have architecture notes or an RFP brief, you can paste them below the prompt and `02-Requirements` will pre-fill matching answers and ask only what is still missing.
+:::tip[Let `02-Requirements` capture targets and operating practices]
+You do not need to write SLA, RTO, RPO, compliance, budget, or team process details in your starter prompt. When you set `Scenario: requirements_led`, `01-Orchestrator` delegates to `02-Requirements`, which opens two short guided forms for business targets and operating practices with an `Unknown` choice on every field. If you paste architecture notes below the prompt or include IaC and CI workflow paths in scope, `02-Requirements` pre-fills matching suggestions and asks only what is still missing.
 :::
 
 ### Prompt variables
@@ -55,7 +55,7 @@ You do not need to write SLA, RTO, RPO, compliance, or budget targets in your st
 | Variable | Valid values and guidance | Example |
 | --- | --- | --- |
 | `{{PROJECT_NAME}}` | Lowercase kebab-case folder name created under `agent-output/`. | `claims-platform-waf` |
-| `{{SCENARIO}}` | `requirements_led` opens `02-Requirements` to help you pick business goals and targets interactively. `evidence_only` skips the business interview and assesses only observed code or Azure state. | `requirements_led` |
+| `{{SCENARIO}}` | `requirements_led` opens `02-Requirements` to capture business targets and operating practices interactively. `evidence_only` skips the interview and assesses only observed code or Azure state. | `requirements_led` |
 | `{{SOURCE}}` | `azure` for live Azure subscriptions, `iac` for repository files only, or `combined` for both. Delete `Azure read scope` when using `iac`. Delete `IaC and diagrams` when using `azure`. | `azure` |
 | `{{TENANT_ID}}` | Microsoft Entra ID tenant GUID for live Azure reads. Run `az account show --query tenantId -o tsv` to find it. | `00000000-0000-0000-0000-000000000000` |
 | `{{SUBSCRIPTION_IDS}}` | One or more subscription GUIDs. You can add a short label after each GUID when assessing multiple subscriptions. | `11111111-1111-1111-1111-111111111111, 22222222-2222-2222-2222-222222222222` |
@@ -68,7 +68,7 @@ Pick the tab that matches your setup if you prefer a pre-trimmed prompt:
 
 <Tabs>
   <TabItem label="Live Azure with guided targets">
-    Use this template when you have read-only Azure access and want `02-Requirements` to walk you through business goals, availability, recovery, compliance, and budget targets interactively:
+    Use this template when you have read-only Azure access and want `02-Requirements` to walk you through business goals, availability, recovery, compliance, budget targets, and operating practices:
 
     ```text title="Copilot Chat (select agent: 01-Orchestrator)"
     /waf-assess-existing
@@ -127,11 +127,11 @@ Pick the tab that matches your setup if you prefer a pre-trimmed prompt:
 <Steps>
 1. **Confirm scope.** If your prompt leaves any scope detail open, `01-Orchestrator` displays one confirmation form before reading files or querying Azure. When your prompt already specifies the scenario, source, and exact boundaries, `01-Orchestrator` records your scope receipt and writes `01-assessment-brief.md`.
 
-2. **Define business targets with `02-Requirements` for `requirements_led` runs.** When `Scenario` is `requirements_led`, `02-Requirements` opens a guided seven-question form covering business purpose, critical workload flows, availability target, recovery objectives, performance targets, compliance and residency, and optional cost planning target. Every question offers preset options plus an `Unknown` choice so undefined targets never block you, and skips greenfield SKU and pipeline setup menus. In `evidence_only` mode, this step does not run.
+2. **Define business targets and operating practices with `02-Requirements` for `requirements_led` runs.** When `Scenario` is `requirements_led`, `02-Requirements` presents two guided forms. The seven-question `business` form covers business purpose, critical workload flows, availability target, recovery objectives, performance targets, compliance and residency, and cost planning target. The six-question `practices` form covers recovery drills, application and supply-chain security, deployment pipelines and release gates, incident runbooks, FinOps review cadence, and load testing. When your scope includes Bicep, Terraform, or CI workflow files, APEX pre-populates observed pipeline and security-scan defaults for you to confirm or edit. Every question includes an `Unknown` choice so undefined targets never block progress. Human-attested practice answers inform findings and action-register items without inflating observed `0` to `10` technical pillar scores. In `evidence_only` mode, this step does not run.
 
 3. **Wait while APEX collects evidence, builds reports, and runs independent reviews.** Within your approved scope, `01-Orchestrator` coordinates the full pipeline without stopping for intermediate gates:
-   - Collects read-only inventory, resource configurations, 7-day metric summaries, policy assignments, and Cost Management history. Redacts secrets and tag values before saving evidence.
-   - Scores all five WAF pillars in `03-Architect`, writes the WAF and Cost Management reports, renders SVG and PNG WAF and cost charts, and exports the Markdown and Excel action register.
+   - Collects read-only inventory, network security group rule summaries, service configuration flags, Azure Advisor recommendations, Microsoft Defender for Cloud assessment summaries, backup protected-item status, 7-day metric summaries, policy assignment headers, static IaC and CI signals, and Cost Management history. Redacts secrets and tag values before saving evidence.
+   - Writes `_meta/waf-checks.json` in `03-Architect`, computes pillar scores and coverage with `assessment-waf-scores.mjs`, drafts the WAF and Cost Management reports, renders SVG and PNG WAF and cost charts, and exports the Markdown and Excel action register.
    - Renders editable SVG and 4K PNG existing-state architecture diagrams in `04-Design`.
    - Runs two independent `challenger-review-subagent` checks for WAF quality and cost feasibility, then repairs owned findings within the review budget.
 
@@ -151,6 +151,19 @@ Every deliverable is saved under `agent-output/<project>/`:
 | `04-assessment-action-register.md` and `assets/04-assessment-action-register.xlsx` | Automatic for `azure` and `combined`; opt-in for `iac` | Prioritized remediation register with effort, recommended windows, and three Excel worksheets: `Action Register`, `Financial Summary`, and `Basis & Evidence` |
 | `01-assessment-brief.md` and `01-requirements.md` | Brief always; requirements for `requirements_led` | Authorized read boundaries, reporting periods, and captured business targets |
 | `contracts/*.json` and `reviews/challenge-findings-*.json` | Always | Machine-verified evidence, normalized cost data, action-register source, and independent review receipts |
+
+## Export a Microsoft Well-Architected Review CSV
+
+If a partner program or customer engagement requires a Microsoft Learn Well-Architected Review or WARP CSV file, run the offline exporter from your workload repository root after the assessment completes:
+
+```bash title="Dev container terminal"
+node tools/scripts/export-waf-review-csv.mjs \
+  --project-dir agent-output/{{PROJECT_NAME}} \
+  --template path/to/Azure_Well_Architected_Review_Template_Export.csv \
+  --out agent-output/{{PROJECT_NAME}}/assets/04-microsoft-waf-review-export.csv
+```
+
+Omit `--template` when you do not have a downloaded portal template file; the script falls back to its built-in Microsoft WAF question catalog. The exporter repeats the exact `Answers` text in `Selected Answer` only when observed Azure or IaC evidence or captured `requirements_led` answers substantiate that option, records SHA-256 or human-attested provenance in `Note`, neutralizes spreadsheet formula prefixes, and leaves unassessed questions blank for manual review rather than selecting `None of the above.`.
 
 ## Resume an interrupted assessment
 
