@@ -160,7 +160,7 @@ Return the exact error to the step that owns the artifact (CodeGen for compilati
 
 ### Standalone WAF assessment
 
-Select `01-Orchestrator` and run `/waf-assess-existing` to assess an existing workload without running the delivery pipeline. When `Scenario` is `requirements_led`, `02-Requirements` guides you through business goals, availability, recovery, compliance, and budget targets interactively with an `Unknown` option on every field. Replace the `{{...}}` placeholders below, or see the [WAF assessment guide](/guides/waf-assessment/) for the variable table and ready-to-copy variants.
+Select `01-Orchestrator` and run `/waf-assess-existing` to assess an existing workload without running the delivery pipeline. When `Scenario` is `requirements_led`, `02-Requirements` guides you through business goals, NFR targets, and operating and security practices interactively with an `Unknown` option on every field. Replace the `{{...}}` placeholders below, or see the [WAF assessment guide](/guides/waf-assessment/) for the variable table and ready-to-copy variants.
 
 ```text
 /waf-assess-existing

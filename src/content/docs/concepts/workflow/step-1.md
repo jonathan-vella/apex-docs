@@ -34,10 +34,11 @@ Output: agent-output/{project}/01-requirements.md
 
 ## Guided discovery and question batching
 
-`02-Requirements` uses `tools/scripts/requirements-discovery.mjs` to group intake into `business`, `migration`, `workload`, and `access` stages (or `--stage business --assessment-mode requirements_led` during a standalone WAF assessment):
+`02-Requirements` uses `tools/scripts/requirements-discovery.mjs` to group delivery intake into `business`, `migration`, `workload`, and `access` stages, and runs `business` followed by `practices` during `Assessment` scenarios and `--assessment-mode requirements_led` standalone assessments:
 
 ```bash
 node tools/scripts/requirements-discovery.mjs --stage business --answers captured-answers.json
+node tools/scripts/requirements-discovery.mjs --stage practices --assessment-mode requirements_led --answers captured-answers.json --evidence agent-output/example/_meta/01-discovered-evidence.json
 ```
 
 Key discovery rules under `practical-v1`:

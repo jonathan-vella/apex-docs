@@ -17,6 +17,18 @@ It does not automatically describe the newest product commit.
 
 ## November 2026
 
+- Brownfield WAF assessments add `--stage practices` discovery in `requirements-discovery.mjs` for recovery drills,
+  application security, deployment gates, incident runbooks, FinOps cadence, and load testing, keeping human-attested
+  answers separate from observed `0` to `10` technical scores. `collect-assessment-evidence.py` expands read-only
+  telemetry to active Azure Advisor recommendations, Microsoft Defender for Cloud assessments, network security group
+  wildcard rules, Backup Vault and Recovery Services protected items, Storage, PostgreSQL, Redis, AKS, and Container
+  Apps scalars, and comment-stripped static IaC and CI workflow suggestions. Two new Node CLIs,
+  `assessment-waf-scores.mjs` and `export-waf-review-csv.mjs`, compute and verify `_meta/waf-scores.json` from
+  `_meta/waf-checks.json` and export completed bundles into Microsoft's Well-Architected Review and WARP CSV format
+  ([#853](https://github.com/jonathan-vella/apex/pull/853)).
+  See the [WAF assessment guide](/guides/waf-assessment/#export-a-microsoft-well-architected-review-csv) and
+  [deterministic WAF scoring](/concepts/workflow/#deterministic-waf-scoring-and-portal-csv-export).
+
 - Standalone WAF assessments (`assessment-bundle-v3`) add inline SVG WAF posture and Cost Management trend/driver
   charts, a single `{{...}}` variable-based `/waf-assess-existing` starter prompt, and guided `02-Requirements`
   business-target discovery with an `Unknown` option on every field

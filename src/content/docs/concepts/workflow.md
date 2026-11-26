@@ -36,7 +36,7 @@ For copy-paste starter prompts and variable presets, follow the [WAF assessment 
 Select `workflow_mode=assessment` (via `/waf-assess-existing` in `01-Orchestrator`) when you want an evidence-backed review of an existing workload without entering the delivery pipeline:
 
 - **`evidence_only`** starts directly from scoped code, diagrams, or read-only Azure inventory with no business interview and no synthetic `01-requirements.md`.
-- **`requirements_led`** runs a focused seven-question `02-Requirements` intake (with an `Unknown` choice on every field) to score the workload against explicit availability, recovery, performance, compliance, and budget targets.
+- **`requirements_led`** runs two short `02-Requirements` forms, `business` for workload objectives and NFR targets and `practices` for human-attested recovery, security, CI/CD, incident, FinOps, and load-testing practices, with an `Unknown` choice on every field. Human-attested practice answers enrich pillar narratives and action-register items while staying excluded from numerical `0` to `10` observed control scores.
 
 The evidence source is chosen independently: `iac` (local Bicep, Terraform, `azure.yaml`, and diagrams with no Azure sign-in), `azure` (authorized read-only subscriptions), or `combined` (both, surfacing deployment drift). Static IaC represents declared intent rather than verified runtime state; unverified properties remain `unknown` or `Not assessed`.
 
@@ -56,7 +56,7 @@ apex-recall handoff example --json
 
 In `show --json`, `.session.assessment_run` tracks the active assessment phase (`scope`, optional `requirements`, `evidence`, `analysis`, `diagram`, `review`, `acceptance`, `terminal`), `.session.assessment_readiness` reports current validation, and `.session.assessment_cost_plan` reflects captured Cost Management periods. Never call numeric delivery `complete-step` commands on a standalone assessment.
 
-Within the approved scope, `01-Orchestrator` runs evidence collection (`collect-assessment-evidence.py` with secret and tag-value redaction), `03-Architect` WAF and Cost Management analysis, visual chart rendering (`render-assessment-charts.py` when `visual_charts: true`, setting `assessment-bundle-v3`), `04-Design` existing-state diagram generation, and both mandatory `challenger-review-subagent` lenses (`comprehensive` WAF and `cost-feasibility`) before presenting one final acceptance prompt.
+Within the approved scope, `01-Orchestrator` coordinates the assessment stages without intermediate gates. `collect-assessment-evidence.py` gathers read-only inventory, network security group rule summaries, service configuration flags, active Azure Advisor recommendations, Microsoft Defender for Cloud assessment summaries, backup protected-item status, and static IaC and CI signals while redacting secrets and tag values. `03-Architect` writes `_meta/waf-checks.json`, computes `_meta/waf-scores.json` with `assessment-waf-scores.mjs`, drafts the WAF and Cost Management reports, and runs `render-assessment-charts.py` when `visual_charts: true` selects `assessment-bundle-v3`. `04-Design` renders the existing-state topology diagram, and `01-Orchestrator` runs both `comprehensive` WAF and `cost-feasibility` `challenger-review-subagent` checks before presenting one final acceptance prompt.
 
 ### Assessment bundle and Action Register
 
@@ -101,6 +101,28 @@ node tools/scripts/assessment-action-register.mjs validate-export \
 ```
 
 Always edit `contracts/assessment-action-register.json` and regenerate both views through the Node CLI rather than hand-editing spreadsheet cells.
+
+### Deterministic WAF scoring and portal CSV export
+
+`03-Architect` records observed workload-control checks in `_meta/waf-checks.json` against [`assessment-waf-checks.schema.json`](https://github.com/jonathan-vella/apex/blob/6ec114c53aa93ca02de4f67616ce4f540c66efac/tools/schemas/assessment-waf-checks.schema.json) and derives `_meta/waf-scores.json` through [`assessment-waf-scores.mjs`](https://github.com/jonathan-vella/apex/blob/6ec114c53aa93ca02de4f67616ce4f540c66efac/tools/scripts/assessment-waf-scores.mjs). `evidence_availability[]` and `attested_practices[]` stay out of the `0` to `10` score denominator, and `verify` checks that scores and `High`, `Medium`, and `Low` coverage labels match the recorded check counts:
+
+```bash
+node tools/scripts/assessment-waf-scores.mjs compute \
+  --checks agent-output/example/_meta/waf-checks.json \
+  --out agent-output/example/_meta/waf-scores.json
+node tools/scripts/assessment-waf-scores.mjs verify \
+  --checks agent-output/example/_meta/waf-checks.json \
+  --scores agent-output/example/_meta/waf-scores.json
+```
+
+When a customer or partner program also needs the Microsoft Learn Well-Architected Review or WARP CSV format, [`export-waf-review-csv.mjs`](https://github.com/jonathan-vella/apex/blob/6ec114c53aa93ca02de4f67616ce4f540c66efac/tools/scripts/export-waf-review-csv.mjs) maps verified technical evidence and captured discovery answers offline without fabricating `None of the above.` for unassessed questions:
+
+```bash
+node tools/scripts/export-waf-review-csv.mjs \
+  --project-dir agent-output/example \
+  --template path/to/Azure_Well_Architected_Review_Template_Export.csv \
+  --out agent-output/example/assets/04-microsoft-waf-review-export.csv
+```
 
 ### Original runs and explicit adoption
 
