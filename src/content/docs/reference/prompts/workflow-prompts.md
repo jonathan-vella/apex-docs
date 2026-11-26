@@ -155,6 +155,7 @@ Return the exact error to the step that owns the artifact (CodeGen for compilati
 
 - `/waf-assess-existing` (`.github/prompts/waf-assess-existing.prompt.md`) in `01-Orchestrator` for standalone WAF assessments.
 - `resume <project>` or `/apex-workflow-start` to start or recover a project.
+- `/apex-rfi-rfp` for standalone Azure RFI, RFP, ROM BoQ, and BAFO pursuit packages.
 - `/apex-github-operations` for `gh` CLI-first branches, Conventional Commits, and pull requests.
 - `/apex-debug-log-export` for redacted `.apex-logs/` session bundles (see [debug log export](/guides/apex-debug-log-export/)).
 

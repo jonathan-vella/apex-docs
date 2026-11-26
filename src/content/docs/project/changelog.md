@@ -17,6 +17,19 @@ It does not automatically describe the newest product commit.
 
 ## November 2026
 
+- The `apex-rfi-rfp` pursuit workflow skill adds `/apex-rfi-rfp` for read-only `SHA-256` source extraction,
+  `cost-estimate-subagent` rate and retirement checks, deterministic Excel AST `<v>` cache verification and
+  customer template preservation via `--compare-template`, two-part Purview release packaging, and safe coexistence
+  under `agent-output/{project}/` without claiming numbered delivery-step completion
+  ([#851](https://github.com/jonathan-vella/apex/pull/851)).
+
+- Governance discovery in `discover.py` and `collect-governance-baseline.ps1` separates pure
+  `requestContext().identity` `Deny` caller sign-in rules (`caller-identity`) from IaC resource blockers and
+  records ancestor management-group HTTP `403` failures in `unresolved_scopes`
+  ([#849](https://github.com/jonathan-vella/apex/pull/849)).
+  Cost estimation adds `cost-estimate-v2.2` recipes for BCDR services, Reservation commitments, and named
+  scenario comparisons ([#842](https://github.com/jonathan-vella/apex/pull/842)).
+
 - Standalone WAF assessments (`assessment-bundle-v3`) add inline SVG WAF posture and Cost Management trend/driver
   charts, a single `{{...}}` variable-based `/waf-assess-existing` starter prompt, and guided `02-Requirements`
   business-target discovery with an `Unknown` option on every field

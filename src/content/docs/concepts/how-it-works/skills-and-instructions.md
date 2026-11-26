@@ -29,7 +29,7 @@ Agents discover skills through YAML frontmatter (`name` and `description`), load
 
 `user-invocable` defaults to `true`, and `disable-model-invocation` defaults to `false`. Skills inherit the calling agent's model and tools without changing role permissions or bypassing human gates.
 
-In the VS Code **Copilot** session target, legacy Local slash-adapter `.prompt.md` files are retired except `/waf-assess-existing` (`.github/prompts/waf-assess-existing.prompt.md`). User-invocable entry skills include `/apex-workflow-start` (start or `resume <project>`), `/apex-github-operations` (`gh` CLI-first GitHub workflows), and `/apex-debug-log-export` (privacy-redacted debug bundle export).
+In the VS Code **Copilot** session target, legacy Local slash-adapter `.prompt.md` files are retired except `/waf-assess-existing` (`.github/prompts/waf-assess-existing.prompt.md`). User-invocable entry skills include `/apex-workflow-start` (start or `resume <project>`), `/apex-rfi-rfp` (Azure RFI, RFP, and BAFO pursuit packages), `/apex-github-operations` (`gh` CLI-first GitHub workflows), and `/apex-debug-log-export` (privacy-redacted debug bundle export).
 
 ### Skill catalog
 
@@ -39,6 +39,7 @@ The [Architecture Explorer](/reference/architecture-explorer/) displays every sk
 | --- | --- |
 | Azure Infrastructure and Governance | `apex-azure-defaults`, `apex-azure-governance-discovery`, `apex-azure-bicep-patterns`, `apex-terraform-patterns`, `apex-azure-validate` |
 | Azure Operations and Decisions | `apex-azure-diagnostics`, `apex-azure-adr`, `apex-azure-deploy`, `apex-iac-common` |
+| Pursuit and Bid Advisory | `apex-rfi-rfp` |
 | Diagrams and Charts | `apex-python-diagrams`, `apex-mermaid` |
 | Artifacts and Context | `apex-azure-artifacts`, `apex-context-management`, `apex-debug-log-export` |
 | Workflow and Principles | `apex-workflow-engine`, `apex-workflow-start`, `apex-golden-principles` |
